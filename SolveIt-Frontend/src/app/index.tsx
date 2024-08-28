@@ -2,94 +2,70 @@ import { Link } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PiFunnelSimpleBold } from "react-icons/pi";
 
 export default function Page() {
   return (
-    <View className="flex flex-1">
+    <View className="tela-add-problemas">
+
       <Header />
       <Content />
-      <Footer />
-    </View>
-  );
-}
-
-function Content() {
-  return (
-    <View className="flex-1">
-      <View className="py-12 md:py-24 lg:py-32 xl:py-48">
-        <View className="px-4 md:px-6">
-          <View className="flex flex-col items-center gap-4 text-center">
-            <Text
-              role="heading"
-              className="text-3xl text-center native:text-5xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl"
-            >
-              Welcome to Project ACME
-            </Text>
-            <Text className="mx-auto max-w-[700px] text-lg text-center text-gray-500 md:text-xl dark:text-gray-400">
-              Discover and collaborate on amce. Explore our services now.
-            </Text>
-
-            <View className="gap-4">
-              <Link
-                suppressHighlighting
-                className="flex h-9 items-center justify-center overflow-hidden rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 web:shadow ios:shadow transition-colors hover:bg-gray-900/90 active:bg-gray-400/90 web:focus-visible:outline-none web:focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                href="/"
-              >
-                Explore
-              </Link>
-            </View>
-          </View>
-        </View>
-      </View>
     </View>
   );
 }
 
 function Header() {
-  const { top } = useSafeAreaInsets();
   return (
-    <View style={{ paddingTop: top }}>
-      <View className="px-4 lg:px-6 h-14 flex items-center flex-row justify-between ">
-        <Link className="font-bold flex-1 items-center justify-center" href="/">
-          ACME
-        </Link>
-        <View className="flex flex-row gap-4 sm:gap-6">
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            About
-          </Link>
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            Product
-          </Link>
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            Pricing
-          </Link>
-        </View>
-      </View>
-    </View>
+    <header className="bg-gray-950 font-mono text-xl p-2 flex items-center justify-between relative">
+      <div className="box-border h-8 w-8 p-5 border-2 rounded-3xl absolute right-6 top-3.5"></div>
+
+      <div className="flex flex-col justify-start ml-aut">
+        <p className="text-white font-mono p-2 py-0">Oi,Laura👋</p>
+        <p className="text-white font-mono text-xs p-2 pt-2">Explore o Mundo</p>
+      </div>
+    </header>
   );
 }
 
-function Footer() {
-  const { bottom } = useSafeAreaInsets();
+function Content() {
   return (
-    <View
-      className="flex shrink-0 bg-gray-100 native:hidden"
-      style={{ paddingBottom: bottom }}
-    >
-      <View className="py-6 flex-1 items-start px-4 md:px-6 ">
-        <Text className={"text-center text-gray-700"}>
-          © {new Date().getFullYear()} Me
-        </Text>
-      </View>
-    </View>
-  );
+    <><div className="bg-gray-950 pr-4 pl-3 py-0">
+
+      <input type="text" placeholder="Procurar Problemas"
+        className="bg-gray-950 text-white font-mono w-full py-2 px-2 pr-0 border-2 border-gray-300 rounded-xl 
+        shadow-sm focus:outline-none top-1"
+      ></input>
+      <div className="absolute inset-y-0 right-4 absolute items-center justify-end top-16 pl-3 p-4 text-3xl">
+
+        <PiFunnelSimpleBold className="text-white" />
+      </div>
+    </div>
+
+      <div className="bg-gray-950 text-white py-3 p-4 font-mono text-basel text-xl">Cite seu problema</div>
+
+      <div className="flex justify-center bg-gray-950 p-6">
+        <div className="box-border h-40 w-96 p-4 border-2 rounded-xl border-gray-900 bg-white flex items-center justify-center pt-8">
+          <article className="text-wrap">
+            <h3 className="font-bold font-mono text-left">Obrigado por ajudar o mundo a se tornar um lugar melhor 🌎</h3>
+            <p className="font-mono text-gray-500 text-left">Seu problema pode ser a proxima grande solucao, se ninguem tem problemas as inovacoes acabam</p>
+          </article>
+        </div>
+      </div>
+
+      <p className="text-white bg-gray-950 top-96 left-72 justify-center font-mono text-center">1. Dê um título ao seu problema</p>
+
+        <main className="bg-gray-950 h-screen justify-center items-center">
+          <div className=" bg-gray-950 justify-center flex items-center left-20 right m-10">
+            <input type="text" placeholder="Ex: Dificuldade em encontrar taxis disponiveis"
+              className="bg-gray-900 text-white p-2 border-2 border-gray-500 rounded-md w-96"></input>
+
+          </div>
+        </main>
+
+    </>
+
+
+  )
+
+
 }
