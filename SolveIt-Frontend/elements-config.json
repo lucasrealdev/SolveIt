@@ -1,0 +1,10 @@
+{
+  "theme": "default",
+  "components": {
+    "directory": "src/components",
+    "installed": [
+      "button",
+      "icon"
+    ]
+  }
+}
