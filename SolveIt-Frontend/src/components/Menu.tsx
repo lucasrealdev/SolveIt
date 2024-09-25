@@ -81,7 +81,7 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
           {renderMenuButton('/jogos', 'Jogos', 'jogos', jogos)}
           {renderMenuButton('/amigos', 'Amigos', 'amigos', amigos)}
           {renderMenuButton('/configuracoes', 'Configurações', 'configuracoes')}
-          {renderMenuButton('/ajuda', 'Ajuda e Suporte', 'ajuda', ajuda)}
+          {renderMenuButton('/ajuda', 'Ajuda e Suporte', 'chat', ajuda)}
         </View>
       </View>
       <View accessibilityLabel="ContainerConta" className="flex w-full gap-6">
@@ -109,7 +109,7 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
         </View>
         <View
           accessibilityLabel="CardConta"
-          className="flex gap-4 pt-6 border-t border-[#6366F1] flex-row items-end"
+          className="flex gap-4 pt-6 border-t border-[#C7D2FE] flex-row items-end"
         >
           <View className="flex flex-1 flex-row items-center gap-3">
             <Image
