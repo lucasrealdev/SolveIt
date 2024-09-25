@@ -1,11 +1,17 @@
 {
   "expo": {
-    "scheme": "SolveIt-Frontend",
+    "scheme": "SolveIt",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
+    "splash": {
+      "image": "./src/assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000"
+    },
     "web": {
       "output": "static",
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./src/assets/iconRounded.png"
     },
     "plugins": [
       [
@@ -15,7 +21,14 @@
         }
       ]
     ],
-    "name": "SolveIt-Frontend",
-    "slug": "SolveIt-Frontend"
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "name": "SolveIt",
+    "slug": "SolveIt",
+    "icon": "./src/assets/adaptive-icon.png"
   }
 }
