@@ -2,20 +2,8 @@ import React from "react";
 import { Pressable, Text, View, Image, StyleSheet } from "react-native";
 import IconsPersonalizado from "@/assets/IconesPersonalizados";
 import { useRouter, usePathname } from "expo-router";
-import { FiGift } from "react-icons/fi";
-import { FaRegMoon } from "react-icons/fa";
-import { PiUsersFourBold } from "react-icons/pi";
-import { PiGraduationCapBold } from "react-icons/pi";
 
-
-interface MenuProps {
-  inicial?: number;
-  jogos?: number;
-  amigos?: number;
-  ajuda?: number;
-}
-
-export default function MenuRight({ inicial, jogos, amigos, ajuda }: MenuProps) {
+export default function MenuRight() {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -92,7 +80,7 @@ export default function MenuRight({ inicial, jogos, amigos, ajuda }: MenuProps) 
 
           <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
             <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-              <FiGift color="#01B198" size={20}/>
+              <IconsPersonalizado name="presente" color="#01B198" size={20}/>
             </View>
             <View className="flex flex-1">
               <Text className="text-[#475569] font-bold text-[14px]">Aniversário do amigo</Text>
@@ -103,7 +91,7 @@ export default function MenuRight({ inicial, jogos, amigos, ajuda }: MenuProps) 
 
           <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
             <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-              <FaRegMoon color="#01B198" size={20}/>
+              <IconsPersonalizado name="moon" color="#01B198" size={20}/>
             </View>
             <View className="flex flex-1">
               <Text className="text-[#475569] font-bold text-[14px]">Feriado</Text>
@@ -114,7 +102,7 @@ export default function MenuRight({ inicial, jogos, amigos, ajuda }: MenuProps) 
 
           <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
             <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-              <PiUsersFourBold  color="#01B198" size={20}/>
+              <IconsPersonalizado name="team" color="#01B198" size={20}/>
             </View>
             <View className="flex flex-1">
               <Text className="text-[#475569] font-bold text-[14px]">Encontro de grupo</Text>
@@ -125,7 +113,7 @@ export default function MenuRight({ inicial, jogos, amigos, ajuda }: MenuProps) 
 
           <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
             <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-              <PiGraduationCapBold color="#01B198" size={20}/>
+            <IconsPersonalizado name="graduacao" color="#01B198" size={20}/>
             </View>
             <View className="flex flex-1">
               <Text className="text-[#475569] font-bold text-[14px]">Graduação</Text>
