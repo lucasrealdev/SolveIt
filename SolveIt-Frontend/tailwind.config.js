@@ -5,6 +5,11 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      screens: {
+        'tablet': '1400px',
+        'web': '1250px',
+        'mobile': '770px',
+      },
       fontFamily: {
         sans: ['montserrat', 'sans-serif'],
         'montserrat-bold': ['montserrat-bold', 'sans-serif'],
