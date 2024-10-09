@@ -11,7 +11,7 @@
     "web": {
       "output": "static",
       "bundler": "metro",
-      "favicon": "./src/assets/iconRounded.png"
+      "favicon": "./src/assets/icon-transparent.png"
     },
     "plugins": [
       [
