@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TextInput, useWindowDimensions } from 'react-native';
 import IconesPersonalizados from '@/assets/IconesPersonalizados';
 
@@ -33,11 +33,21 @@ const Post: React.FC<PostProps> = ({
   ImagemPost,
 }) => {
   const { width } = useWindowDimensions();
-  
-  const isMobile = width <= 873 ? "hidden" : "";
+
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const handleLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width);
+  };
+
+  const shouldHideText = containerWidth < 536; // Ajuste o valor conforme necessário
+  const iconSize = shouldHideText ? 25 : 20;
+
+  const isMobile = width <= 452 ? "hidden" : "";
   return (
-    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] hover:cursor-pointer'>
-      <View accessibilityLabel="HeaderPost" className='flex w-full p-[20px] gap-[15px] border-b border-[#E2E8F0] flex-row items-center'>
+    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] hover:cursor-pointer items-center'>
+      <View accessibilityLabel="HeaderPost" className='flex w-full px-[20px] py-3 gap-[15px] border-b border-[#E2E8F0] flex-row items-center'>
         <View accessibilityLabel="ContainerProfile" className='flex flex-1 flex-row gap-[12px] items-center'>
           <Image source={{ uri: FotoPerfil }}
             className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
@@ -47,7 +57,7 @@ const Post: React.FC<PostProps> = ({
             <Text className='text-[14px] text-[#475569]'>{CategoriaPost}</Text>
           </View>
         </View>
-        <IconesPersonalizados name='tresPontos' color='#CBD5E1' size={20}/>
+        <IconesPersonalizados name='tresPontos' color='#CBD5E1' size={20} />
       </View>
 
       <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[16px]'>
@@ -66,36 +76,44 @@ const Post: React.FC<PostProps> = ({
             />
           ) : (
             <View style={{ padding: 0 }}>
-
+              
             </View>
           )}
         </View>
-        <View accessibilityLabel="OptionsPost" className='flex flex-1 w-full flex-row'>
-          <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 w-[96%]'>
+        <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center' onLayout={handleLayout}>
+          <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
+
+            {/* Curtidas */}
             <View accessibilityLabel="ContainerLike" className='flex flex-row gap-[8px] justify-center items-center'>
-              <IconesPersonalizados name="curtida" size={20} color="#94A3B8" />
-              <Text className='font-medium text-[14px]'>{Curtidas} Curtidas</Text>
+              <IconesPersonalizados name="curtida" size={iconSize} color="#94A3B8" />
+              {!shouldHideText && <Text className='font-medium text-[14px]'>{Curtidas} Curtidas</Text>}
             </View>
 
+            {/* Comentários */}
             <View accessibilityLabel="ContainerComents" className='flex flex-row gap-[8px] justify-center items-center'>
-              <IconesPersonalizados name='comentario' color='#94A3B8' size={20}/>
-              <Text className='font-medium text-[14px]'>{143} Comentarios</Text>
+              <IconesPersonalizados name='comentario' color='#94A3B8' size={iconSize} />
+              {!shouldHideText && <Text className='font-medium text-[14px]'>{143} Comentários</Text>}
             </View>
 
+            {/* Compartilhamentos */}
             <View accessibilityLabel="ContainerShare" className='flex flex-row gap-[8px] justify-center items-center'>
-            <IconesPersonalizados name="compartilhar" size={20} color="#94A3B8" />
-              <Text className='font-medium text-[14px]'>{Compartilhamentos} Compartilhamentos</Text>
+              <IconesPersonalizados name="compartilhar" size={iconSize} color="#94A3B8" />
+              {!shouldHideText && <Text className='font-medium text-[14px]'>{Compartilhamentos} Compartilhamentos</Text>}
             </View>
+
           </View>
 
-          <IconesPersonalizados name="favorito" size={20} color="#94A3B8"/>
+          {/* Favorito */}
+          <IconesPersonalizados name="favorito" size={iconSize} color="#94A3B8" />
         </View>
-        <View accessibilityLabel="  FooterPost"
-        className='flex w-full border-t border-[#E2E8F0] flex-row items-center h-[60px] gap-2'>
+      </View>
+
+      <View accessibilityLabel="FooterPost" className='px-5 py-2 w-full flex border-t border-[#E2E8F0]'>
+        <View className='flex w-full flex-row items-center h-[60px] gap-2'>
           <View accessibilityLabel="CommentaryPost" className='flex flex-1 flex-row gap-2'>
-            <Image source={require('../assets/pessoa.png')} className="border-white border-[2px] rounded-full w-[40px] h-[40px]" />
+            <Image source={require('../assets/pessoa.png')} className={`border-white border-[2px] rounded-full w-[40px] h-[40px] ${isMobile}`} />
             <TextInput accessibilityLabel='Commentary' placeholder="Comente aqui"
-            className='border-slate-300 border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-[#475569] text-[14px] font-medium outline-none' />
+              className='border-slate-300 border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-[#475569] text-[14px] font-medium outline-none' />
           </View>
 
           <View accessibilityLabel='ContainerVectors' className='flex-row gap-2'>
@@ -106,7 +124,7 @@ const Post: React.FC<PostProps> = ({
             </View>
             <View className='border-destaqueVerde border-[1px] rounded-full h-[42px] w-[42px]'>
               <View className='items-center justify-center h-[40px] w-[40px]'>
-                <IconesPersonalizados size={24} name='enviar' color='#01B198'/>
+                <IconesPersonalizados size={24} name='enviar' color='#01B198' />
               </View>
             </View>
           </View>

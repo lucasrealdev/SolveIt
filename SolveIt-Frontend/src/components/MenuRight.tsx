@@ -16,7 +16,7 @@ export default function MenuRight() {
       // Substitui a rota atual, evitando duplicação na stack
       router.replace(route);
     }
-  };  
+  };
 
   const renderCardAmigos = () => {
     return(
@@ -38,7 +38,7 @@ export default function MenuRight() {
     return (
       <View
         accessibilityLabel="ContainerMenu"
-        className="flex h-[100vh] border-l border-[#E2E8F0] max-web:hidden"
+        className="flex h-[100vh] border-l border-[#E2E8F0] bg-white"
         style={{ width: containerWidth }}
       >
         <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[20px] flex-row justify-between border-b border-[#E2E8F0]">
