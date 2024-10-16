@@ -23,7 +23,8 @@ module.exports = {
         textoCinza: '#888888',
         destaqueAzul: '#0172B1',
         destaqueAzulEscuro: '#001646',
-        destaqueVerde: '#01B198'
+        destaqueVerde: '#01B198',
+        textoCinzaEscuro: '#475569',
       }
     },
   },

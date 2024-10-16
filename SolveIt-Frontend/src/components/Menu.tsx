@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, Text, View, Image, TextInput, useWindowDimensions } from "react-native";
 import { Icon } from "@/assets/Icon";
 import IconsPersonalizado from "@/assets/IconesPersonalizados";
@@ -18,12 +18,17 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
   const pathname = usePathname();
   const { width, height } = useWindowDimensions();
 
+  const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
+
+  const handleClose = () => {
+    setIsVisible(false); // Fecha o card ao pressionar o botão
+  };
+
   const navigateTo = (route: string) => {
     if (pathname !== route) {
       router.push(route);
     } else {
-      // Substitui a rota atual, evitando duplicação na stack
-      router.replace(route);
+      router.replace(route); // Substitui a rota atual, evitando duplicação
     }
   };
 
@@ -86,16 +91,16 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
     );
   };
 
-  // Verifica se a largura da tela é menor que 770px
   const isMobile = width < 770;
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
+
   if (!isMobile) {
     return (
       <View
         accessibilityLabel="ContainerMenu"
         className="flex h-[100vh] justify-between items-start bg-destaqueAzul px-[16px] py-[32px]"
-        style={{ width: containerWidth }} // Aplica a largura condicionalmente
+        style={{ width: containerWidth }}
       >
         <View accessibilityLabel="ContainerHeaderMenu" className="flex gap-[32px] w-full">
           <Image
@@ -123,44 +128,53 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
             {renderMenuButton('/conversas', 'Conversas', 'chat', ajuda)}
           </View>
         </View>
+
         <View accessibilityLabel="ContainerConta" className="flex w-full gap-6">
-          <View
-            accessibilityLabel="CardPremium"
-            className={`flex gap-[16px] p-[16px] bg-[#3692C5] rounded-[24px] w-full ${isTablet}`}
-          >
-            <View className="flex flex-row justify-between">
-              <View className="w-[40px] h-[40px] flex bg-[#49A7DB] rounded-full items-center justify-center">
-                <IconsPersonalizado name="perigo" size={20} color="#FFF" />
+          {/* Renderiza o card premium somente se estiver visível */}
+          {isVisible && (
+            <View
+              accessibilityLabel="CardPremium"
+              className={`flex gap-[16px] p-[16px] bg-[#3692C5] rounded-[24px] w-full ${isTablet}`}
+            >
+              <View className="flex flex-row justify-between">
+                <View className="w-[40px] h-[40px] flex bg-[#49A7DB] rounded-full items-center justify-center">
+                  <IconsPersonalizado name="perigo" size={20} color="#FFF" />
+                </View>
+                <Pressable onPress={handleClose}>
+                  <IconsPersonalizado name="fechar" size={14} color="#FFF" />
+                </Pressable>
               </View>
-              <IconsPersonalizado name="fechar" size={14} color="#FFF" />
+              <Text className="text-white text-[14px]">
+                Aproveite os benefícios premiuns do app, exclusivos para você!
+              </Text>
+              <View className="flex flex-row gap-4">
+                <Pressable>
+                  <Text className="text-[#C7D2FE] font-bold">Recusar</Text>
+                </Pressable>
+                <Pressable>
+                  <Text className="text-white font-bold">Garantir</Text>
+                </Pressable>
+              </View>
             </View>
-            <Text className="text-white text-[14px]">
-              Aproveite os benefícios premiuns do app, exclusivos para você!
-            </Text>
-            <View className="flex flex-row gap-4">
-              <Pressable>
-                <Text className="text-[#C7D2FE] font-bold">Recusar</Text>
-              </Pressable>
-              <Pressable>
-                <Text className="text-white font-bold">Garantir</Text>
-              </Pressable>
-            </View>
-          </View>
+          )}
+
           <View
             accessibilityLabel="CardConta"
             className="flex gap-4 pt-6 border-t border-[#C7D2FE] flex-row items-end"
           >
-            <View className="flex flex-1 flex-row items-center gap-3">
+            <Pressable className="flex flex-1 flex-row items-center gap-3">
               <Image
                 className="w-[40px] h-[40px] rounded-full"
                 source={require('@/assets/icon.png')}
               />
               <View className="flex gap-[2px]">
                 <Text className="text-white font-bold text-[16px]">Azunyan U. Wu</Text>
-                <Text className="text-[#C7D2FE] font-medium text-[14px]">Membro Básico</Text>
+                <Text className="text-white font-medium text-[14px]">Membro Básico</Text>
               </View>
-            </View>
-            <IconsPersonalizado name="sair" size={24} color="#FFFFFF" />
+            </Pressable>
+            <Pressable>
+              <IconsPersonalizado name="sair" size={24} color="#FFFFFF" />
+            </Pressable>
           </View>
         </View>
       </View>

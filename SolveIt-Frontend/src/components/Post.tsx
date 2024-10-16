@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, useWindowDimensions } from 'react-native';
+import { View, Text, Image, TextInput, useWindowDimensions, Pressable, Animated } from 'react-native';
 import IconesPersonalizados from '@/assets/IconesPersonalizados';
+import tinycolor from 'tinycolor2';
 
 interface Comentario {
   autor: string;
@@ -35,6 +36,7 @@ const Post: React.FC<PostProps> = ({
   const { width } = useWindowDimensions();
 
   const [containerWidth, setContainerWidth] = useState(0);
+  const [iconHovered, setIconHovered] = useState({ like: false, comment: false, share: false, favorite: false });
 
   const handleLayout = (event) => {
     const { width } = event.nativeEvent.layout;
@@ -45,8 +47,29 @@ const Post: React.FC<PostProps> = ({
   const iconSize = shouldHideText ? 25 : 20;
 
   const isMobile = width <= 452 ? "hidden" : "";
+
+  const color = "#94A3B8"; // Cor padrão dos ícones
+  const darkenColor = (color) => tinycolor(color).darken(10).toString(); // Função para escurecer a cor
+
+  const [scaleRostoFeliz] = useState(new Animated.Value(1));
+  const [scaleEnviar] = useState(new Animated.Value(1));
+
+  const handleHoverIn = (scaleValue) => {
+    Animated.spring(scaleValue, {
+      toValue: 1.08, // Aumenta o tamanho
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleHoverOut = (scaleValue) => {
+    Animated.spring(scaleValue, {
+      toValue: 1, // Volta ao tamanho original
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] hover:cursor-pointer items-center'>
+    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] items-center'>
       <View accessibilityLabel="HeaderPost" className='flex w-full px-[20px] py-3 gap-[15px] border-b border-[#E2E8F0] flex-row items-center'>
         <View accessibilityLabel="ContainerProfile" className='flex flex-1 flex-row gap-[12px] items-center'>
           <Image source={{ uri: FotoPerfil }}
@@ -57,7 +80,12 @@ const Post: React.FC<PostProps> = ({
             <Text className='text-[14px] text-[#475569]'>{CategoriaPost}</Text>
           </View>
         </View>
-        <IconesPersonalizados name='tresPontos' color='#CBD5E1' size={20} />
+        <Pressable
+          onHoverIn={() => setIconHovered((prev) => ({ ...prev, favorite: true }))}
+          onHoverOut={() => setIconHovered((prev) => ({ ...prev, favorite: false }))}
+        >
+          <IconesPersonalizados name='tresPontos' color={iconHovered.favorite ? darkenColor(color) : color} size={20} />
+        </Pressable>
       </View>
 
       <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[16px]'>
@@ -67,44 +95,57 @@ const Post: React.FC<PostProps> = ({
         <View style={{ height: ImagemPost ? 320 : 0, width: '100%' }} accessibilityLabel="ImagePost">
           {ImagemPost ? (
             <Image
-              source={
-                ImagemPost.startsWith('data:image/')
-                  ? { uri: ImagemPost }
-                  : { uri: ImagemPost }
-              }
+              source={ImagemPost.startsWith('data:image/') ? { uri: ImagemPost } : { uri: ImagemPost }}
               style={{ width: '100%', height: 320, borderRadius: 16, marginBottom: 16 }}
             />
           ) : (
-            <View style={{ padding: 0 }}>
-              
-            </View>
+            <View style={{ padding: 0 }}></View>
           )}
         </View>
+
         <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center' onLayout={handleLayout}>
           <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
-
             {/* Curtidas */}
-            <View accessibilityLabel="ContainerLike" className='flex flex-row gap-[8px] justify-center items-center'>
-              <IconesPersonalizados name="curtida" size={iconSize} color="#94A3B8" />
+            <Pressable
+              onHoverIn={() => setIconHovered((prev) => ({ ...prev, like: true }))}
+              onHoverOut={() => setIconHovered((prev) => ({ ...prev, like: false }))}
+              accessibilityLabel="ContainerLike"
+              className='flex flex-row gap-[8px] justify-center items-center'
+            >
+              <IconesPersonalizados name="curtida" size={iconSize} color={iconHovered.like ? darkenColor(color) : color} />
               {!shouldHideText && <Text className='font-medium text-[14px]'>{Curtidas} Curtidas</Text>}
-            </View>
+            </Pressable>
 
             {/* Comentários */}
-            <View accessibilityLabel="ContainerComents" className='flex flex-row gap-[8px] justify-center items-center'>
-              <IconesPersonalizados name='comentario' color='#94A3B8' size={iconSize} />
+            <Pressable
+              onHoverIn={() => setIconHovered((prev) => ({ ...prev, comment: true }))}
+              onHoverOut={() => setIconHovered((prev) => ({ ...prev, comment: false }))}
+              accessibilityLabel="ContainerComents"
+              className='flex flex-row gap-[8px] justify-center items-center'
+            >
+              <IconesPersonalizados name='comentario' color={iconHovered.comment ? darkenColor(color) : color} size={iconSize} />
               {!shouldHideText && <Text className='font-medium text-[14px]'>{143} Comentários</Text>}
-            </View>
+            </Pressable>
 
             {/* Compartilhamentos */}
-            <View accessibilityLabel="ContainerShare" className='flex flex-row gap-[8px] justify-center items-center'>
-              <IconesPersonalizados name="compartilhar" size={iconSize} color="#94A3B8" />
+            <Pressable
+              onHoverIn={() => setIconHovered((prev) => ({ ...prev, share: true }))}
+              onHoverOut={() => setIconHovered((prev) => ({ ...prev, share: false }))}
+              accessibilityLabel="ContainerShare"
+              className='flex flex-row gap-[8px] justify-center items-center'
+            >
+              <IconesPersonalizados name="compartilhar" size={iconSize} color={iconHovered.share ? darkenColor(color) : color} />
               {!shouldHideText && <Text className='font-medium text-[14px]'>{Compartilhamentos} Compartilhamentos</Text>}
-            </View>
-
+            </Pressable>
           </View>
 
           {/* Favorito */}
-          <IconesPersonalizados name="favorito" size={iconSize} color="#94A3B8" />
+          <Pressable
+            onHoverIn={() => setIconHovered((prev) => ({ ...prev, favorite: true }))}
+            onHoverOut={() => setIconHovered((prev) => ({ ...prev, favorite: false }))}
+          >
+            <IconesPersonalizados name="favorito" size={iconSize} color={iconHovered.favorite ? darkenColor(color) : color} />
+          </Pressable>
         </View>
       </View>
 
@@ -117,23 +158,30 @@ const Post: React.FC<PostProps> = ({
           </View>
 
           <View accessibilityLabel='ContainerVectors' className='flex-row gap-2'>
-            <View className='border-[#E2E8F0] border-[1px] rounded-full w-[42px] h-[42px]'>
-              <View className='items-center justify-center h-[40px] w-[40px]'>
+            <Animated.View style={{ transform: [{ scale: scaleRostoFeliz }] }}>
+              <Pressable
+                onHoverIn={() => handleHoverIn(scaleRostoFeliz)}
+                onHoverOut={() => handleHoverOut(scaleRostoFeliz)}
+                className='border-[#E2E8F0] border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
+              >
                 <IconesPersonalizados name="rostoFeliz" size={24} color="#475569" />
-              </View>
-            </View>
-            <View className='border-destaqueVerde border-[1px] rounded-full h-[42px] w-[42px]'>
-              <View className='items-center justify-center h-[40px] w-[40px]'>
+              </Pressable>
+            </Animated.View>
+
+            <Animated.View style={{ transform: [{ scale: scaleEnviar }] }}>
+              <Pressable
+                onHoverIn={() => handleHoverIn(scaleEnviar)}
+                onHoverOut={() => handleHoverOut(scaleEnviar)}
+                className='border-destaqueVerde border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
+              >
                 <IconesPersonalizados size={24} name='enviar' color='#01B198' />
-              </View>
-            </View>
+              </Pressable>
+            </Animated.View>
           </View>
         </View>
       </View>
     </View>
   );
 };
-
-
 
 export default Post;

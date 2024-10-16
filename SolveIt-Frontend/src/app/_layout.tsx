@@ -10,8 +10,8 @@ export default function Layout() {
   const pathname = usePathname(); // Obtém o caminho atual da rota
 
   // Lista de rotas onde o menu deve ser exibido
-  const showMenuRoutes = ['/', '/conversas', '/amigos', '/configuracoes', '/jogos'];
-  const showHeaderRoutes = ['/', '/conversas', '/amigos', '/configuracoes', '/jogos'];
+  const showMenuRoutes = ['/', '/conversas', '/amigos', '/configuracoes', '/jogos', '/adicionarPost', '/perfil'];
+  const showHeaderRoutes = ['/', '/conversas', '/amigos', '/configuracoes', '/jogos', '/adicionarPost', '/perfil'];
 
   // Verifica se a rota atual está na lista de rotas que devem exibir o menu
   const shouldShowMenu = showMenuRoutes.includes(pathname);
@@ -31,6 +31,8 @@ export default function Layout() {
           <Stack.Screen name="amigos" options={{ headerShown: false }} />
           <Stack.Screen name="configuracoes" options={{ headerShown: false }} />
           <Stack.Screen name="jogos" options={{ headerShown: false }} />
+          <Stack.Screen name="adicionarPost" options={{ headerShown: false }} />
+          <Stack.Screen name="perfil" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" options={{ headerShown: false }} />
         </Stack>
         {shouldShowHeader && <Header notificacao={10} conversas={9}/>}
