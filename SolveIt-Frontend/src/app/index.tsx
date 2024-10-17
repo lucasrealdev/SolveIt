@@ -8,12 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import IconesPersonalizados from "@/assets/IconesPersonalizados";
 
 export default function Index() {
-  const comentarios = [
-    { autor: 'João', texto: 'Ótima notícia!' },
-    { autor: 'Maria', texto: 'Triste saber disso.' },
-    { autor: 'Carlos', texto: 'É complicado...' },
-  ];
-
   return (
     <View className="flex-1 flex-row">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-[#F8FAFC]">

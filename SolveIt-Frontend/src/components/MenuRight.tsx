@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Pressable, Text, View, Image, StyleSheet, useWindowDimensions, Animated } from "react-native";
 import IconsPersonalizado from "@/assets/IconesPersonalizados";
+import CardAmigo from "./CardAmigo";
+import { usePathname, useRouter } from "expo-router";
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
@@ -8,9 +10,6 @@ export default function MenuRight() {
   const [scaleChat] = useState(new Animated.Value(1));
   const [scaleNotificacao] = useState(new Animated.Value(1));
   const [isHoveredVerTudo, setIsHoveredVerTudo] = useState(false);
-  
-  // Estado para hover de amigos
-  const [hoveredFriends, setHoveredFriends] = useState(Array(5).fill(false));
 
   const handleHoverIn = (scaleValue) => {
     Animated.spring(scaleValue, {
@@ -28,38 +27,15 @@ export default function MenuRight() {
     }).start();
   };
 
-  const renderCardAmigos = (key) => {
-    return (
-      <View
-        key={key}
-        accessibilityLabel="CardAmigos"
-        className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center"
-      >
-        <Image style={styles.imageAmigos} source={require('@/assets/pessoa.png')} />
-        <View className="flex flex-1">
-          <Text className="text-[#475569] font-bold text-[14px]">Júlia Smith</Text>
-          <Text className="text-[#475569] font-normal text-[14px]">@juliasmith</Text>
-        </View>
-        <Pressable
-          onHoverIn={() => {
-            const newHovered = [...hoveredFriends];
-            newHovered[key] = true; // Define como hovered
-            setHoveredFriends(newHovered);
-          }}
-          onHoverOut={() => {
-            const newHovered = [...hoveredFriends];
-            newHovered[key] = false; // Remove hover
-            setHoveredFriends(newHovered);
-          }}
-        >
-          <IconsPersonalizado
-            name="mais"
-            color={hoveredFriends[key] ? "#373C42" : "#94A3B8"} // Cor muda conforme o estado do hover
-            size={20}
-          />
-        </Pressable>
-      </View>
-    );
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navigateTo = (route: string) => {
+    if (pathname !== route) {
+      router.push(route);
+    } else {
+      router.replace(route); // Substitui a rota atual, evitando duplicação
+    }
   };
 
   const renderEventCard = (title, date, iconName, key) => (
@@ -117,8 +93,8 @@ export default function MenuRight() {
               <Pressable
                 onHoverIn={() => setIsHoveredVerTudo(true)}
                 onHoverOut={() => setIsHoveredVerTudo(false)}
-                className="flex flex-row items-end gap-2"
-              >
+                onPress={() => navigateTo("/amigos")}
+                className="flex flex-row items-end gap-2">
                 <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
                   Ver tudo
                 </Text>
@@ -127,9 +103,9 @@ export default function MenuRight() {
                   size={20} />
               </Pressable>
             </View>
-            <View accessibilityLabel="ContainerAdicionarAmigos">
-              {[...Array(5)].map((_, index) => renderCardAmigos(index))}
-            </View>
+            {[...Array(5)].map(() => (
+              <CardAmigo label="menu" />
+            ))}
           </View>
 
           <View accessibilityLabel="ContainerEventos" className={`${isTablet}`}>

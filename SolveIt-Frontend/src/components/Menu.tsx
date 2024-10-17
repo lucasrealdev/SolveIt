@@ -125,7 +125,7 @@ export default function Menu({ inicial, jogos, amigos, ajuda }: MenuProps) {
             {renderMenuButton('/jogos', 'Jogos', 'jogos', jogos)}
             {renderMenuButton('/amigos', 'Amigos', 'amigos', amigos)}
             {renderMenuButton('/configuracoes', 'Configurações', 'configuracoes')}
-            {renderMenuButton('/conversas', 'Conversas', 'chat', ajuda)}
+            {renderMenuButton('/ajuda', 'Ajuda e Suporte', 'ajuda', ajuda)}
           </View>
         </View>
 

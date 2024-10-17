@@ -1,13 +1,10 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Text, View, TouchableOpacity, TextInput, Image, StyleSheet, StatusBar, Pressable, SafeAreaView, ScrollView, Animated, useWindowDimensions } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useRef, useState } from "react";
+import { Text, View, Image, StyleSheet, StatusBar, Pressable, ScrollView, Animated } from "react-native";
 import Post from "@/components/Post";
 import { base64Image, base64Image2, Imagem64Agua } from "./base64Image";
-import SearchHeader from "@/components/SearchHeader";
 
 export default function Perfil() {
   const animation = useRef(new Animated.Value(0)).current;
-  const { width } = useWindowDimensions(); // Obtenha a largura da janela
   const [buttonWidth, setButtonWidth] = useState(0);
 
   const moveToPublicacoes = () => {
@@ -98,24 +95,6 @@ export default function Perfil() {
     </ScrollView>
   );
 }
-
-const SearchBar = () => (
-  <View accessibilityLabel="SearchBar" className="flex-1 flex flex-row border-[1.9px] py-[7px] px-[15px] rounded-[123px] border-[#CBD5E1] bg-white items-center">
-    <TextInput
-      placeholder="Pesquise Problemas"
-      className="flex-1 text-[#475569] text-base outline-none font-medium"
-      placeholderTextColor="#475569"
-    />
-    <Ionicons name="search" size={26} color="#475569" />
-  </View>
-);
-
-const AddPostButton = () => (
-  <TouchableOpacity className="ml-4 py-[7px] px-[20px] bg-[#10B981] rounded-[123px] flex-row items-center ">
-    <Text className="text-white text-base mr-2 font-bold text-[16px]">Adicionar nova postagem</Text>
-    <Ionicons name="add" size={26} color="#fff" />
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: {

@@ -512,8 +512,8 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
         ),
         proximo: (
             <Svg
-            width={size}
-            height={size}
+                width={size}
+                height={size}
                 fill="none"
                 viewBox="0 0 20 20"
             >
@@ -522,6 +522,27 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
                     stroke={color}
                     strokeWidth="0.094"
                     d="M14.38 10.63h0l-6.25 6.25a.892.892 0 01-1.262-1.262l5.587-5.585.033-.033-.033-.033L6.87 4.38h0a.892.892 0 111.262-1.262l6.25 6.25h0a.89.89 0 01-.002 1.262z"
+                ></Path>
+            </Svg>
+        ),
+        ajuda: (
+            <Svg
+                width={size}
+                height={size}
+                fill="none"
+                viewBox="0 0 24 24"
+            >
+                <Path
+                    stroke={color}
+                    strokeWidth="2.5"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></Path>
+                <Path
+                    stroke={color}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M10.5 8.677a2 2 0 111.995 3.261c-.268.068-.495.286-.495.562v.5M12 16h.01"
                 ></Path>
             </Svg>
         ),
