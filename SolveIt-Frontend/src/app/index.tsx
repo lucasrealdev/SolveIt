@@ -24,11 +24,11 @@ export default function Index() {
             <Post
               FotoPerfil={base64Image2}
               CategoriaPost="Questões Ambientais"
-              Comentarios={comentarios}
-              Compartilhamentos={241}
-              Curtidas={1674}
+              Comentarios={null}
+              Compartilhamentos={120}
+              Curtidas={1220}
               DescricaoPost="A escassez de água afeta milhões de pessoas ao redor do mundo. Este tema explora as causas, como mudanças climáticas e má gestão de recursos hídricos, e sugere soluções sustentáveis para o futuro."
-              HashtagPost={['energia', 'sustentabilidade', 'inovação']}
+              HashtagPost={['crise', 'sustentabilidade', '']}
               NomePerfil="Rodrigo Silva 1223"
               TituloPost="A Crise Global da Água: Desafios e Soluções"
               ImagemPost={Imagem64Agua}

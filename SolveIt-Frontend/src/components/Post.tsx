@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TextInput, useWindowDimensions, Pressable, Animated } from 'react-native';
 import IconesPersonalizados from '@/assets/IconesPersonalizados';
 import tinycolor from 'tinycolor2';
+import { usePathname, useRouter } from 'expo-router';
 
 interface Comentario {
   autor: string;
@@ -43,6 +44,17 @@ const Post: React.FC<PostProps> = ({
     setContainerWidth(width);
   };
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navigateTo = (route: string) => {
+    if (pathname !== route) {
+      router.push(route);
+    } else {
+      router.replace(route); // Substitui a rota atual, evitando duplicação
+    }
+  };
+
   const shouldHideText = containerWidth < 536; // Ajuste o valor conforme necessário
   const iconSize = shouldHideText ? 25 : 20;
 
@@ -72,8 +84,10 @@ const Post: React.FC<PostProps> = ({
     <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] items-center'>
       <View accessibilityLabel="HeaderPost" className='flex w-full px-[20px] py-3 gap-[15px] border-b border-[#E2E8F0] flex-row items-center'>
         <View accessibilityLabel="ContainerProfile" className='flex flex-1 flex-row gap-[12px] items-center'>
-          <Image source={{ uri: FotoPerfil }}
+          <Pressable onPress={() => navigateTo("perfil")}>
+            <Image source={{ uri: FotoPerfil }}
             className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+          </Pressable>
 
           <View accessibilityLabel="ContainerText">
             <Text className='font-bold text-[14px]'>{NomePerfil}</Text>

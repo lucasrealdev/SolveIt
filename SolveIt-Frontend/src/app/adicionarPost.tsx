@@ -82,7 +82,6 @@ export default function AdicionarPost() {
   return (
     <View className="flex flex-1 flex-row bg-[#F8FAFC]">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <SearchHeader />
         <View className="flex-1 flex items-center">
           <View className="w-full py-[24px] px-[5px] max-w-[1000px]">
             <TextInputModel
