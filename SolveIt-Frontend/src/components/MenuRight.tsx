@@ -38,8 +38,8 @@ export default function MenuRight() {
     }
   };
 
-  const renderEventCard = (title, date, iconName, key) => (
-    <View key={key} accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
+  const renderEventCard = (title, date, iconName) => (
+    <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
       <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
         <IconsPersonalizado name={iconName} color="#01B198" size={20} />
       </View>
@@ -117,7 +117,7 @@ export default function MenuRight() {
               { title: "Feriado", date: "28 de junho de 2028", icon: "moon" },
               { title: "Encontro de grupo", date: "19 de agosto de 2028", icon: "team" },
               { title: "Graduação", date: "22 de dezembro de 2028", icon: "graduacao" },
-            ].map((event, index) => renderEventCard(event.title, event.date, event.icon, index))}
+            ].map((event) => renderEventCard(event.title, event.date, event.icon))}
           </View>
         </View>
       </View>
