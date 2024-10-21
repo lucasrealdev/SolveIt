@@ -2,9 +2,12 @@ import React, { useRef, useState } from "react";
 import { Text, View, Image, StyleSheet, StatusBar, Pressable, ScrollView, Animated } from "react-native";
 import Post from "@/components/Post";
 import { base64Image, base64Image2, Imagem64Agua } from "./base64Image";
+import IconesPersonalizados from "@/assets/IconesPersonalizados";
+import { useRouter } from 'expo-router';
 
 export default function Perfil() {
   const animation = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
   const [buttonWidth, setButtonWidth] = useState(0);
 
   const moveToPublicacoes = () => {
@@ -37,7 +40,13 @@ export default function Perfil() {
     <ScrollView>
       <View accessibilityLabel="Main-Content" className="flex-1 flex bg-white pb-[40px] items-center">
         <View accessibilityLabel="BannerPerfil" className="flex w-full max-w-[700px]">
-          <Image source={require('../assets/Banner.png')} className="w-full" resizeMode="cover" />
+          <View accessibilityLabel="ContainerBanner">
+            <Image source={require('../assets/Banner.png')} className="w-full" resizeMode="cover"/>
+            <Pressable className="w-8 h-8 absolute rounded-full bg-white left-[10px] top-[10px] border border-[#E2E8F0] flex items-center justify-center"
+            onPress={() => router.back()}>
+              <IconesPersonalizados name="anterior" color="#475569" size={24} />
+            </Pressable>
+          </View>
           <View className="w-full flex flex-row justify-between items-end px-[20px] mt-[-75px]">
             <Image source={require('../assets/pessoa.png')} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
             <Pressable className="bg-destaqueAzul h-fit px-[20px] py-[12px] rounded-full ">

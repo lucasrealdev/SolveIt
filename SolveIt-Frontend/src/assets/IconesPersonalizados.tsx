@@ -525,6 +525,21 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
                 ></Path>
             </Svg>
         ),
+        anterior: (
+            <Svg
+                width={size}
+                height={size}
+                fill="none"
+                viewBox="0 0 20 20"
+            >
+                <Path
+                    fill={color}
+                    stroke={color}
+                    strokeWidth="0.094"
+                    d="M5.62 10.63h0l6.25 6.25a.892.892 0 001.262-1.262l-5.587-5.585L7.512 10l.033-.033L13.13 4.38h0a.894.894 0 00-.29-1.455.892.892 0 00-.972.193l-6.25 6.25h0a.89.89 0 00.002 1.262z"
+                ></Path>
+            </Svg>
+        ),
         ajuda: (
             <Svg
                 width={size}
