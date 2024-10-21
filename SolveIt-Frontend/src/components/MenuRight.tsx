@@ -38,8 +38,8 @@ export default function MenuRight() {
     }
   };
 
-  const renderEventCard = (title, date, iconName) => (
-    <View accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
+  const renderEventCard = (title, date, iconName, index) => (
+    <View key={index} accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
       <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
         <IconsPersonalizado name={iconName} color="#01B198" size={20} />
       </View>
@@ -72,7 +72,7 @@ export default function MenuRight() {
               const scaleValue = icon === 'chat' ? scaleChat : scaleNotificacao;
               return (
                 <Pressable
-                  key={index}
+                  key={index}  // Adicione uma `key` única aqui
                   className="flex p-[11px] border border-[#CBD5E1] rounded-full"
                   onHoverIn={() => handleHoverIn(scaleValue)}
                   onHoverOut={() => handleHoverOut(scaleValue)}
@@ -98,13 +98,13 @@ export default function MenuRight() {
                 <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
                   Ver tudo
                 </Text>
-                <IconsPersonalizado name="setaDireita" 
+                <IconsPersonalizado name="setaDireita"
                   color={isHoveredVerTudo ? '#049681' : '#01B198'}
                   size={20} />
               </Pressable>
             </View>
-            {[...Array(5)].map(() => (
-              <CardAmigo label="menu" />
+            {[...Array(5)].map((_, index) => (
+              <CardAmigo key={index} label="menu" />
             ))}
           </View>
 
@@ -117,7 +117,7 @@ export default function MenuRight() {
               { title: "Feriado", date: "28 de junho de 2028", icon: "moon" },
               { title: "Encontro de grupo", date: "19 de agosto de 2028", icon: "team" },
               { title: "Graduação", date: "22 de dezembro de 2028", icon: "graduacao" },
-            ].map((event) => renderEventCard(event.title, event.date, event.icon))}
+            ].map((event, index) => renderEventCard(event.title, event.date, event.icon, index))}
           </View>
         </View>
       </View>

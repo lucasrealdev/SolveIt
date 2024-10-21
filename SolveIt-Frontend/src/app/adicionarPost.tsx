@@ -1,10 +1,27 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, TextInput, StyleSheet, Pressable } from "react-native";
+import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated} from "react-native";
 import MenuRight from "@/components/MenuRight";
 import { SelectList } from 'react-native-dropdown-select-list';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconesPersonalizados from "@/assets/IconesPersonalizados";
-import SearchHeader from "@/components/SearchHeader";
+
+const handleHoverIn = (scaleValue) => {
+  Animated.spring(scaleValue, {
+    toValue: 1.04, // Aumenta o tamanho
+    friction: 3,
+    useNativeDriver: true,
+  }).start();
+};
+
+const handleHoverOut = (scaleValue) => {
+  Animated.spring(scaleValue, {
+    toValue: 1, // Volta ao tamanho original
+    friction: 3,
+    useNativeDriver: true,
+  }).start();
+};
+
+const scaleValue = new Animated.Value(1)
 
 const categories = [
   { key: '1', value: 'Saúde', icon: 'heart', color: '#FF6347' },
@@ -127,17 +144,21 @@ export default function AdicionarPost() {
 
             <Pressable className="p-[10px]">
               <View className="rounded-[20px] border-dashed border-2 border-[#CBD5E1] flex justify-center items-center bg-white py-5 px-4">
-                <IconesPersonalizados name="upload" size={60} />
-                <Text className="text-[14px] font-medium text-[#475569] text-center">Clique aqui para enviar seu arquivo ou arraste</Text>
+                <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
+                  <IconesPersonalizados name="upload" size={24} />
+                </View>
+                <Text className="text-[14px] font-medium text-[#475569] text-center"><Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu arquivo ou arraste</Text>
                 <Text className="text-[#94A3B8] text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
               </View>
             </Pressable>
-
-            <Pressable className="border-[1px] w-[180px] h-[56px] justify-center items-center rounded-[1234px] border-[#01B198] flex-row gap-[10px] py-[16px] px-[24px] ml-[10px] mt-3 shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]">
-              <IconesPersonalizados name="usuario" size={24} color="#01B198"/>
-              <Text className="text-[#01B198] text-[18px] font-semibold">Enviar</Text>
-              <IconesPersonalizados name="enviarBotao" size={24} />
-            </Pressable>
+            <Animated.View style={{ transform: [{ scale: scaleValue }], width: 150, height: 52 }}>
+              <Pressable className="border-[1px] w-full h-full justify-center items-center rounded-[1234px] border-[#01B198] flex-row gap-[10px] py-[16px] px-[24px] ml-[10px] mt-3 shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
+              onHoverIn={() => handleHoverIn(scaleValue)}
+              onHoverOut={() => handleHoverOut(scaleValue)}>
+                <Text className="text-[#01B198] text-[18px] font-semibold">Enviar</Text>
+                <IconesPersonalizados name="enviarBotao" size={24}/>
+              </Pressable>
+            </Animated.View>
           </View>
         </View>
       </ScrollView>
