@@ -33,9 +33,13 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
           <Text className="text-white text-base font-bold">{label}</Text>
         </View>
         {notificationCount !== undefined && (
-          <View className="flex justify-center items-center bg-white px-[10px] py-[3px] rounded-full">
-            <Text className="text-[#0172B1] text-[14px] font-semibold">{notificationCount}</Text>
-          </View>
+          <View className="flex bg-white px-[10px] py-[3px] rounded-full items-center justify-center">
+            <Text
+              className="text-[#0172B1] text-sm font-semibold"
+              style={{ lineHeight: 14 }}>
+              {notificationCount}
+            </Text>
+          </View>        
         )}
       </Pressable>
     );
@@ -49,8 +53,8 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
       <Pressable className="flex items-center justify-center" onPress={() => navigateTo(route)}>
         <View className="relative">
           {notificationCount !== undefined && (
-            <View className="absolute bg-white w-4 h-4 rounded-full items-center justify-center top-[-5px] right-[-10px]">
-              <Text className="text-[#0172B1] text-[10px] font-semibold">{notificationCount}</Text>
+            <View className="absolute bg-white w-[16px] h-[16px] rounded-full items-center justify-center top-[-5px] right-[-10px] z-10">
+              <Text className="text-[#0172B1] text-xs font-semibold">{notificationCount}</Text>
             </View>
           )}
           <CustomIcons name={iconName} size={26} color={iconColor} />
@@ -69,7 +73,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
         <Image style={{ width: 115, height: 32 }} source={{ uri: 'https://i.ibb.co/wBqcsxM/Logo.png' }} />
         <View className="flex gap-[6px] rounded-[124px] border border-[#3692C5] h-[40px] flex-row items-center p-[12px] py-[8px]">
           <CustomIcons name="pesquisar" size={17} color="#FFFFFF" />
-          <TextInput className="outline-none flex-1 text-white text-[16px] h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" />
+          <TextInput className="outline-none flex-1 text-white text-base h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" />
         </View>
         <View className="flex w-full gap-[8px]">
           {renderMenuButton('/', 'Descubra o mundo', 'home', home)}
@@ -91,7 +95,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
                 <CustomIcons name="fechar" size={14} color="#FFF" />
               </Pressable>
             </View>
-            <Text className="text-white text-[14px]">Aproveite os benefícios premiuns do app, exclusivos para você!</Text>
+            <Text className="text-white text-sm">Aproveite os benefícios premiuns do app, exclusivos para você!</Text>
             <View className="flex flex-row gap-4">
               <Pressable><Text className="text-white font-bold">Recusar</Text></Pressable>
               <Pressable><Text className="text-[#C7FEF1] font-bold">Garantir</Text></Pressable>
@@ -102,8 +106,8 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
           <Pressable className="flex flex-1 flex-row items-center gap-3">
             <Image className="w-[40px] h-[40px] rounded-full" source={require('@/assets/icon.png')} />
             <View className="flex gap-[2px]">
-              <Text className="text-white font-bold text-[16px]">Azunyan U. Wu</Text>
-              <Text className="text-[#C7D2FE] font-medium text-[14px]">Membro Básico</Text>
+              <Text className="text-white font-bold text-base">Azunyan U. Wu</Text>
+              <Text className="text-[#C7D2FE] font-medium text-sm">Membro Básico</Text>
             </View>
           </Pressable>
           <Pressable><CustomIcons name="sair" size={24} color="#FFFFFF" /></Pressable>

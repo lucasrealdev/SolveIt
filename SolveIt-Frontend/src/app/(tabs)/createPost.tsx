@@ -152,12 +152,27 @@ export default function CreatePost() {
                 <Text className="text-[#94A3B8] text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
               </View>
             </Pressable>
-            <Animated.View style={{ transform: [{ scale: scaleValue }], width: 150, height: 52 }}>
-              <Pressable className="border-[1px] w-full h-full justify-center items-center rounded-[1234px] border-[#01B198] flex-row gap-[10px] py-[16px] px-[24px] ml-[10px] mt-3 shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
-              onHoverIn={() => handleHoverIn(scaleValue)}
-              onHoverOut={() => handleHoverOut(scaleValue)}>
-                <Text className="text-[#01B198] text-[18px] font-semibold">Enviar</Text>
-                <CustomIcons name="enviarBotao" size={24}/>
+            <Animated.View
+              style={{
+                transform: [{ scale: scaleValue }],
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 150,
+                height: 52,
+                marginLeft: 10,
+                marginTop: 12,
+                backgroundColor: "transparent"
+              }}
+            >
+              <Pressable
+                className="border-[1px] w-full h-full flex flex-row items-center justify-center rounded-full border-[#01B198] gap-[10px] shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
+                onHoverIn={() => handleHoverIn(scaleValue)}
+                onHoverOut={() => handleHoverOut(scaleValue)}
+              >
+                <Text className="text-[#01B198] text-[18px] font-semibold" style={{ lineHeight: 22 }}>
+                  Enviar
+                </Text>
+                <CustomIcons name="enviarBotao" size={24} />
               </Pressable>
             </Animated.View>
           </View>

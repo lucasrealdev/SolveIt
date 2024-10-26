@@ -10,7 +10,7 @@ interface IconProps {
 const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }) => {
     const Icons = {
         home: (
-            <Svg
+            <Svg className="z-0"
                 width={size}
                 height={size}
                 fill="none"

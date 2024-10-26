@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import Post from "@/components/Post";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
+import GradientText from "react-native-gradient-texts";
 
 const Profile = () => {
   const animation = useRef(new Animated.Value(0)).current;
@@ -33,7 +34,7 @@ const Profile = () => {
       <View className="flex-1 bg-white pb-[40px] items-center">
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
-            <Image source={images.banner} className="w-full" resizeMode="cover"/>
+            <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover"/>
             <Pressable 
               className="absolute w-8 h-8 rounded-full bg-white left-[10px] top-[10px] border border-[#E2E8F0] flex items-center justify-center"
               onPress={() => router.back()}
@@ -44,20 +45,20 @@ const Profile = () => {
           <View className="flex flex-row justify-between items-end px-[20px] mt-[-75px]">
             <Image source={images.person} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
             <Pressable className="bg-destaqueAzul px-[20px] py-[12px] rounded-full">
-              <Text className="text-white font-bold text-[16px]">Seguir</Text>
+              <Text className="text-white font-bold text-base">Seguir</Text>
             </Pressable>
           </View>
         </View>
 
         <View className="flex w-full max-w-[700px] px-[10px] gap-[10px]">
-          <Text className="font-bold text-[20px] bg-gradient-to-r from-emerald-400 via-violet-600 to-yellow-500 bg-clip-text text-transparent">Rodrigo Silva 1223</Text>
-          <Text className="text-[16px]">Olá! 👋 Eu tenho 19 anos, gosto do mundo de algoritmos e sou estudante da Tecnologia da Informação.</Text>
+          <Text className="font-bold text-xl bg-gradient-to-r from-emerald-400 via-violet-600 to-yellow-500 bg-clip-text">Rodrigo Silva 1223</Text>
+          <Text className="text-base">Olá! 👋 Eu tenho 19 anos, gosto do mundo de algoritmos e sou estudante da Tecnologia da Informação.</Text>
 
           <View className="flex-row items-center justify-between w-full h-[50px] rounded-[20px] bg-[#252628] max-w-[420px] relative">
             <Animated.View style={[styles.activeBar, { transform: [{ translateX }], width: buttonWidth }]} />
             {["Publicações", "Informações"].map((title, index) => (
               <Pressable key={index} className="flex-1 justify-center items-center bg-transparent" onPress={() => moveTo(index)} onLayout={handleButtonLayout}>
-                <Text className="text-white text-[19px] font-semibold">{title}</Text>
+                <Text className="text-white text-lg font-semibold">{title}</Text>
               </Pressable>
             ))}
           </View>

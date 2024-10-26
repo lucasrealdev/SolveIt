@@ -13,8 +13,8 @@ export default function Header({ notificacao, conversas }: HeaderProps) {
 
   const renderBadge = (count?: number) => (
     count !== undefined && (
-      <View className="absolute bg-white w-4 h-4 rounded-full items-center justify-center top-[-5px] right-[-10px]">
-        <Text className="text-[#0172B1] text-[10px] font-semibold">{count}</Text>
+      <View className="absolute bg-white w-[16px] h-[16px] rounded-full items-center justify-center top-[-5px] right-[-10px]">
+        <Text className="text-[#0172B1] text-xs font-semibold">{count}</Text>
       </View>
     )
   );
