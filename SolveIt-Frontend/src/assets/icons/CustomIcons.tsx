@@ -7,7 +7,7 @@ interface IconProps {
     size?: number; // Tamanho do ícone (largura e altura)
 }
 
-const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }) => {
+const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }) => {
     const Icons = {
         home: (
             <Svg
@@ -230,7 +230,7 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
                 ></Path>
             </Svg>
         ),
-        comentario: (
+        comentarios: (
             <Svg
                 width={size}
                 height={size}
@@ -256,7 +256,7 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
                 ></Path>
             </Svg>
         ),
-        curtida: (
+        curtidas: (
             <Svg
                 width={size}
                 height={size}
@@ -565,4 +565,4 @@ const IconesPersonalizados: React.FC<IconProps> = ({ name, color = "#3692C5", si
     return Icons[name] || undefined;
 }
 
-export default IconesPersonalizados;
+export default CustomIcons;

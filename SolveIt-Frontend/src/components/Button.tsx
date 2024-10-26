@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View, PressableProps } from 'react-native';
 
-interface BotaoProps extends PressableProps {
+interface ButtonProps extends PressableProps {
   className?: string;
   children: React.ReactNode;
   onHoverIn?: () => void;
@@ -10,7 +10,7 @@ interface BotaoProps extends PressableProps {
   onPressOut?: () => void;
 }
 
-const Botao = ({ 
+const Button = ({ 
   className = '', 
   children, 
   onHoverIn = () => {}, 
@@ -18,7 +18,7 @@ const Botao = ({
   onPressIn = () => {}, 
   onPressOut = () => {}, 
   ...props // Espalha as props do Pressable
-}: BotaoProps) => {
+}: ButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleHoverIn = () => {
@@ -45,14 +45,14 @@ const Botao = ({
   );
 };
 
-const BotaoTexto = ({ text, style = '' }) => (
+const TextButton = ({ text, style = '' }) => (
   <Text className={`text-white font-bold ${style}`}>{text}</Text>
 );
 
-const BotaoIcone = ({ icon }) => (
+const IconButton = ({ icon }) => (
   <View className="">
     {icon}
   </View>
 );
 
-export { Botao, BotaoTexto, BotaoIcone };
+export { Button, TextButton, IconButton };

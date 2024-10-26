@@ -25,7 +25,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.planob.solveit"
+    },
+    "ios": {
+      "bundleIdentifier": "com.planob.solveit",
+      "supportsTablet": true
     },
     "name": "SolveIt",
     "slug": "SolveIt",

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated} from "react-native";
-import MenuRight from "@/components/MenuRight";
 import { SelectList } from 'react-native-dropdown-select-list';
+
+import MenuRight from "@/components/MenuRight";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import IconesPersonalizados from "@/assets/IconesPersonalizados";
+import CustomIcons from "@/assets/icons/CustomIcons";
 
 const handleHoverIn = (scaleValue) => {
   Animated.spring(scaleValue, {
@@ -22,21 +23,6 @@ const handleHoverOut = (scaleValue) => {
 };
 
 const scaleValue = new Animated.Value(1)
-
-const categories = [
-  { key: '1', value: 'Saúde', icon: 'heart', color: '#FF6347' },
-  { key: '2', value: 'Culinária', icon: 'cutlery', color: '#FFA500' },
-  { key: '3', value: 'Negócios', icon: 'briefcase', color: '#4682B4' },
-  { key: '4', value: 'Carreira', icon: 'line-chart', color: '#4B0082' },
-  { key: '5', value: 'Entretenimento', icon: 'film', color: '#FF69B4' },
-  { key: '6', value: 'Ciência', icon: 'flask', color: '#8A2BE2' },
-];
-
-const urgencies = [
-  { key: '1', value: 'Leve', icon: 'check-square', color: '#4CAF50' },
-  { key: '2', value: 'Intermediário', icon: 'exclamation-triangle', color: '#FFC107' },
-  { key: '3', value: 'Grave', icon: 'ban', color: '#F44336' },
-];
 
 const renderSelectItem = (item) => (
   <View className="flex-row">
@@ -92,10 +78,25 @@ const TextInputModel = ({ title, placeholder, multiline = false, maxLength, keyb
   );
 };
 
-export default function AdicionarPost() {
+export default function CreatePost() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedUrgency, setSelectedUrgency] = useState("");
 
+  const categories = [
+    { key: '1', value: 'Saúde', icon: 'heart', color: '#FF6347' },
+    { key: '2', value: 'Culinária', icon: 'cutlery', color: '#FFA500' },
+    { key: '3', value: 'Negócios', icon: 'briefcase', color: '#4682B4' },
+    { key: '4', value: 'Carreira', icon: 'line-chart', color: '#4B0082' },
+    { key: '5', value: 'Entretenimento', icon: 'film', color: '#FF69B4' },
+    { key: '6', value: 'Ciência', icon: 'flask', color: '#8A2BE2' },
+  ];
+  
+  const urgencies = [
+    { key: '1', value: 'Leve', icon: 'check-square', color: '#4CAF50' },
+    { key: '2', value: 'Intermediário', icon: 'exclamation-triangle', color: '#FFC107' },
+    { key: '3', value: 'Grave', icon: 'ban', color: '#F44336' },
+  ];
+  
   return (
     <View className="flex flex-1 flex-row bg-[#F8FAFC]">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -145,7 +146,7 @@ export default function AdicionarPost() {
             <Pressable className="p-[10px]">
               <View className="rounded-[20px] border-dashed border-2 border-[#CBD5E1] flex justify-center items-center bg-white py-5 px-4">
                 <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
-                  <IconesPersonalizados name="upload" size={24} />
+                  <CustomIcons name="upload" size={24} />
                 </View>
                 <Text className="text-[14px] font-medium text-[#475569] text-center"><Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu arquivo ou arraste</Text>
                 <Text className="text-[#94A3B8] text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
@@ -156,7 +157,7 @@ export default function AdicionarPost() {
               onHoverIn={() => handleHoverIn(scaleValue)}
               onHoverOut={() => handleHoverOut(scaleValue)}>
                 <Text className="text-[#01B198] text-[18px] font-semibold">Enviar</Text>
-                <IconesPersonalizados name="enviarBotao" size={24}/>
+                <CustomIcons name="enviarBotao" size={24}/>
               </Pressable>
             </Animated.View>
           </View>

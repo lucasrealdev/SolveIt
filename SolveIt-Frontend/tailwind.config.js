@@ -11,13 +11,21 @@ module.exports = {
         'mobile': '770px',
       },
       fontFamily: {
-        sans: ['montserrat', 'sans-serif'],
-        'montserrat-bold': ['montserrat-bold', 'sans-serif'],
-        'montserrat-black': ['montserrat-black', 'sans-serif'], 
-        'montserrat-extraBold': ['montserrat-extraBold', 'sans-serif'], 
-        'montserrat-medium': ['montserrat-medium', 'sans-serif'], 
-        'montserrat-thin': ['montserrat-thin', 'sans-serif'], 
-        'montserrat-semiBold': ['montserrat-semiBold', 'sans-serif'], 
+        sans: ['PlusJakartaSans-Regular', 'sans-serif'],
+        bold: ['PlusJakartaSans-Bold', 'sans-serif'],
+        extrabold: ['PlusJakartaSans-ExtraBold', 'sans-serif'],
+        light: ['PlusJakartaSans-Light', 'sans-serif'],
+        medium: ['PlusJakartaSans-Medium', 'sans-serif'],
+        semibold: ['PlusJakartaSans-SemiBold', 'sans-serif'],
+        extralight: ['PlusJakartaSans-ExtraLight', 'sans-serif'],
+
+        // Seção para fontes itálicas
+        plusJakartaSansItalic: ['PlusJakartaSans-Italic', 'sans-serif'],
+        plusJakartaSansExtraBoldItalic: ['PlusJakartaSans-ExtraBoldItalic', 'sans-serif'],
+        plusJakartaSansLightItalic: ['PlusJakartaSans-LightItalic', 'sans-serif'],
+        plusJakartaSansMediumItalic: ['PlusJakartaSans-MediumItalic', 'sans-serif'],
+        plusJakartaSansSemiBoldItalic: ['PlusJakartaSans-SemiBoldItalic', 'sans-serif'],
+        plusJakartaSansBoldItalic: ['PlusJakartaSans-BoldItalic', 'sans-serif'],
       },
       colors: {
         textoCinza: '#888888',

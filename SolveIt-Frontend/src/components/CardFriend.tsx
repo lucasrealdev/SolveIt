@@ -1,34 +1,37 @@
-import IconesPersonalizados from '@/assets/IconesPersonalizados';
+import CustomIcons from '@/assets/icons/CustomIcons';
 import React, { useState } from 'react';
 import { View, Image, Text, Pressable } from 'react-native';
+import images from '@/constants/images';
 
-interface CardAmigoProps {
+interface CardFriendProps {
   label: string;
 }
 
-const CardAmigo: React.FC<CardAmigoProps> = ({ label }) => {
+const CardFriend: React.FC<CardFriendProps> = ({ label }) => {
   const [hovered, setHovered] = useState(false);
+  const isFollower = label === "seguidores";
+  const isFriendOrMenu = label === "amigo" || label === "menu";
 
   return (
     <View
       accessibilityLabel="Amigo"
-      className={`flex flex-row border-b border-[#E2E8F0] py-3 ${label === 'menu' ? '' : 'px-[10px]'} gap-3 items-center`}
+      className={`flex flex-row border-b border-[#E2E8F0] py-4 ${label !== 'menu' ? 'px-[15px]' : ''} gap-3 items-center`}
     >
-      <Image className="w-[40px] h-[40px] rounded-full" source={require('@/assets/pessoa.png')} />
-      <View className="flex-1">
+      <Image className="w-[40px] h-[40px] rounded-full" source={images.person} />
+      <View className="flex-1 gap-[1px]">
         <Text className="text-[#475569] font-bold text-[14px]">Júlia Smith</Text>
-        <Text className="text-[#475569] font-normal text-[14px]">@juliasmith</Text>
+        <Text className="text-[#475569] font-medium text-[14px]">@juliasmith</Text>
       </View>
       <Pressable
         onHoverIn={() => setHovered(true)}
         onHoverOut={() => setHovered(false)}
       >
-        {label === "seguidores" ? (
+        {isFollower ? (
           <Text className={`text-[14px] font-bold ${hovered ? 'text-[#D21F3C]' : 'text-[#FF0029]'}`}>
             Remover
           </Text>
-        ) : (label === "amigo" || label === "menu") ? (
-          <IconesPersonalizados
+        ) : isFriendOrMenu ? (
+          <CustomIcons
             name="mais" // Substitua pelo nome do ícone que você deseja usar
             color={hovered ? '#373C42' : '#94A3B8'}
             size={20}
@@ -39,4 +42,4 @@ const CardAmigo: React.FC<CardAmigoProps> = ({ label }) => {
   );
 };
 
-export default CardAmigo;
+export default CardFriend;

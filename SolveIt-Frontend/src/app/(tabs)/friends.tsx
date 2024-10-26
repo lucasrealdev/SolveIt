@@ -1,21 +1,17 @@
-import IconesPersonalizados from "@/assets/IconesPersonalizados";
-import CardAmigo from "@/components/CardAmigo";
-import SearchHeader from "@/components/SearchHeader";
-import { usePathname, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import { Animated, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import CustomIcons from "@/assets/icons/CustomIcons";
+import CardAmigo from "@/components/CardFriend";
+import SearchHeader from "@/components/SearchHeader";
 
-export default function Amigos() {
-  // Estado para hover de amigos
-  const [hoveredFriends, setHoveredFriends] = useState(Array(5).fill(false));
+export default function Friends() {
   const [isHoveredVerTudo, setIsHoveredVerTudo] = useState(false);
-
   const animation = useRef(new Animated.Value(0)).current;
   const [buttonWidth, setButtonWidth] = useState(0);
 
   const moveToSeguidores = () => {
     Animated.timing(animation, {
-      toValue: 0, // 0% - Começo da tela
+      toValue: 0,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -23,7 +19,7 @@ export default function Amigos() {
 
   const moveToSeguindo = () => {
     Animated.timing(animation, {
-      toValue: 1, // 1 - Metade da tela
+      toValue: 1,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -31,12 +27,12 @@ export default function Amigos() {
 
   const translateX = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, buttonWidth], // Mova a barra para a largura do botão
+    outputRange: [0, buttonWidth],
   });
 
   const handleButtonLayout = (event) => {
     const { width } = event.nativeEvent.layout;
-    setButtonWidth(width); // Armazene a largura do botão
+    setButtonWidth(width);
   };
 
   return (
@@ -45,7 +41,7 @@ export default function Amigos() {
       <View className="flex-1 bg-[#F8FAFC] items-center">
         <View className="max-w-[1000px] w-full bg-[#F8FAFC] px-[10px] py-6 gap-4">
           <View accessibilityLabel="ContainerSugestaoAmigos">
-            <Text className="font-bold text-lg text-[#1E293B] mb-6">
+            <Text className="font-bold text-xl text-[#1E293B] mb-6">
               Sugestão de amigos
             </Text>
 
@@ -61,10 +57,12 @@ export default function Amigos() {
               onHoverIn={() => setIsHoveredVerTudo(true)}
               onHoverOut={() => setIsHoveredVerTudo(false)}
               className="flex flex-row items-end gap-2 w-fit mt-4">
-              <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
+
+              <Text className={`font-bold text-[15px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
                 Carregar Mais
               </Text>
-              <IconesPersonalizados name="mais"
+              
+              <CustomIcons name="mais"
                 color={isHoveredVerTudo ? '#049681' : '#01B198'}
                 size={20} />
             </Pressable>
@@ -75,11 +73,11 @@ export default function Amigos() {
           <View accessibilityLabel="Buttons" className="w-full h-[45px] rounded-[20px] flex-row items-center justify-between max-w-[311px] bg-[#252628]">
             <Animated.View style={[styles.activeBar, { transform: [{ translateX }], width: buttonWidth }]} />
 
-            <Pressable style={styles.button} onPress={moveToSeguidores} onLayout={handleButtonLayout}>
+            <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguidores} onLayout={handleButtonLayout}>
               <Text className="text-white text-[14px] font-bold">Seguidores</Text>
             </Pressable>
 
-            <Pressable style={styles.button} onPress={moveToSeguindo} onLayout={handleButtonLayout}>
+            <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguindo} onLayout={handleButtonLayout}>
               <Text className="text-white text-[14px] font-bold">Seguindo</Text>
             </Pressable>
           </View>
@@ -98,23 +96,10 @@ export default function Amigos() {
 }
 
 const styles = StyleSheet.create({
-  imageAmigos: {
-    width: 40,
-    height: 40,
-    resizeMode: 'cover',
-    borderRadius: 9999,
-  },
   activeBar: {
     position: 'absolute',
     height: '100%',
     backgroundColor: '#0172B1',
     borderRadius: 20,
-  },
-  button: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    height: '100%',
-  },
+  }
 });

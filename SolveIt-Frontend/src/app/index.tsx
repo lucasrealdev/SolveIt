@@ -1,11 +1,13 @@
 import React from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { base64Image2, Imagem64Agua } from "../assets/images/base64Image";
+import { LinearGradient } from 'expo-linear-gradient';
+
 import MenuRight from "@/components/MenuRight";
 import Post from '@/components/Post';
-import { base64Image2, Imagem64Agua } from "./base64Image";
 import SearchHeader from "@/components/SearchHeader";
-import { LinearGradient } from 'expo-linear-gradient';
-import IconesPersonalizados from "@/assets/IconesPersonalizados";
+import CustomIcons from "@/assets/icons/CustomIcons";
+import images from "@/constants/images";
 
 export default function Index() {
   return (
@@ -52,13 +54,13 @@ const BarStory: React.FC = () => {
             start={{ x: 0.5, y: 0.5 }}
             end={{ x: 1, y: 1 }}
           >
-            <Image source={require('../assets/pessoa.png')} className="border-white border-[2px] rounded-full w-[64px] h-[64px]" />
+            <Image source={images.person} className="border-white border-[2px] rounded-full w-[64px] h-[64px]" />
           </LinearGradient>
           <Text className="text-textoCinzaEscuro font-semibold">{user.name}</Text>
         </Pressable>
       ))}
       <Pressable className="w-8 h-8 absolute rounded-full bg-white right-[10px] border border-[#E2E8F0] flex items-center justify-center">
-        <IconesPersonalizados name="proximo" color="#475569" size={20} />
+        <CustomIcons name="proximo" color="#475569" size={20} />
       </Pressable>
     </View>
   );

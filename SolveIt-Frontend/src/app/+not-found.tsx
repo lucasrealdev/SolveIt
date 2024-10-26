@@ -1,13 +1,12 @@
 import React from "react";
-import { Image, Pressable, Text, View, useWindowDimensions  } from "react-native";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import IconesPersonalizados from "@/assets/IconesPersonalizados";
+import { Image, Pressable, Text, View  } from "react-native";
 import { useRouter } from 'expo-router';
+
+import CustomIcons from "@/assets/icons/CustomIcons";
+import images from "@/constants/images";
 
 const NotFoundScreen = () => {
     const router = useRouter();
-
-    const { width } = useWindowDimensions();
 
     const handleBack = () => {
         // Verifique se existe uma tela anterior
@@ -26,19 +25,19 @@ const NotFoundScreen = () => {
             <Text className="font-extrabold text-4xl sm:text-7xl text-[#1E293B] mb-6 text-center">Oops! Página não encontrada.</Text>
             <Text className="font-normal text-lg text-[#475569] mb-8 text-center">Infelizmente, a página que você está procurando desapareceu ou foi movida :(</Text>
 
-            <View className="flex self-stretch gap-3 justify-center items-center flex-wrap flex-row">
+            <View className="flex self-stretch gap-3 justify-center flex-wrap flex-row">
               <Pressable className="bg-transparent border rounded-full border-[#CBD5E1] h-14 flex flex-row items-center justify-center gap-3 mb-3 w-full max-w-[220px]" onPress={handleBack}>
-                  <MaterialIcons name="arrow-back-ios-new" size={20} color="#475569" />
+                  <CustomIcons name="anterior" color="#475569" size={20} />
                   <Text className="font-bold text-lg text-[#475569]">Voltar</Text>
               </Pressable>
 
               <Pressable className="bg-destaqueAzul border rounded-full border-[#CBD5E1] h-14 flex flex-row items-center justify-center gap-3 w-full max-w-[220px]" onPress={() => router.push('/')}>
                   <Text className="font-bold text-lg text-white">Voltar ao Começo</Text>
-                  <IconesPersonalizados name="home" size={24} color="white" />
+                  <CustomIcons name="home" size={24} color="white" />
               </Pressable>
             </View>
         </View>
-        <Image style={{width: 64, height: 64, resizeMode: "cover"}} source={require('@/assets/LogoSombra.png')} />
+        <Image style={{width: 64, height: 64, resizeMode: "cover"}} source={images.logoShadow} />
         </View>
     );
 }
