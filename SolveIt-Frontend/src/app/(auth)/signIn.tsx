@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image, TextInput, Pressable } from "react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
@@ -30,7 +30,7 @@ export default function SignIn() {
       const result = await getCurrentUser();
       setUser(result);
       setIsLogged(true);
-      router.replace("/");
+      <Redirect href="/" />
     } catch (error) {
       handleAppwriteInError(error);
     } finally {
@@ -80,7 +80,7 @@ export default function SignIn() {
                 title="Digite sua Senha"
                 placeholder="*************"
                 maxLength={50}
-                inputFilter={/[^a-zA-Z0-9@._-]/g}  // Apenas letras, números, '@', '.', '_' e '-'
+                inputFilter={/[^a-zA-Z0-9@#._-]/g}  // Apenas letras, números, '@', '.', '_' e '-'
                 keyboardType="default"  
                 autoCapitalize="none"
                 icon="cadeado"
@@ -90,7 +90,8 @@ export default function SignIn() {
             </View>
 
             <View accessibilityLabel="ContainerButtonSignin" className="gap-6">
-              <Button className="bg-destaqueVerde rounded-full py-3 gap-2">
+              <Button className="bg-destaqueVerde rounded-full py-3 gap-2"
+              onPress={submit}>
                 <TextButton text="Entrar"/>
                 <CustomIcons name="sair" color="white" size={20}/>
               </Button>

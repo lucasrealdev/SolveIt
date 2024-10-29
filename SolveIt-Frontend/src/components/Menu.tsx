@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Pressable, Text, View, Image, TextInput, useWindowDimensions } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { signOut } from "@/lib/appwriteConfig";
 
 interface MenuProps {
   home?: number;
@@ -67,6 +69,16 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
 
+  const { user, setUser, setIsLogged } = useGlobalContext();
+
+  const logout = async () => {
+    await signOut();
+    setUser(null);
+    setIsLogged(false);
+
+    router.replace("/signIn");
+  };
+
   const renderDesktopMenu = () => (
     <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-destaqueAzul px-[16px] py-[32px]" style={{ width: containerWidth }}>
       <View className="flex gap-[32px] w-full">
@@ -110,7 +122,11 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
               <Text className="text-[#C7D2FE] font-medium text-sm">Membro Básico</Text>
             </View>
           </Pressable>
-          <Pressable><CustomIcons name="sair" size={24} color="#FFFFFF" /></Pressable>
+          <Pressable
+            onPress={logout}
+          >
+            <CustomIcons name="sair" size={24} color="#FFFFFF" />
+          </Pressable>
         </View>
       </View>
     </View>

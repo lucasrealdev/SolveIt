@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, TextInput, Pressable, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { createUser } from '@/lib/appwriteConfig';
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
@@ -49,8 +49,7 @@ export default function SignUp() {
 
       setUser(result);
       setIsLogged(true);
-      router.replace("/");
-
+      <Redirect href="/" />
     } catch (error) {
       handleAppwriteUpError(error);
     } finally {
