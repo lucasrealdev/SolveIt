@@ -1,5 +1,5 @@
 import { Stack, usePathname, SplashScreen } from 'expo-router';
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { useFonts } from 'expo-font';
@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 
 import "../styles/global.css";
 import { useEffect } from 'react';
+import GlobalProvider from '@/context/GlobalProvider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,20 +52,23 @@ export default function Layout() {
   const isMobile = width <= 770 ? "column-reverse" : "row";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#0172B1" }} edges={["top"]}>
-      <View className='flex flex-1' accessibilityLabel="containerLayout" style={{ flexDirection: isMobile }}>
-        {/* Renderiza o menu apenas se a rota atual estiver na lista de exibição */}
-        {shouldShowMenu && <Menu home={10} friends={2} />}
-        
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+    <GlobalProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#0172B1" }} edges={["top"]}>
+        <View className='flex flex-1' accessibilityLabel="containerLayout" style={{ flexDirection: isMobile }}>
+          {/* Renderiza o menu apenas se a rota atual estiver na lista de exibição */}
+          {shouldShowMenu && <Menu home={10} friends={2} />}
+          
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
 
-        {/* Renderiza o header apenas se a rota atual estiver na lista de exibição */}
-        {shouldShowHeader && <Header notificacao={10} conversas={9} />}
-      </View>
-    </SafeAreaView>
+          {/* Renderiza o header apenas se a rota atual estiver na lista de exibição */}
+          {shouldShowHeader && <Header notificacao={10} conversas={9} />}
+        </View>
+      </SafeAreaView>
+    </GlobalProvider>
   );
 }

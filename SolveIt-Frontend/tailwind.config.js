@@ -29,10 +29,12 @@ module.exports = {
       },
       colors: {
         textoCinza: '#888888',
+        textoCinzaClaro: '#CBD5E1',
         destaqueAzul: '#0172B1',
         destaqueAzulEscuro: '#001646',
         destaqueVerde: '#01B198',
         textoCinzaEscuro: '#475569',
+        textoPretoCinza: '#1E293B'
       }
     },
   },
