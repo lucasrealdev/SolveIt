@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 
 const TabsLayout = () => {
   const {loading, isLogged} = useGlobalContext();
+
   if (!loading && !isLogged) return <Redirect href="/signIn" />;
 
   return (

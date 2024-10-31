@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View, PressableProps } from 'react-native';
+import { Pressable, Text, View, ActivityIndicator, PressableProps } from 'react-native';
 
 interface ButtonProps extends PressableProps {
   className?: string;
   children: React.ReactNode;
+  isLoading?: boolean; // Prop para exibir loader
   onHoverIn?: () => void;
   onHoverOut?: () => void;
   onPressIn?: () => void;
@@ -13,6 +14,7 @@ interface ButtonProps extends PressableProps {
 const Button = ({ 
   className = '', 
   children, 
+  isLoading = false, // Define padrão como false
   onHoverIn = () => {}, 
   onHoverOut = () => {}, 
   onPressIn = () => {}, 
@@ -39,8 +41,13 @@ const Button = ({
       onPressOut={onPressOut}
       onHoverIn={handleHoverIn}
       onHoverOut={handleHoverOut}
+      disabled={isLoading} // Desativa o botão enquanto carrega
     >
-      {children}
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#FFF" /> // Exibe o loader se isLoading for true
+      ) : (
+        children
+      )}
     </Pressable>
   );
 };

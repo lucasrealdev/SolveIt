@@ -79,15 +79,15 @@ const Post: React.FC<PostProps> = ({
   ];
 
   return (
-    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-[#E2E8F0] items-center'>
-      <View accessibilityLabel="HeaderPost" className='flex w-full px-[20px] py-3 gap-[15px] border-b border-[#E2E8F0] flex-row items-center'>
+    <View accessibilityLabel="Post" className='bg-white rounded-[24px] flex w-full border border-borderStandardLight items-center'>
+      <View accessibilityLabel="HeaderPost" className='flex w-full px-[20px] py-3 gap-[15px] border-b border-borderStandardLight flex-row items-center'>
         <View accessibilityLabel="ContainerProfile" className='flex flex-1 flex-row gap-[12px] items-center'>
           <Pressable onPress={() => navigateTo("profile")}>
             <Image source={{ uri: FotoPerfil }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
           </Pressable>
           <View accessibilityLabel="ContainerText">
-            <Text className='font-bold text-[14px]'>{NomePerfil}</Text>
-            <Text className='text-[14px] text-[#475569]'>{CategoriaPost}</Text>
+            <Text className='font-bold text-[14px] text-textStandardDark'>{NomePerfil}</Text>
+            <Text className='text-[14px] text-textSecondary'>{CategoriaPost}</Text>
           </View>
         </View>
         <Pressable
@@ -118,7 +118,7 @@ const Post: React.FC<PostProps> = ({
             >
               <CustomIcons name={icon} size={iconSize} color={iconHovered[icon] ? darkenColor(color) : color} />
               {!shouldHideText && (
-                <Text className='font-medium text-[14px]'>
+                <Text className='font-medium text-[14px] text-textStandardDark'>
                   {text} {icon.charAt(0).toUpperCase() + icon.slice(1)}
                 </Text>
               )}
@@ -135,11 +135,11 @@ const Post: React.FC<PostProps> = ({
         </View>
       </View>
 
-      <View accessibilityLabel="FooterPost" className='px-5 py-2 w-full flex border-t border-[#E2E8F0]'>
+      <View accessibilityLabel="FooterPost" className='px-5 py-2 w-full flex border-t border-borderStandardLight'>
         <View className='flex w-full flex-row items-center h-[60px] gap-2'>
           <View accessibilityLabel="CommentaryPost" className='flex flex-1 flex-row gap-2'>
             <Image source={images.person} className={`border-white border-[2px] rounded-full w-[40px] h-[40px] ${isMobile}`} />
-            <TextInput accessibilityLabel='Commentary' placeholder="Comente aqui" className='border-slate-300 border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-[#475569] text-[14px] font-medium outline-none' />
+            <TextInput accessibilityLabel='Commentary' placeholder="Comente aqui" className='border-borderStandardLight border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-textStandardDark text-sm font-medium outline-none' />
           </View>
 
           <View accessibilityLabel='ContainerVectors' className='flex-row gap-2'>
@@ -147,7 +147,7 @@ const Post: React.FC<PostProps> = ({
               <Pressable
                 onHoverIn={() => handleHover(scaleRostoFeliz, 1.08)}
                 onHoverOut={() => handleHover(scaleRostoFeliz, 1)}
-                className='border-[#E2E8F0] border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
+                className='border-borderStandardLight border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
               >
                 <CustomIcons name="rostoFeliz" size={24} color="#475569" />
               </Pressable>
@@ -157,7 +157,7 @@ const Post: React.FC<PostProps> = ({
               <Pressable
                 onHoverIn={() => handleHover(scaleEnviar, 1.08)}
                 onHoverOut={() => handleHover(scaleEnviar, 1)}
-                className='border-destaqueVerde border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
+                className='border-accentStandardDark border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
               >
                 <CustomIcons size={24} name='enviar' color='#01B198' />
               </Pressable>

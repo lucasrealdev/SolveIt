@@ -15,12 +15,12 @@ const CardFriend: React.FC<CardFriendProps> = ({ label }) => {
   return (
     <View
       accessibilityLabel="Amigo"
-      className={`flex flex-row border-b border-[#E2E8F0] py-4 ${label !== 'menu' ? 'px-[15px]' : ''} gap-3 items-center`}
+      className={`flex flex-row border-b border-borderStandardLight py-4 ${label !== 'menu' ? 'px-[15px]' : ''} gap-3 items-center`}
     >
       <Image className="w-[40px] h-[40px] rounded-full" source={images.person} />
       <View className="flex-1 gap-[1px]">
-        <Text className="text-[#475569] font-bold text-[14px]">Júlia Smith</Text>
-        <Text className="text-[#475569] font-medium text-[14px]">@juliasmith</Text>
+        <Text className="text-textSecondary font-bold text-[14px]">Júlia Smith</Text>
+        <Text className="text-textSecondary font-medium text-[14px]">@juliasmith</Text>
       </View>
       <Pressable
         onHoverIn={() => setHovered(true)}

@@ -45,8 +45,8 @@ const TextInputModel: React.FC<TextInputModelProps> = ({
   
     return (
       <View className="gap-2 w-full">
-        <Text className="font-bold text-textoPretoCinza">{title}</Text>
-        <View className={`p-3 rounded-full flex flex-row gap-2 items-center ${multiline ? 'h-[144px]' : 'h-[48px]'} border ${isFocused ? 'border-[#01B198]' : 'border-textoCinzaClaro'} bg-white`}>
+        <Text className="font-bold text-textStandardDark">{title}</Text>
+        <View className={`p-3 rounded-full flex flex-row gap-2 items-center ${multiline ? 'h-[144px]' : 'h-[48px]'} border ${isFocused ? 'border-accentStandardDark' : 'border-borderStandard'} bg-white`}>
           {icon && (
             <CustomIcons name={icon} size={20} color="#475569" />
           )}

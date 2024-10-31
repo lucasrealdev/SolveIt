@@ -1,15 +1,16 @@
-import { Redirect, Stack, useRouter } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Loader from "@/components/Loader";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { View } from "react-native";
 
 const AuthLayout = () => {
   const {loading, isLogged} = useGlobalContext();
-
+  console.log(isLogged);
   if (!loading && isLogged) return <Redirect href="/" />;
 
   return (
-    <>
+    <View className="flex-1">
       <Stack>
         <Stack.Screen
           name="signIn"
@@ -27,7 +28,7 @@ const AuthLayout = () => {
 
       <Loader isLoading={loading} />
       <StatusBar backgroundColor="#161622" style="light" />
-    </>
+    </View>
   );
 };
 

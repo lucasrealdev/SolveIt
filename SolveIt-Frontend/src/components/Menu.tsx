@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { signOut } from "@/lib/appwriteConfig";
+import images from "@/constants/images";
 
 interface MenuProps {
   home?: number;
@@ -56,7 +57,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
         <View className="relative">
           {notificationCount !== undefined && (
             <View className="absolute bg-white w-[16px] h-[16px] rounded-full items-center justify-center top-[-5px] right-[-10px] z-10">
-              <Text className="text-[#0172B1] text-xs font-semibold">{notificationCount}</Text>
+              <Text className="text-primaryStandardDark text-[10px] leading-3 font-semibold">{notificationCount}</Text>
             </View>
           )}
           <CustomIcons name={iconName} size={26} color={iconColor} />
@@ -80,9 +81,9 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   };
 
   const renderDesktopMenu = () => (
-    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-destaqueAzul px-[16px] py-[32px]" style={{ width: containerWidth }}>
+    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
       <View className="flex gap-[32px] w-full">
-        <Image style={{ width: 115, height: 32 }} source={{ uri: 'https://i.ibb.co/wBqcsxM/Logo.png' }} />
+        <Image style={{ width: 115, height: 32 }} source={images.logo} />
         <View className="flex gap-[6px] rounded-[124px] border border-[#3692C5] h-[40px] flex-row items-center p-[12px] py-[8px]">
           <CustomIcons name="pesquisar" size={17} color="#FFFFFF" />
           <TextInput className="outline-none flex-1 text-white text-base h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" />
@@ -98,9 +99,9 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
 
       <View className="flex w-full gap-6">
         {isVisible && (
-          <View accessibilityLabel="CardPremium" className={`flex gap-[16px] p-[16px] bg-[#3692C5] rounded-[24px] w-full ${isTablet}`}>
+          <View accessibilityLabel="CardPremium" className={`flex gap-[16px] p-[16px] bg-secondaryStandardDark rounded-[24px] w-full ${isTablet}`}>
             <View className="flex flex-row justify-between">
-              <View className="w-[40px] h-[40px] flex bg-[#49A7DB] rounded-full items-center justify-center">
+              <View className="w-[40px] h-[40px] flex bg-secondaryStandard rounded-full items-center justify-center">
                 <CustomIcons name="perigo" size={20} color="#FFF" />
               </View>
               <Pressable onPress={() => setIsVisible(false)}>
@@ -114,12 +115,12 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
             </View>
           </View>
         )}
-        <View accessibilityLabel="CardConta" className="flex gap-4 pt-6 border-t border-[#C7D2FE] flex-row items-end">
+        <View accessibilityLabel="CardConta" className="flex gap-4 pt-6 border-t border-borderStandard flex-row items-end">
           <Pressable className="flex flex-1 flex-row items-center gap-3">
             <Image className="w-[40px] h-[40px] rounded-full" source={require('@/assets/icon.png')} />
             <View className="flex gap-[2px]">
               <Text className="text-white font-bold text-base">Azunyan U. Wu</Text>
-              <Text className="text-[#C7D2FE] font-medium text-sm">Membro Básico</Text>
+              <Text className="text-textStandard font-medium text-sm">Membro Básico</Text>
             </View>
           </Pressable>
           <Pressable

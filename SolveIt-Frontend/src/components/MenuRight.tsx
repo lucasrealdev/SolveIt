@@ -27,13 +27,13 @@ export default function MenuRight() {
   };
 
   const renderEventCard = ({ title, date, icon }, index) => (
-    <View key={index} accessibilityLabel="CardEvento" className="flex flex-row border-t border-[#E2E8F0] py-[12px] gap-3 items-center">
+    <View key={index} accessibilityLabel="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
       <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
         <CustomIcons name={icon} color="#01B198" size={20} />
       </View>
       <View className="flex flex-1">
-        <Text className="text-[#475569] font-bold text-[14px]">{title}</Text>
-        <Text className="text-[#475569] font-normal text-[14px]">{date}</Text>
+        <Text className="text-textSecondary font-bold text-[14px]">{title}</Text>
+        <Text className="text-textSecondary font-normal text-[14px]">{date}</Text>
       </View>
       <CustomIcons name="notificacao" color="#94A3B8" size={20} />
     </View>
@@ -46,8 +46,8 @@ export default function MenuRight() {
   if (!isMobile) return null;
 
   return (
-    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] border-l border-[#E2E8F0] bg-white" style={{ width: containerWidth }}>
-      <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[20px] flex-row justify-between border-b border-[#E2E8F0]">
+    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] border-l border-borderStandardLight bg-white" style={{ width: containerWidth }}>
+      <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[20px] flex-row justify-between border-b border-borderStandardLight">
         <Pressable className="flex justify-center items-end">
           <Image className="w-12 h-12 object-cover rounded-full" source={images.person} />
           <View className="w-3 h-3 bg-[#22C55E] border-white border-[1.5px] rounded-full mt-[-12px]" />
@@ -58,7 +58,7 @@ export default function MenuRight() {
             return (
               <Pressable
                 key={index}
-                className="flex p-[11px] border border-[#CBD5E1] rounded-full"
+                className="flex p-[11px] border border-borderStandard rounded-full"
                 onHoverIn={() => handleHover(scaleValue, 1.08)}
                 onHoverOut={() => handleHover(scaleValue, 1)}
               >
@@ -81,7 +81,7 @@ export default function MenuRight() {
               onPress={() => navigateTo("/friends")}
               className="flex flex-row items-end gap-2"
             >
-              <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
+              <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-accentStandardDark'}`}>
                 Ver tudo
               </Text>
               <CustomIcons name="setaDireita" color={isHoveredVerTudo ? '#049681' : '#01B198'} size={20} />

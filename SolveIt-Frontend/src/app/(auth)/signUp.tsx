@@ -10,10 +10,12 @@ import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { handleAppwriteUpError } from "@/utils/handleErrors";
-import CustomModal from "@/components/CustomModal";
+import { useAlert } from "@/context/AlertContext";
 
 export default function SignUp() {
   const router = useRouter();
+  const { showAlert } = useAlert();
+
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -22,9 +24,6 @@ export default function SignUp() {
     email: '',
     password: ''
   });
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState(""); // Armazena a mensagem do modal
 
   const handleInputChange = (field, value) => {
     setFormData((prevData) => ({
@@ -44,46 +43,41 @@ export default function SignUp() {
       const result = await createUser(formData.email, formData.password, formData.username);
 
       if (!result) {
+        showAlert("Erro", "Não foi possível criar o usuário");
         throw new Error("Não foi possível criar o usuário");
       }
 
       setUser(result);
       setIsLogged(true);
-      <Redirect href="/" />
+      <Redirect href="/"/>
     } catch (error) {
-      handleAppwriteUpError(error);
+      const { title, message } = handleAppwriteUpError(error);
+      showAlert(title, message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-  };
-
   // Função de validação
-  const validateForm = (form) => {
+  const validateForm = (form: { username: string; email: string; password: string }): boolean => {
     const { username, email, password } = form;
-
+  
     if (!username.trim() || !email.trim() || !password.trim()) {
-      setModalMessage("Por favor, preencha todos os campos obrigatórios."); // Mensagem específica
-      setModalVisible(true);
+      showAlert("Campos obrigatórios", "Por favor, preencha todos os campos obrigatórios.");
       return false;
     }
-
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setModalMessage("E-mail inválido. Por favor, insira um endereço de e-mail válido.");
-      setModalVisible(true);
+      showAlert("E-mail inválido", "Por favor, insira um endereço de e-mail válido.");
       return false;
     }
-
+  
     if (password.length < 8) {
-      setModalMessage("Senha muito curta. Sua senha deve ter pelo menos 8 caracteres.");
-      setModalVisible(true);
+      showAlert("Senha muito curta", "Sua senha deve ter pelo menos 8 caracteres.");
       return false;
     }
-
+  
     return true;
   };
 
@@ -97,12 +91,12 @@ export default function SignUp() {
         end={{ x: 0, y: 1 }}
       >
         <View className="flex-1 justify-center items-center w-full p-2">
-          <View className="bg-white gap-8 p-6 rounded-[32px] border border-textoCinzaClaro shadow-lg w-full max-w-[480px]" accessibilityLabel="CardSignUp">
-            <View className="gap-5">
-              <Image source={images.logoShadow} className="w-12 h-12" />
+          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" accessibilityLabel="CardSignUp">
+            <View className="gap-2">
+              <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]"/>
               <View className="gap-2">
-                <Text className="font-extrabold text-4xl text-textoPretoCinza">Cadastre-se gratuitamente.</Text>
-                <Text className="text-base text-textoCinzaEscuro">Unleash your inner sloth 4.0 right now.</Text>
+                <Text className="font-extrabold text-4xl text-textStandardDark">Cadastre-se gratuitamente.</Text>
+                <Text className="text-base text-textStandardDark">Unleash your inner sloth 4.0 right now.</Text>
               </View>
             </View>
 
@@ -142,43 +136,35 @@ export default function SignUp() {
             </View>
 
             <View accessibilityLabel="ContainerButtonSignUp" className="gap-6">
-              <Button className="bg-destaqueVerde rounded-full py-3 gap-2" onPress={sendUser}>
+              <Button className="bg-accentStandardDark rounded-full py-3 gap-2" onPress={sendUser} isLoading={isSubmitting}>
                 <TextButton text="Cadastrar" />
                 <CustomIcons name="sair" color="white" size={20} />
               </Button>
 
               <View className="w-full flex items-center flex-row justify-center">
-                <Text className="text-textoPretoCinza font-bold">Você já tem uma conta?{' '}</Text>
+                <Text className="text-textStandardDark font-bold">Você já tem uma conta?{' '}</Text>
                 <Pressable onPress={() => router.push('/signIn')}>
-                  <Text className="text-destaqueVerde font-bold">Entre</Text>
+                  <Text className="text-accentStandardDark font-bold">Entre</Text>
                 </Pressable>
               </View>
             </View>
 
             <View className="w-full gap-3 flex-row justify-center items-center">
-              <View className="h-[1px] flex-1 bg-[#CBD5E1]"></View>
+              <View className="h-[1px] flex-1 bg-borderStandard"></View>
               <Text className="text-[#94A3B8] font-extrabold">OU</Text>
-              <View className="h-[1px] flex-1 bg-[#CBD5E1]"></View>
+              <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <Pressable className="w-full border border-textoCinzaClaro py-[10px] rounded-full flex flex-row justify-center items-center gap-3">
+            <Pressable className="w-full border border-textStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3">
               <Image source={images.google} className="w-6 h-6" />
-              <Text className="font-bold text-textoPretoCinza">Continuar com Google</Text>
+              <Text className="font-bold text-textStandardDark">Continuar com Google</Text>
             </Pressable>
           </View>
         </View>
 
-        <BlurView intensity={50} tint="dark" className="w-full p-4 border border-t-textoCinzaClaro">
-          <Text className="text-center text-textoCinzaClaro">© 2024 SolveIt. Todos os direitos reservados.</Text>
+        <BlurView intensity={50} tint="dark" className="w-full p-4 border border-t-borderStandard">
+          <Text className="text-center text-textStandard">© 2024 SolveIt. Todos os direitos reservados.</Text>
         </BlurView>
-
-        {/* Renderizando o Modal aqui */}
-        <CustomModal 
-          visible={modalVisible} 
-          onClose={toggleModal} 
-          title="Erro de Validação" 
-          message={modalMessage} // Mensagem do modal agora é dinâmica
-        />
       </LinearGradient>
     </ScrollView>
   );

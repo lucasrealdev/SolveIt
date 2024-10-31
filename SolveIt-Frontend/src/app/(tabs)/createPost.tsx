@@ -60,10 +60,10 @@ const TextInputModel = ({ title, placeholder, multiline = false, maxLength, keyb
   return (
     <View className="p-[10px] gap-[10px]">
       <Text className="font-bold">{title}</Text>
-      <View className={`p-[10px] rounded-[20px] ${multiline ? 'h-[144px]' : 'h-[48px]'} justify-start border-[1px] ${isFocused ? 'border-[#01B198]' : 'border-[#3692C5]'} bg-white`}>
+      <View className={`p-[10px] rounded-[20px] ${multiline ? 'h-[144px]' : 'h-[48px]'} justify-start border-[1px] ${isFocused ? 'border-accentStandardDark' : 'border-primaryStandardDark'} bg-white`}>
         <TextInput
           placeholder={placeholder}
-          className="outline-none text-[16px] text-[#475569]"
+          className="outline-none text-[16px] text-textStandardDark"
           numberOfLines={multiline ? 10 : 1}
           maxLength={maxLength}
           multiline={multiline}
@@ -144,12 +144,12 @@ export default function CreatePost() {
             <DropdownModel data={urgencies} title="Urgência do problema" placeholder="Selecione uma urgência" setSelected={setSelectedUrgency} />
 
             <Pressable className="p-[10px]">
-              <View className="rounded-[20px] border-dashed border-2 border-[#CBD5E1] flex justify-center items-center bg-white py-5 px-4">
+              <View className="rounded-[20px] border-dashed border-2 border-borderStandard flex justify-center items-center bg-white py-5 px-4">
                 <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
                   <CustomIcons name="upload" size={24} />
                 </View>
-                <Text className="text-[14px] font-medium text-[#475569] text-center"><Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu arquivo ou arraste</Text>
-                <Text className="text-[#94A3B8] text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
+                <Text className="text-[14px] font-medium text-textStandardDark text-center"><Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu arquivo ou arraste</Text>
+                <Text className="text-textStandard text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
               </View>
             </Pressable>
             <Animated.View
@@ -165,11 +165,11 @@ export default function CreatePost() {
               }}
             >
               <Pressable
-                className="border-[1px] w-full h-full flex flex-row items-center justify-center rounded-full border-[#01B198] gap-[10px] shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
+                className="border-[1px] w-full h-full flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px] shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
                 onHoverIn={() => handleHoverIn(scaleValue)}
                 onHoverOut={() => handleHoverOut(scaleValue)}
               >
-                <Text className="text-[#01B198] text-[18px] font-semibold" style={{ lineHeight: 22 }}>
+                <Text className="text-accentStandardDark text-[18px] font-semibold" style={{ lineHeight: 22 }}>
                   Enviar
                 </Text>
                 <CustomIcons name="enviarBotao" size={24} />

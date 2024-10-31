@@ -38,14 +38,14 @@ export default function Friends() {
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
       <SearchHeader />
-      <View className="flex-1 bg-[#F8FAFC] items-center">
-        <View className="max-w-[1000px] w-full bg-[#F8FAFC] px-[10px] py-6 gap-4">
+      <View className="flex-1 bg-backgroundStandardDark items-center">
+        <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-4">
           <View accessibilityLabel="ContainerSugestaoAmigos">
-            <Text className="font-bold text-xl text-[#1E293B] mb-6">
+            <Text className="font-bold text-xl text-textStandardDark mb-6">
               Sugestão de amigos
             </Text>
 
-            <View accessibilityLabel="ContainerAmigos" className="rounded-[10px] border border-[#E2E8F0] bg-white">
+            <View accessibilityLabel="ContainerAmigos" className="rounded-[10px] border border-borderStandardLight bg-white">
               <CardAmigo label="seguidores" />
               <CardAmigo label="seguidores" />
               <CardAmigo label="seguidores" />
@@ -58,7 +58,7 @@ export default function Friends() {
               onHoverOut={() => setIsHoveredVerTudo(false)}
               className="flex flex-row items-end gap-2 w-fit mt-4">
 
-              <Text className={`font-bold text-[15px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-destaqueVerde'}`}>
+              <Text className={`font-bold text-[15px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-accentStandardDark'}`}>
                 Carregar Mais
               </Text>
               
@@ -68,9 +68,9 @@ export default function Friends() {
             </Pressable>
           </View>
 
-          <View accessibilityLabel="Linha" className="w-full bg-[#E2E8F0] h-[1px] rounded-xl"></View>
+          <View accessibilityLabel="Linha" className="w-full bg-borderStandardLight h-[1px] rounded-xl"></View>
 
-          <View accessibilityLabel="Buttons" className="w-full h-[45px] rounded-[20px] flex-row items-center justify-between max-w-[311px] bg-[#252628]">
+          <View accessibilityLabel="Buttons" className="w-full h-[45px] rounded-[20px] flex-row items-center justify-between max-w-[311px] bg-textStandardDark">
             <Animated.View style={[styles.activeBar, { transform: [{ translateX }], width: buttonWidth }]} />
 
             <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguidores} onLayout={handleButtonLayout}>
@@ -82,7 +82,7 @@ export default function Friends() {
             </Pressable>
           </View>
 
-          <View accessibilityLabel="ContainerSeguidores" className="rounded-[10px] border border-[#E2E8F0] bg-white">
+          <View accessibilityLabel="ContainerSeguidores" className="rounded-[10px] border border-borderStandardLight bg-white">
             <CardAmigo label="amigo" />
             <CardAmigo label="amigo" />
             <CardAmigo label="amigo" />

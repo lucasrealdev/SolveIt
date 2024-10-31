@@ -35,7 +35,7 @@ O **SolveIt** é um aplicativo mobile desenvolvido com React Native, TypeScript 
    ```
 4. Execute o aplicativo:
    ```bash
-   npx expo start
+   npx expo start -c
    ```
 
 ## **Boas Práticas de Desenvolvimento**

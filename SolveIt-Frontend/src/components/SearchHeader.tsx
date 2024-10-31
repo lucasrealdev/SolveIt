@@ -20,11 +20,11 @@ export default function SearchHeader() {
     };
 
     return (
-        <View className={`bg-white w-full flex px-3 py-[21px] border-b border-[#E2E8F0] gap-2 ${isMobile}`}>
-            <View accessibilityLabel="containerInput" className="border border-[#ededed] rounded-full flex flex-row gap-3 p-3 justify-center flex-1">
+        <View className={`bg-white w-full flex px-3 py-[21px] border-b border-borderStandardLight gap-2 ${isMobile}`}>
+            <View accessibilityLabel="containerInput" className="border border-borderStandardLight rounded-full flex flex-row gap-3 p-3 justify-center flex-1">
                 <TextInput
                     placeholder="Pesquise problemas"
-                    className="flex flex-1 h-5 outline-none text-base text-[#475569] font-medium"
+                    className="flex flex-1 h-5 outline-none text-base text-textStandardDark font-medium"
                 />
                 <Pressable onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
                     <CustomIcons name="pesquisar" size={20} color={hovered ? darkenColor(color) : color} />
@@ -32,7 +32,7 @@ export default function SearchHeader() {
             </View>
             <Button
                 onPress={() => navigateTo("createPost")}
-                className="rounded-full bg-destaqueVerde gap-[10px] px-5 py-3"
+                className="rounded-full bg-accentStandardDark gap-[10px] px-5 py-3"
             >
                 <TextButton text="Contribuir no mundo" style="text-white font-bold" />
                 <IconButton icon={<CustomIcons name="mais" size={20} color="#fff" />} />

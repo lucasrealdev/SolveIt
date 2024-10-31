@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import Post from "@/components/Post";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
-import GradientText from "react-native-gradient-texts";
 
 const Profile = () => {
   const animation = useRef(new Animated.Value(0)).current;
@@ -36,7 +35,7 @@ const Profile = () => {
           <View className="relative">
             <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover"/>
             <Pressable 
-              className="absolute w-8 h-8 rounded-full bg-white left-[10px] top-[10px] border border-[#E2E8F0] flex items-center justify-center"
+              className="absolute w-8 h-8 rounded-full bg-white left-[10px] top-[10px] border border-borderStandardLight flex items-center justify-center"
               onPress={() => router.back()}
             >
               <CustomIcons name="anterior" color="#475569" size={24} />
@@ -51,10 +50,10 @@ const Profile = () => {
         </View>
 
         <View className="flex w-full max-w-[700px] px-[10px] gap-[10px]">
-          <Text className="font-bold text-xl bg-gradient-to-r from-emerald-400 via-violet-600 to-yellow-500 bg-clip-text">Rodrigo Silva 1223</Text>
+          <Text className="font-bold text-xl text-textStandardDark">Rodrigo Silva 1223</Text>
           <Text className="text-base">Olá! 👋 Eu tenho 19 anos, gosto do mundo de algoritmos e sou estudante da Tecnologia da Informação.</Text>
 
-          <View className="flex-row items-center justify-between w-full h-[50px] rounded-[20px] bg-[#252628] max-w-[420px] relative">
+          <View className="flex-row items-center justify-between w-full h-[50px] rounded-[20px] bg-textStandardDark max-w-[420px] relative">
             <Animated.View style={[styles.activeBar, { transform: [{ translateX }], width: buttonWidth }]} />
             {["Publicações", "Informações"].map((title, index) => (
               <Pressable key={index} className="flex-1 justify-center items-center bg-transparent" onPress={() => moveTo(index)} onLayout={handleButtonLayout}>

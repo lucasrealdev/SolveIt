@@ -44,7 +44,7 @@ const BarStory: React.FC = () => {
   ];
 
   return (
-    <View accessibilityLabel="ContainerStory" className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-[#E2E8F0]">
+    <View accessibilityLabel="ContainerStory" className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-borderStandardLight">
       {users.map((user, index) => (
         <Pressable key={index} accessibilityLabel="ContainerProfile" className="flex justify-center items-center w-fit">
           <LinearGradient
@@ -56,10 +56,10 @@ const BarStory: React.FC = () => {
           >
             <Image source={images.person} className="border-white border-[2px] rounded-full w-[64px] h-[64px]" />
           </LinearGradient>
-          <Text className="text-textoCinzaEscuro font-semibold">{user.name}</Text>
+          <Text className="text-textStandardDark font-semibold">{user.name}</Text>
         </Pressable>
       ))}
-      <Pressable className="w-8 h-8 absolute rounded-full bg-white right-[10px] border border-[#E2E8F0] flex items-center justify-center">
+      <Pressable className="w-8 h-8 absolute rounded-full bg-white right-[10px] border border-borderStandardLight flex items-center justify-center">
         <CustomIcons name="proximo" color="#475569" size={20} />
       </Pressable>
     </View>

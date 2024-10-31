@@ -28,13 +28,23 @@ module.exports = {
         plusJakartaSansBoldItalic: ['PlusJakartaSans-BoldItalic', 'sans-serif'],
       },
       colors: {
-        textoCinza: '#888888',
-        textoCinzaClaro: '#CBD5E1',
-        destaqueAzul: '#0172B1',
-        destaqueAzulEscuro: '#001646',
-        destaqueVerde: '#01B198',
-        textoCinzaEscuro: '#475569',
-        textoPretoCinza: '#1E293B'
+        textStandard: '#c5d0e2',
+        backgroundStandard: '#030507',
+        primaryStandard: '#4dc0fe',
+        secondaryStandard: '#3a9ed6',
+        accentStandard: '#4dfee4',
+
+        textStandardDark: '#1d283a',
+        backgroundStandardDark: '#f8fafc',
+        primaryStandardDark: '#0174b2',
+        secondaryStandardDark: '#298dc7',
+        accentStandardDark: '#01b297',
+
+        textSecondary: '#475569',
+
+        backgroundStandardLight: '#fff',
+        borderStandard: '#CBD5E1',
+        borderStandardLight: '#E2E8F0',
       }
     },
   },
