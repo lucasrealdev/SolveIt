@@ -5,9 +5,6 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { View } from "react-native";
 
 const AuthLayout = () => {
-  // const {loading, isLogged} = useGlobalContext();
-  // if (!loading && isLogged) return <Redirect href="/" />;
-
   return (
     <View className="flex-1">
       <Stack>
@@ -25,7 +22,6 @@ const AuthLayout = () => {
         />
       </Stack>
 
-      {/* <Loader isLoading={loading} /> */}
       <StatusBar backgroundColor="#161622" style="light" />
     </View>
   );

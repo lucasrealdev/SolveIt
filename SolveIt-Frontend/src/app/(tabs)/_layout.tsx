@@ -2,12 +2,11 @@ import React from 'react';
 import { Redirect, Stack } from 'expo-router';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import Loader from '@/components/Loader';
-import { StatusBar } from 'expo-status-bar';
 
 const TabsLayout = () => {
-  // const {loading, isLogged} = useGlobalContext();
-  // if (!loading && !isLogged) return <Redirect href="/signIn" />;
-
+  const {loading, isLogged} = useGlobalContext();
+  if (!loading && !isLogged) return <Redirect href="/signIn" />;
+  
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
@@ -19,7 +18,7 @@ const TabsLayout = () => {
         <Stack.Screen name="profile" options={{ headerShown: false }} />
       </Stack>
 
-      {/* <Loader isLoading={loading} /> */}
+      <Loader isLoading={loading} />
     </>
   );
 };

@@ -5,6 +5,7 @@ import CustomIcons from "@/assets/icons/CustomIcons";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { signOut } from "@/lib/appwriteConfig";
 import images from "@/constants/images";
+import { useAlert } from "@/context/AlertContext";
 
 interface MenuProps {
   home?: number;
@@ -18,6 +19,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const greyColor = "#3692C5";
   const router = useRouter();
   const pathname = usePathname();
+  const { showAlert } = useAlert();
   const { width, height } = useWindowDimensions();
   const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
 
@@ -42,7 +44,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
               style={{ lineHeight: 14 }}>
               {notificationCount}
             </Text>
-          </View>        
+          </View>
         )}
       </Pressable>
     );
@@ -70,15 +72,16 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
 
-  // const { setUser, setIsLogged } = useGlobalContext();
+  const { setUser, setIsLogged, user } = useGlobalContext();
 
-  // const logout = async () => {
-  //   await signOut();
-  //   setUser(null);
-  //   setIsLogged(false);
+  const logout = async () => {
+    await signOut();
+    setUser(null);
+    setIsLogged(false);
 
-  //   router.replace("/signIn");
-  // };
+    showAlert("Sucesso", "Você saiu da conta com sucesso!");
+    router.replace("/signIn");
+  };
 
   const renderDesktopMenu = () => (
     <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
@@ -119,12 +122,20 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
           <Pressable className="flex flex-1 flex-row items-center gap-3">
             <Image className="w-[40px] h-[40px] rounded-full" source={require('@/assets/icon.png')} />
             <View className="flex gap-[2px]">
-              <Text className="text-white font-bold text-base">Azunyan U. Wu</Text>
-              <Text className="text-textStandard font-medium text-sm">Membro Básico</Text>
+              {user ? (
+                // Se o usuário estiver logado, exiba o nome de usuário e o status de membro
+                <>
+                  <Text className="text-white font-bold text-base">{user.username}</Text>
+                  <Text className="text-textStandard font-medium text-sm">Membro Básico</Text>
+                </>
+              ) : (
+                // Se o usuário não estiver logado, exiba uma mensagem ou interface alternativa
+                <Text className="text-white font-bold text-base">Faça login.</Text>
+              )}
             </View>
           </Pressable>
           <Pressable
-            // onPress={logout}
+            onPress={logout}
           >
             <CustomIcons name="sair" size={24} color="#FFFFFF" />
           </Pressable>
