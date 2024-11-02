@@ -70,15 +70,15 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
 
-  const { user, setUser, setIsLogged } = useGlobalContext();
+  // const { setUser, setIsLogged } = useGlobalContext();
 
-  const logout = async () => {
-    await signOut();
-    setUser(null);
-    setIsLogged(false);
+  // const logout = async () => {
+  //   await signOut();
+  //   setUser(null);
+  //   setIsLogged(false);
 
-    router.replace("/signIn");
-  };
+  //   router.replace("/signIn");
+  // };
 
   const renderDesktopMenu = () => (
     <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
@@ -124,7 +124,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
             </View>
           </Pressable>
           <Pressable
-            onPress={logout}
+            // onPress={logout}
           >
             <CustomIcons name="sair" size={24} color="#FFFFFF" />
           </Pressable>

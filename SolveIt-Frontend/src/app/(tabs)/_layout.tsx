@@ -5,9 +5,8 @@ import Loader from '@/components/Loader';
 import { StatusBar } from 'expo-status-bar';
 
 const TabsLayout = () => {
-  const {loading, isLogged} = useGlobalContext();
-
-  if (!loading && !isLogged) return <Redirect href="/signIn" />;
+  // const {loading, isLogged} = useGlobalContext();
+  // if (!loading && !isLogged) return <Redirect href="/signIn" />;
 
   return (
     <>
@@ -20,8 +19,7 @@ const TabsLayout = () => {
         <Stack.Screen name="profile" options={{ headerShown: false }} />
       </Stack>
 
-      <Loader isLoading={loading} />
-      <StatusBar backgroundColor="#161622" style="light" />
+      {/* <Loader isLoading={loading} /> */}
     </>
   );
 };

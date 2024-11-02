@@ -3,13 +3,13 @@ import { View, Text, ScrollView, Image, TextInput, Pressable } from "react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getCurrentUser, signIn } from "@/lib/appwriteConfig";
+import { getCurrentUser, signIn, signOut } from "@/lib/appwriteConfig";
 import { handleAppwriteInError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
 
@@ -31,13 +31,21 @@ export default function SignIn() {
 
     setSubmitting(true);
 
+    let result = null; // Inicializa a variável result
+
     try {
+      await signOut();
       await signIn(formData.email, formData.password);
-      const result = await getCurrentUser();
-      
+      result = await getCurrentUser(); // Atribui o valor a result
+
+      if (!result) {
+        return;
+      }
+
       setUser(result);
       setIsLogged(true);
-      <Redirect href="/"/>
+      showAlert("Sucesso", "Bem Vindo! Entrou com sucesso");
+      router.push("/")
     } catch (error) {
       const { title, message } = handleAppwriteInError(error);
       showAlert(title, message);
@@ -46,26 +54,27 @@ export default function SignIn() {
     }
   };
 
+
   // Função de validação de formulário
   const validateForm = (form: { email: string; password: string }): boolean => {
     const { email, password } = form;
-  
+
     if (!email.trim() || !password.trim()) {
       showAlert("Campos obrigatórios", "Por favor, preencha todos os campos obrigatórios.");
       return false;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showAlert("E-mail inválido", "Por favor, insira um endereço de e-mail válido.");
       return false;
     }
-  
+
     if (password.length < 8) {
       showAlert("Senha curta", "Sua senha deve ter pelo menos 8 caracteres.");
       return false;
     }
-  
+
     return true;
   };
 
@@ -89,7 +98,7 @@ export default function SignIn() {
         <View className="flex-1 justify-center items-center w-full p-2">
           <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" accessibilityLabel="CardSignIn">
             <View className="gap-2">
-              <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]"/>
+              <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]" />
               <View className="gap-2">
                 <Text className="font-extrabold text-4xl text-textStandardDark">Entre em Sua Conta.</Text>
                 <Text className="text-base text-textStandardDark">Unleash your inner sloth 4.0 right now.</Text>
@@ -102,7 +111,7 @@ export default function SignIn() {
                 placeholder="exemplo@dominio.com"
                 maxLength={50}
                 inputFilter={/[^a-zA-Z0-9@._-]/g}  // Apenas letras, números, '@', '.', '_' e '-'
-                keyboardType="email-address"  
+                keyboardType="email-address"
                 autoCapitalize="none"
                 icon="email"
                 onChangeText={(value) => handleInputChange('email', value)}
@@ -112,7 +121,7 @@ export default function SignIn() {
                 placeholder="*************"
                 maxLength={50}
                 inputFilter={/[^a-zA-Z0-9@#._-]/g}  // Apenas letras, números, '@', '.', '_' e '-'
-                keyboardType="default"  
+                keyboardType="default"
                 autoCapitalize="none"
                 icon="cadeado"
                 password
@@ -122,10 +131,10 @@ export default function SignIn() {
 
             <View accessibilityLabel="ContainerButtonSignin" className="gap-6">
               <Button className="bg-accentStandardDark rounded-full py-3 gap-2"
-              onPress={submit}
-              isLoading={isSubmitting}>
-                <TextButton text="Entrar"/>
-                <CustomIcons name="sair" color="white" size={20}/>
+                onPress={submit}
+                isLoading={isSubmitting}>
+                <TextButton text="Entrar" />
+                <CustomIcons name="sair" color="white" size={20} />
               </Button>
 
               <View className="w-full flex items-center gap-2">
@@ -147,7 +156,7 @@ export default function SignIn() {
             </View>
 
             <Pressable className="w-full border border-borderStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3">
-              <Image source={images.google} className="w-6 h-6"/>
+              <Image source={images.google} className="w-6 h-6" />
               <Text className="font-bold text-textoPretoCinza">Continuar com Google</Text>
             </Pressable>
           </View>

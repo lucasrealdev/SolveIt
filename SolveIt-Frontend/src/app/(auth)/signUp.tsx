@@ -3,8 +3,8 @@ import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
-import { Redirect, useRouter } from 'expo-router';
-import { createUser } from '@/lib/appwriteConfig';
+import { useRouter } from 'expo-router';
+import { createUser, signOut } from '@/lib/appwriteConfig';
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
@@ -40,6 +40,7 @@ export default function SignUp() {
     setSubmitting(true);
 
     try {
+      await signOut();
       const result = await createUser(formData.email, formData.password, formData.username);
 
       if (!result) {
@@ -49,7 +50,9 @@ export default function SignUp() {
 
       setUser(result);
       setIsLogged(true);
-      <Redirect href="/"/>
+      showAlert("Sucesso", "Conta Criada com Sucesso, login automatico!");
+      router.push("/");
+
     } catch (error) {
       const { title, message } = handleAppwriteUpError(error);
       showAlert(title, message);
@@ -136,7 +139,9 @@ export default function SignUp() {
             </View>
 
             <View accessibilityLabel="ContainerButtonSignUp" className="gap-6">
-              <Button className="bg-accentStandardDark rounded-full py-3 gap-2" onPress={sendUser} isLoading={isSubmitting}>
+              <Button className="bg-accentStandardDark rounded-full py-3 gap-2"  isLoading={isSubmitting}
+                onPress={sendUser}
+              >
                 <TextButton text="Cadastrar" />
                 <CustomIcons name="sair" color="white" size={20} />
               </Button>

@@ -40,14 +40,14 @@ export async function createUser(email, password, username) {
       password,
       username
     );
-  
+
     if (!newAccount) throw Error;
-  
+
     // Gera uma URL de avatar inicial usando as iniciais do usuário
     const avatarUrl = avatars.getInitials(username);
-  
+
     await signIn(email, password);
-  
+
     const newUser = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
@@ -59,13 +59,13 @@ export async function createUser(email, password, username) {
         avatar: avatarUrl,
       }
     );
-  
+
     return newUser;
   } catch (error) {
     throw { message: error.message, code: error.code };
   }
 }
-  
+
 // Função para fazer login de usuário
 export async function signIn(email, password) {
   try {
@@ -76,59 +76,90 @@ export async function signIn(email, password) {
     throw new Error(error);
   }
 }
-  
-// Função para obter a conta do usuário atual
-export async function getAccount() {
+
+// Função para verificar e obter a sessão do usuário
+export async function getSession() {
   try {
-    const currentAccount = await account.get();
-  
-    return currentAccount;
+    const session = await account.getSession("current");
+    return session;
   } catch (error) {
-    throw new Error(error);
+    return null; // Retorna null se o usuário não estiver autenticado
   }
 }
-  
-// Função para obter os dados do usuário atual
 
+// Função para obter a conta do usuário atual, se autenticado
+export async function getAccount() {
+  try {
+    const session = await getSession(); // Verifica se há uma sessão ativa
+
+    if (!session) {
+      return null;
+    }
+
+    const currentAccount = await account.get(); // Obtém a conta se autenticado
+
+    return currentAccount;
+  } catch (error) {
+    console.error("Erro ao obter conta do usuário:", error);
+    return null; // Retorna null em caso de erro
+  }
+}
+
+// Função para obter os dados do usuário atual
 export async function getCurrentUser() {
   try {
     const currentAccount = await getAccount();
-    if (!currentAccount) throw Error;
-  
-    const currentUser = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentAccount.$id)]
-    );
-  
-    if (!currentUser) throw Error;
-  
+
+    if (!currentAccount) return null;
+
+    let currentUser;
+
+    try {
+      currentUser = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        [Query.equal("accountId", currentAccount.$id)]
+      );
+    } catch (listError) {
+      return null;
+    }
+
+    if (!currentUser) return null;
+
     return currentUser.documents[0];
   } catch (error) {
-    console.log(error);
+    console.error("Erro ao obter dados do usuário:", error);
     return null;
   }
 }
-  
+
 // Função para fazer logout do usuário
 export async function signOut() {
   try {
-    const session = await account.deleteSession("current");
-  
-    return session;
+    // Verifica se há uma sessão ativa antes de tentar deletá-la
+    const session = await getSession(); // Função que retorna a sessão atual ou null se não houver sessão
+
+    if (!session) {
+      return null; // Retorna null caso não haja sessão ativa
+    }
+
+    // Se há uma sessão ativa, procede com o logout
+    const deletedSession = await account.deleteSession("current");
+    return deletedSession;
   } catch (error) {
+    console.error("Erro ao fazer logout:", error);
     throw new Error(error);
   }
 }
-  
+
 // Função para fazer upload de um arquivo
 export async function uploadFile(file, type) {
   if (!file) return;
-  
+
   // Extrai o tipo MIME do arquivo e mantém o restante das propriedades
   const { mimeType, ...rest } = file;
   const asset = { type: mimeType, ...rest }; // Cria um objeto asset com o tipo e as outras propriedades do arquivo
-  
+
   try {
     // Faz o upload do arquivo para o storage do Appwrite
     const uploadedFile = await storage.createFile(
@@ -136,18 +167,18 @@ export async function uploadFile(file, type) {
       ID.unique(),
       asset
     );
-  
+
     const fileUrl = await getFilePreview(uploadedFile.$id, type);
     return fileUrl;
   } catch (error) {
     throw new Error(error);
   }
 }
-  
+
 // Função para obter a URL de visualização de um arquivo
 export async function getFilePreview(fileId, type) {
   let fileUrl;
-  
+
   try {
     if (type === "image") {
       fileUrl = storage.getFilePreview(
@@ -161,15 +192,15 @@ export async function getFilePreview(fileId, type) {
     } else {
       throw new Error("Invalid file type");
     }
-  
+
     if (!fileUrl) throw Error;
-  
+
     return fileUrl;
   } catch (error) {
     throw new Error(error);
   }
 }
-  
+
 // Função para criar uma nova postagem
 export async function createPost(form) {
   try {
@@ -177,7 +208,7 @@ export async function createPost(form) {
     const [thumbnailUrl] = await Promise.all([
       uploadFile(form.thumbnail, "image"),
     ]);
-  
+
     const newPost = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,
@@ -186,10 +217,10 @@ export async function createPost(form) {
         title: form.title,
         thumbnail: thumbnailUrl,
         description: form.description,
-        creator: form.userId, 
+        creator: form.userId,
       }
     );
-  
+
     return newPost;
   } catch (error) {
     throw new Error(error);
@@ -205,13 +236,13 @@ export async function getAllPosts() {
       appwriteConfig.postsCollectionId,
       [Query.orderDesc("$createdAt")]
     );
-  
+
     return posts.documents;
   } catch (error) {
     throw new Error(error);
   }
 }
-  
+
 // Função para obter as postagens de um usuário específico
 export async function getUserPosts(userId) {
   try {
@@ -221,13 +252,13 @@ export async function getUserPosts(userId) {
       appwriteConfig.postsCollectionId,
       [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
     );
-  
+
     return posts.documents;
   } catch (error) {
     throw new Error(error);
   }
 }
-  
+
 // Função para pesquisar postagens por uma string de consulta
 // Pesquisar por uma string em específico requer a criação de um index 'fulltext' (AppWrite)
 export async function searchPosts(query) {
@@ -237,9 +268,9 @@ export async function searchPosts(query) {
       appwriteConfig.postsCollectionId,
       [Query.search("title", query)]
     );
-  
+
     if (!posts) throw new Error("Something went wrong");
-  
+
     return posts.documents;
   } catch (error) {
     throw new Error(error);

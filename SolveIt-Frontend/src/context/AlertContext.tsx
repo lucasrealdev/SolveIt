@@ -3,6 +3,10 @@ import { Text, Animated, StyleSheet } from 'react-native';
 
 interface AlertContextProps {
   showAlert: (title: string, message: string, duration?: number) => void; // Adicione a prop duration
+  hideAlert: () => void; // Função para esconder o alerta
+  isVisible: boolean; // Estado de visibilidade
+  alertTitle: string; // Título do alerta
+  alertMessage: string; // Mensagem do alerta
 }
 
 const AlertContext = createContext<AlertContextProps | undefined>(undefined);
@@ -30,9 +34,17 @@ export const AlertProvider = ({ children }) => {
       }).start(() => setAlertVisible(false));
     }, duration); // Use a prop duration aqui
   };
+  
+  const hideAlert = () => {
+    Animated.timing(slideAnim, {
+      toValue: 100,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setAlertVisible(false));
+  };
 
   return (
-    <AlertContext.Provider value={{ showAlert }}>
+    <AlertContext.Provider value={{ showAlert, hideAlert, isVisible: alertVisible, alertTitle, alertMessage }}>
       {children}
       {alertVisible && (
         <Animated.View style={[styles.alertContainer, { transform: [{ translateY: slideAnim }] }]}>
