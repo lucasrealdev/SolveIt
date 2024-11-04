@@ -4,7 +4,14 @@ import { Modal, View, Text, Pressable, StyleSheet, Animated } from 'react-native
 import { BlurView } from 'expo-blur';
 import { useAlert } from "@/context/AlertContext";
 
-const CustomAlert: React.FC = () => {
+interface CustomAlertProps {
+  buttons?: {
+    text: string;
+    onPress: () => void;
+  }[]; // Array de botões com texto e função
+}
+
+const CustomAlert: React.FC<CustomAlertProps> = ({ buttons }) => {
   const { isVisible, hideAlert, alertTitle, alertMessage } = useAlert();
   const translateY = useRef(new Animated.Value(300)).current;
 
@@ -35,9 +42,17 @@ const CustomAlert: React.FC = () => {
           <Animated.View style={[styles.container, { transform: [{ translateY }] }]}>
             <Text style={styles.title}>{alertTitle}</Text>
             <Text style={styles.message}>{alertMessage}</Text>
-            <Pressable onPress={hideAlert} style={styles.button}>
-              <Text style={styles.buttonText}>OK</Text>
-            </Pressable>
+            {buttons && buttons.length > 0 ? (
+              buttons.map((button, index) => (
+                <Pressable key={index} onPress={() => { button.onPress(); hideAlert(); }} style={styles.button}>
+                  <Text style={styles.buttonText}>{button.text}</Text>
+                </Pressable>
+              ))
+            ) : (
+              <Pressable onPress={hideAlert} style={styles.button}>
+                <Text style={styles.buttonText}>OK</Text>
+              </Pressable>
+            )}
           </Animated.View>
         </BlurView>
       </View>
@@ -89,6 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '100%',
     alignItems: 'center',
+    marginVertical: 5, // Adicionando espaço entre os botões
   },
   buttonText: {
     fontSize: 16,

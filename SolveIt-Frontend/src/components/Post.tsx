@@ -98,33 +98,45 @@ const Post: React.FC<PostProps> = ({
         </Pressable>
       </View>
 
-      <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[16px]'>
-        <Text className='font-bold text-[16px]'>{TituloPost}</Text>
-        <Text className='text-[14px]'>{DescricaoPost}</Text>
+      <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[14px]'>
+        <Text className='font-bold text-base'>{TituloPost}</Text>
+        <Text className='text-sm'>
+          {DescricaoPost}
+          {/* Renderizando as Hashtags */}
+          {HashtagPost && HashtagPost.length > 0 && (
+            <View className='ml-1 flex-row'>
+            {HashtagPost.map((hashtag, index) => (
+              <Text key={index} className='text-sm text-accentStandardDark'>
+                {`#${hashtag} `}
+              </Text>
+            ))}
+            </View>
+          )}
+        </Text>
 
         <View style={{ height: ImagemPost ? 320 : 0, width: '100%' }} accessibilityLabel="ImagePost">
           {renderImage()}
         </View>
 
         <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center' onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
-        <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
-          {options.map(({ icon, text }) => (
-            <Pressable
-              key={icon}
-              onHoverIn={() => setIconHovered(prev => ({ ...prev, [icon]: true }))}
-              onHoverOut={() => setIconHovered(prev => ({ ...prev, [icon]: false }))}
-              accessibilityLabel={`Container${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
-              className='flex flex-row gap-[5px] justify-center items-center'
-            >
-              <CustomIcons name={icon} size={iconSize} color={iconHovered[icon] ? darkenColor(color) : color} />
-              {!shouldHideText && (
-                <Text className='font-medium text-[14px] text-textStandardDark'>
-                  {text} {icon.charAt(0).toUpperCase() + icon.slice(1)}
-                </Text>
-              )}
-            </Pressable>
-          ))}
-        </View>
+          <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
+            {options.map(({ icon, text }) => (
+              <Pressable
+                key={icon}
+                onHoverIn={() => setIconHovered(prev => ({ ...prev, [icon]: true }))}
+                onHoverOut={() => setIconHovered(prev => ({ ...prev, [icon]: false }))}
+                accessibilityLabel={`Container${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                className='flex flex-row gap-[5px] justify-center items-center'
+              >
+                <CustomIcons name={icon} size={iconSize} color={iconHovered[icon] ? darkenColor(color) : color} />
+                {!shouldHideText && (
+                  <Text className='font-medium text-sm text-textStandardDark'>
+                    {text} {icon.charAt(0).toUpperCase() + icon.slice(1)}
+                  </Text>
+                )}
+              </Pressable>
+            ))}
+          </View>
 
           <Pressable
             onHoverIn={() => setIconHovered(prev => ({ ...prev, favorite: true }))}

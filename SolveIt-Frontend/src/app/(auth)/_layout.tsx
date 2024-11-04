@@ -1,7 +1,5 @@
 import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import Loader from "@/components/Loader";
-import { useGlobalContext } from "@/context/GlobalProvider";
 import { View } from "react-native";
 
 const AuthLayout = () => {

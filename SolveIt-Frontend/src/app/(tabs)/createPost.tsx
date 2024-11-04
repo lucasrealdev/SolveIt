@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated} from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
-
+import * as ImagePicker from "expo-image-picker";
 import MenuRight from "@/components/MenuRight";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomIcons from "@/assets/icons/CustomIcons";
+import ImageUploadComponent from "@/components/ImageUploadComponent";
 
 const handleHoverIn = (scaleValue) => {
   Animated.spring(scaleValue, {
@@ -58,7 +59,7 @@ const TextInputModel = ({ title, placeholder, multiline = false, maxLength, keyb
   };
 
   return (
-    <View className="p-[10px] gap-[10px]">
+    <View className="px-[10px] pb-[10px] pt-0 gap-[10px]">
       <Text className="font-bold">{title}</Text>
       <View className={`p-[10px] rounded-[20px] ${multiline ? 'h-[144px]' : 'h-[48px]'} justify-start border-[1px] ${isFocused ? 'border-accentStandardDark' : 'border-primaryStandardDark'} bg-white`}>
         <TextInput
@@ -97,6 +98,10 @@ export default function CreatePost() {
     { key: '3', value: 'Grave', icon: 'ban', color: '#F44336' },
   ];
   
+  const handleImageSelect = (imageData) => {
+    // Handle the selected image data
+  };
+
   return (
     <View className="flex flex-1 flex-row bg-[#F8FAFC]">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -118,13 +123,14 @@ export default function CreatePost() {
               keyboardType="default"  
             />
             <TextInputModel
-              title="Tags"
-              placeholder="Ex: #Educação, #Saúde"
-              multiline
-              maxLength={200}
-              inputFilter={/[^a-zA-Z\s]/g}
-              keyboardType="default"  
+              title="Quantas pessoas você acha que este problema afeta?"
+              placeholder="Ex: 100"
+              maxLength={8}
+              keyboardType="numeric"  
+              inputFilter={/[^0-9]/g}  
             />
+            <DropdownModel data={categories} title="Dê uma categoria ao seu problema" placeholder="Selecione uma categoria" setSelected={setSelectedCategory} />
+            <DropdownModel data={urgencies} title="Urgência do problema" placeholder="Selecione uma urgência" setSelected={setSelectedUrgency} />
             <TextInputModel
               title="CEP (Opcional)"
               placeholder="Ex: 130456-03"
@@ -133,25 +139,16 @@ export default function CreatePost() {
               inputFilter={/[^0-9]/g}  
             />
             <TextInputModel
-              title="Quantas pessoas você acha que este problema afeta?"
-              placeholder="Ex: 100"
-              maxLength={8}
-              keyboardType="numeric"  
-              inputFilter={/[^0-9]/g}  
+              title="Tags (Opcional)"
+              placeholder="Ex: #Educação, #Saúde"
+              multiline
+              maxLength={200}
+              inputFilter={/[^a-zA-Z\s]/g}
+              keyboardType="default"  
             />
 
-            <DropdownModel data={categories} title="Dê uma categoria ao seu problema" placeholder="Selecione uma categoria" setSelected={setSelectedCategory} />
-            <DropdownModel data={urgencies} title="Urgência do problema" placeholder="Selecione uma urgência" setSelected={setSelectedUrgency} />
+            <ImageUploadComponent/>
 
-            <Pressable className="p-[10px]">
-              <View className="rounded-[20px] border-dashed border-2 border-borderStandard flex justify-center items-center bg-white py-5 px-4">
-                <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
-                  <CustomIcons name="upload" size={24} />
-                </View>
-                <Text className="text-[14px] font-medium text-textStandardDark text-center"><Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu arquivo ou arraste</Text>
-                <Text className="text-textStandard text-[14px] text-center">Formatos suportados: SVG, JPG, PNG (10mb cada)</Text>
-              </View>
-            </Pressable>
             <Animated.View
               style={{
                 transform: [{ scale: scaleValue }],

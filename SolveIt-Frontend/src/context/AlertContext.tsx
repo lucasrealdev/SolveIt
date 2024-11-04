@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Text, Animated, StyleSheet } from 'react-native';
+import { Text, Animated, StyleSheet, View, Pressable } from 'react-native';
+
+interface AlertButton {
+  text: string;            // Texto do botão
+  onPress: () => void;    // Função a ser chamada ao pressionar o botão
+}
 
 interface AlertContextProps {
-  showAlert: (title: string, message: string, duration?: number) => void; // Adicione a prop duration
-  hideAlert: () => void; // Função para esconder o alerta
-  isVisible: boolean; // Estado de visibilidade
-  alertTitle: string; // Título do alerta
-  alertMessage: string; // Mensagem do alerta
+  showAlert: (title: string, message: string, buttons?: AlertButton[], duration?: number) => void;
+  hideAlert: () => void;
+  isVisible: boolean;
+  alertTitle: string;
+  alertMessage: string;
+  alertButtons?: AlertButton[];
 }
 
 const AlertContext = createContext<AlertContextProps | undefined>(undefined);
@@ -15,12 +21,15 @@ export const AlertProvider = ({ children }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
+  const [alertButtons, setAlertButtons] = useState<AlertButton[]>([]);
   const slideAnim = useState(new Animated.Value(100))[0];
 
-  const showAlert = (title: string, message: string, duration: number = 3000) => { // Use 3000 como padrão
+  const showAlert = (title: string, message: string, buttons: AlertButton[] = [], duration: number = 3000) => {
     setAlertTitle(title);
     setAlertMessage(message);
+    setAlertButtons(buttons);
     setAlertVisible(true);
+    
     Animated.spring(slideAnim, {
       toValue: 0,
       useNativeDriver: true,
@@ -32,7 +41,7 @@ export const AlertProvider = ({ children }) => {
         duration: 300,
         useNativeDriver: true,
       }).start(() => setAlertVisible(false));
-    }, duration); // Use a prop duration aqui
+    }, duration);
   };
   
   const hideAlert = () => {
@@ -44,12 +53,24 @@ export const AlertProvider = ({ children }) => {
   };
 
   return (
-    <AlertContext.Provider value={{ showAlert, hideAlert, isVisible: alertVisible, alertTitle, alertMessage }}>
+    <AlertContext.Provider value={{ showAlert, hideAlert, isVisible: alertVisible, alertTitle, alertMessage, alertButtons }}>
       {children}
       {alertVisible && (
         <Animated.View style={[styles.alertContainer, { transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.alertTitle}>{alertTitle}</Text>
           <Text style={styles.alertMessage}>{alertMessage}</Text>
+          {alertButtons.length > 0 && (
+            <View style={styles.buttonContainer}>
+              {alertButtons.map((button, index) => (
+                <Pressable key={index} onPress={() => {
+                  button.onPress();
+                  hideAlert(); // Oculta o alerta após o botão ser pressionado
+                }} style={styles.button}>
+                  <Text style={styles.buttonText}>{button.text}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </Animated.View>
       )}
     </AlertContext.Provider>
@@ -81,6 +102,22 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   alertMessage: {
+    color: '#fff',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#555',
+    borderRadius: 5,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
     color: '#fff',
   },
 });

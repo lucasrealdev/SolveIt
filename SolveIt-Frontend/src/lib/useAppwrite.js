@@ -1,4 +1,3 @@
-import { Alert } from "react-native";
 import { useEffect, useState } from "react";
 
 // Define um hook personalizado que aceita uma função como argumento
@@ -14,7 +13,7 @@ const useAppwrite = (fn) => {
       // Armazena os dados recebidos no estado 'data'
       setData(res);
     } catch (error) {
-      Alert.alert("Error", error.message);
+      console.log("Error", error.message);
     } finally {
       setLoading(false);
     }

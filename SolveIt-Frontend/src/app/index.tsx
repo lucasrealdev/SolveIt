@@ -1,5 +1,5 @@
-import React from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { base64Image2, Imagem64Agua } from "../assets/images/base64Image";
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -24,7 +24,7 @@ export default function Index() {
               Compartilhamentos={120}
               Curtidas={1220}
               DescricaoPost="A escassez de água afeta milhões de pessoas ao redor do mundo. Este tema explora as causas, como mudanças climáticas e má gestão de recursos hídricos, e sugere soluções sustentáveis para o futuro."
-              HashtagPost={['crise', 'sustentabilidade', '']}
+              HashtagPost={['crise', 'sustentabilidade', 'sla']}
               NomePerfil="Rodrigo Silva 1223"
               TituloPost="A Crise Global da Água: Desafios e Soluções"
               ImagemPost={Imagem64Agua}
