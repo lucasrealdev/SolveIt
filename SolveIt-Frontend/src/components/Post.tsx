@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, useWindowDimensions, Pressable, Animated } from 'react-native';
+import { View, Text, Image, TextInput, useWindowDimensions, Pressable } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 
 import CustomIcons from '@/assets/icons/CustomIcons';
-import tinycolor from 'tinycolor2';
 import images from '@/constants/images';
 import ButtonScale from './ButtonScale';
+import HoverColorComponent from './HoverColorComponent';
+import colors from '@/constants/colors';
 
 interface Comentario {
   autor: string;
@@ -39,7 +40,6 @@ const Post: React.FC<PostProps> = ({
 }) => {
   const { width } = useWindowDimensions();
   const [containerWidth, setContainerWidth] = useState(0);
-  const [iconHovered, setIconHovered] = useState({ like: false, comment: false, share: false, favorite: false });
 
   const router = useRouter();
   const pathname = usePathname();
@@ -51,9 +51,6 @@ const Post: React.FC<PostProps> = ({
   const shouldHideText = containerWidth < 536;
   const iconSize = shouldHideText ? 25 : 20;
   const isMobile = width <= 452 ? "hidden" : "";
-  const color = "#94A3B8";
-
-  const darkenColor = (color: string) => tinycolor(color).darken(10).toString();
 
   const renderImage = () => (
     ImagemPost ? (
@@ -82,12 +79,9 @@ const Post: React.FC<PostProps> = ({
             <Text className='text-[14px] text-textSecondary'>{CategoriaPost}</Text>
           </View>
         </View>
-        <Pressable
-          onHoverIn={() => setIconHovered(prev => ({ ...prev, favorite: true }))}
-          onHoverOut={() => setIconHovered(prev => ({ ...prev, favorite: false }))}
-        >
-          <CustomIcons name='tresPontos' color={iconHovered.favorite ? darkenColor(color) : color} size={20} />
-        </Pressable>
+        <HoverColorComponent colorHover={colors.textSecondary.standard} colorPressIn={colors.textSecondary.pressIn}>
+          <CustomIcons name='tresPontos' color="#94A3B8" size={20} />
+        </HoverColorComponent>
       </View>
 
       <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[14px]'>
@@ -113,29 +107,20 @@ const Post: React.FC<PostProps> = ({
         <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center' onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
           <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
             {options.map(({ icon, text }) => (
-              <Pressable
-                key={icon}
-                onHoverIn={() => setIconHovered(prev => ({ ...prev, [icon]: true }))}
-                onHoverOut={() => setIconHovered(prev => ({ ...prev, [icon]: false }))}
-                accessibilityLabel={`Container${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
-                className='flex flex-row gap-[5px] justify-center items-center'
-              >
-                <CustomIcons name={icon} size={iconSize} color={iconHovered[icon] ? darkenColor(color) : color} />
+              <HoverColorComponent colorHover={colors.textSecondary.pressIn} colorPressIn={colors.primaryStandardDark.standard} key={icon} className='flex flex-row gap-[5px] justify-center items-center'>
+                <CustomIcons name={icon} color="#94A3B8" size={iconSize} />
                 {!shouldHideText && (
-                  <Text className='font-medium text-sm text-textStandardDark'>
+                  <Text className='font-medium text-sm' style={{color: "#1d283a"}}>
                     {text} {icon.charAt(0).toUpperCase() + icon.slice(1)}
                   </Text>
                 )}
-              </Pressable>
+              </HoverColorComponent>
             ))}
           </View>
 
-          <Pressable
-            onHoverIn={() => setIconHovered(prev => ({ ...prev, favorite: true }))}
-            onHoverOut={() => setIconHovered(prev => ({ ...prev, favorite: false }))}
-          >
-            <CustomIcons name="favorito" size={iconSize} color={iconHovered.favorite ? darkenColor(color) : color} />
-          </Pressable>
+          <HoverColorComponent colorHover={colors.textSecondary.standard} colorPressIn={colors.primaryStandardDark.standard} >
+            <CustomIcons name='favorito' color="#94A3B8" size={20} />
+          </HoverColorComponent>
         </View>
       </View>
 

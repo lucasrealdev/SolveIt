@@ -1,4 +1,4 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { base64Image2, Imagem64Agua } from "../assets/images/base64Image";
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -8,6 +8,7 @@ import SearchHeader from "@/components/SearchHeader";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
+import HoverColorComponent from "@/components/HoverColorComponent";
 
 export default function Index() {
   return (
@@ -66,7 +67,6 @@ const BarStory: React.FC = () => {
       >
         <CustomIcons name="proximo" color="#475569" size={20} />
       </ButtonScale>
-
     </View>
   );
 };

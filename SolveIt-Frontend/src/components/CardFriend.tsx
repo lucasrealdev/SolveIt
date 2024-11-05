@@ -1,16 +1,19 @@
 import CustomIcons from '@/assets/icons/CustomIcons';
-import React, { useState } from 'react';
-import { View, Image, Text, Pressable } from 'react-native';
+import { View, Image, Text } from 'react-native';
 import images from '@/constants/images';
+import HoverColorComponent from './HoverColorComponent'; // Certifique-se de importar o HoverColorComponent
+import colors from '@/constants/colors';
 
 interface CardFriendProps {
   label: string;
 }
 
 const CardFriend: React.FC<CardFriendProps> = ({ label }) => {
-  const [hovered, setHovered] = useState(false);
   const isFollower = label === "seguidores";
   const isFriendOrMenu = label === "amigo" || label === "menu";
+  // Definindo as cores de hover e press dependendo do tipo de label
+  const colorHover = isFriendOrMenu ? colors.textSecondary.standard : "#D21F3C"; // Cor de hover dependendo de ser amigo/menu ou seguidor
+  const colorPressIn = isFriendOrMenu ? colors.primaryStandardDark.standard : "#c20826"; // Cor de press dependendo de ser amigo/menu ou seguidor
 
   return (
     <View
@@ -22,22 +25,24 @@ const CardFriend: React.FC<CardFriendProps> = ({ label }) => {
         <Text className="text-textSecondary font-bold text-[14px]">Júlia Smith</Text>
         <Text className="text-textSecondary font-medium text-[14px]">@juliasmith</Text>
       </View>
-      <Pressable
-        onHoverIn={() => setHovered(true)}
-        onHoverOut={() => setHovered(false)}
+      
+      {/* Substituindo a lógica de hover com HoverColorComponent */}
+      <HoverColorComponent
+        colorHover={colorHover} // Usando a cor de hover definida
+        colorPressIn={colorPressIn} // Usando a cor de press definida
       >
         {isFollower ? (
-          <Text className={`text-[14px] font-bold ${hovered ? 'text-[#D21F3C]' : 'text-[#FF0029]'}`}>
+          <Text className="text-[14px] font-bold" style={{ color: '#FF0029' }}>
             Remover
           </Text>
         ) : isFriendOrMenu ? (
           <CustomIcons
             name="mais" // Substitua pelo nome do ícone que você deseja usar
-            color={hovered ? '#373C42' : '#94A3B8'}
+            color="#94A3B8" // A cor do ícone muda com o hover
             size={20}
           />
         ) : null}
-      </Pressable>
+      </HoverColorComponent>
     </View>
   );
 };

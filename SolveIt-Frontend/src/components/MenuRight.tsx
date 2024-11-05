@@ -6,12 +6,13 @@ import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "./CardFriend";
 import images from "@/constants/images";
 import ButtonScale from "./ButtonScale";
+import HoverColorComponent from "./HoverColorComponent";
+import colors from "@/constants/colors";
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
   const pathname = usePathname();
-  const [isHoveredVerTudo, setIsHoveredVerTudo] = useState(false);
 
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
@@ -47,9 +48,9 @@ export default function MenuRight() {
           {['chat', 'notificacao'].map((icon, index) => {
             return (
               <ButtonScale
-              key={index}
-              scale={1.07}
-              className="flex p-[11px] border border-borderStandard rounded-full">
+                key={index}
+                scale={1.07}
+                className="flex p-[11px] border border-borderStandard rounded-full">
                 <CustomIcons name={icon} size={24} color="#475569" />
               </ButtonScale>
             );
@@ -61,17 +62,15 @@ export default function MenuRight() {
         <View accessibilityLabel="ContainerAmigos" className="flex">
           <View accessibilityLabel="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
             <Text className="font-bold text-[18px]">Sugestão de amigos</Text>
-            <Pressable
-              onHoverIn={() => setIsHoveredVerTudo(true)}
-              onHoverOut={() => setIsHoveredVerTudo(false)}
+            <HoverColorComponent className="flex flex-row items-end gap-2"
               onPress={() => navigateTo("/friends")}
-              className="flex flex-row items-end gap-2"
-            >
-              <Text className={`font-bold text-[14px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-accentStandardDark'}`}>
+              colorHover={colors.accentStandardDark.hover}
+              colorPressIn={colors.accentStandardDark.pressIn}>
+              <Text className="font-bold text-[14px]" style={{color: "#01b297"}}>
                 Ver tudo
-              </Text>
-              <CustomIcons name="setaDireita" color={isHoveredVerTudo ? '#049681' : '#01B198'} size={20} />
-            </Pressable>
+              </Text> 
+              <CustomIcons name="setaDireita" color="#01B198" size={20} />
+            </HoverColorComponent>
           </View>
           {[...Array(5)].map((_, index) => <CardAmigo key={index} label="menu" />)}
         </View>

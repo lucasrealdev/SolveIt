@@ -1,9 +1,10 @@
 import React from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { useRouter } from 'expo-router';
 
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
+import { Button } from "@/components/Button";
 
 const NotFoundScreen = () => {
   const router = useRouter();
@@ -26,15 +27,15 @@ const NotFoundScreen = () => {
         <Text className="font-normal text-lg text-textStandardDark mb-8 text-center">Infelizmente, a página que você está procurando desapareceu ou foi movida :(</Text>
 
         <View className="flex self-stretch gap-3 justify-center flex-wrap flex-row">
-          <Pressable className="bg-transparent border rounded-full border-borderStandard h-14 flex flex-row items-center justify-center gap-3 mb-3 w-full max-w-[220px]" onPress={handleBack}>
+          <Button className="bg-gray-200 border rounded-full border-borderStandard h-14 flex flex-row items-center justify-center gap-3 mb-3 w-full max-w-[220px]" onPress={handleBack}>
             <CustomIcons name="anterior" color="#475569" size={20} />
             <Text className="font-bold text-lg text-textStandardDark">Voltar</Text>
-          </Pressable>
+          </Button>
 
-          <Pressable className="bg-primaryStandardDark border rounded-full border-borderStandard h-14 flex flex-row items-center justify-center gap-3 w-full max-w-[220px]" onPress={() => router.push('/')}>
+          <Button className="bg-primaryStandardDark border rounded-full border-borderStandard h-14 flex flex-row items-center justify-center gap-3 w-full max-w-[220px]" onPress={() => router.push('/')}>
             <Text className="font-bold text-lg text-white">Voltar ao Começo</Text>
             <CustomIcons name="home" size={24} color="white" />
-          </Pressable>
+          </Button>
         </View>
       </View>
       <Image source={images.logoShadow} className="h-[74px] w-[74px]"/>

@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import Post from "@/components/Post";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
+import ButtonScale from "@/components/ButtonScale";
 
 const Profile = () => {
   const animation = useRef(new Animated.Value(0)).current;
@@ -34,12 +35,12 @@ const Profile = () => {
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
             <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover"/>
-            <Pressable 
-              className="absolute w-8 h-8 rounded-full bg-white left-[10px] top-[10px] border border-borderStandardLight flex items-center justify-center"
-              onPress={() => router.back()}
-            >
+            <ButtonScale
+            className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
+            onPress={() => router.back()}
+            scale={1.04}>
               <CustomIcons name="anterior" color="#475569" size={24} />
-            </Pressable>
+            </ButtonScale>
           </View>
           <View className="flex flex-row justify-between items-end px-[20px] mt-[-75px]">
             <Image source={images.person} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />

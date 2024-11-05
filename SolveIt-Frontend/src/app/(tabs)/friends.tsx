@@ -3,9 +3,10 @@ import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "@/components/CardFriend";
 import SearchHeader from "@/components/SearchHeader";
+import HoverColorComponent from "@/components/HoverColorComponent";
+import colors from "@/constants/colors";
 
 export default function Friends() {
-  const [isHoveredVerTudo, setIsHoveredVerTudo] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
   const [buttonWidth, setButtonWidth] = useState(0);
 
@@ -52,20 +53,16 @@ export default function Friends() {
               <CardAmigo label="seguidores" />
               <CardAmigo label="seguidores" />
             </View>
-
-            <Pressable
-              onHoverIn={() => setIsHoveredVerTudo(true)}
-              onHoverOut={() => setIsHoveredVerTudo(false)}
-              className="flex flex-row items-end gap-2 w-fit mt-4">
-
-              <Text className={`font-bold text-[15px] ${isHoveredVerTudo ? 'text-[#049681]' : 'text-accentStandardDark'}`}>
+            <HoverColorComponent className="flex flex-row items-end gap-2 w-fit mt-4" colorHover={colors.accentStandardDark.hover}
+              colorPressIn={colors.accentStandardDark.pressIn}>
+              <Text className={`font-bold text-[15px]`} style={{color: "#01b297"}}>
                 Carregar Mais
               </Text>
-              
+
               <CustomIcons name="mais"
-                color={isHoveredVerTudo ? '#049681' : '#01B198'}
+                color='#01B198'
                 size={20} />
-            </Pressable>
+            </HoverColorComponent>
           </View>
 
           <View accessibilityLabel="Linha" className="w-full bg-borderStandardLight h-[1px] rounded-xl"></View>
