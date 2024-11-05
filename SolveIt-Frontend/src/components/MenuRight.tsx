@@ -5,22 +5,13 @@ import { usePathname, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "./CardFriend";
 import images from "@/constants/images";
+import ButtonScale from "./ButtonScale";
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
   const pathname = usePathname();
-  const [scaleChat] = useState(new Animated.Value(1));
-  const [scaleNotificacao] = useState(new Animated.Value(1));
   const [isHoveredVerTudo, setIsHoveredVerTudo] = useState(false);
-
-  const handleHover = (scaleValue, toValue) => {
-    Animated.spring(scaleValue, {
-      toValue,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
-  };
 
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
@@ -54,18 +45,13 @@ export default function MenuRight() {
         </Pressable>
         <View className="flex flex-row gap-2">
           {['chat', 'notificacao'].map((icon, index) => {
-            const scaleValue = icon === 'chat' ? scaleChat : scaleNotificacao;
             return (
-              <Pressable
-                key={index}
-                className="flex p-[11px] border border-borderStandard rounded-full"
-                onHoverIn={() => handleHover(scaleValue, 1.08)}
-                onHoverOut={() => handleHover(scaleValue, 1)}
-              >
-                <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-                  <CustomIcons name={icon} size={24} color="#475569" />
-                </Animated.View>
-              </Pressable>
+              <ButtonScale
+              key={index}
+              scale={1.07}
+              className="flex p-[11px] border border-borderStandard rounded-full">
+                <CustomIcons name={icon} size={24} color="#475569" />
+              </ButtonScale>
             );
           })}
         </View>

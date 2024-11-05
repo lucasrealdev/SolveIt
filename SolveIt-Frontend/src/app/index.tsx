@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { base64Image2, Imagem64Agua } from "../assets/images/base64Image";
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -8,6 +7,7 @@ import Post from '@/components/Post';
 import SearchHeader from "@/components/SearchHeader";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
+import ButtonScale from "@/components/ButtonScale";
 
 export default function Index() {
   return (
@@ -46,7 +46,7 @@ const BarStory: React.FC = () => {
   return (
     <View accessibilityLabel="ContainerStory" className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-borderStandardLight">
       {users.map((user, index) => (
-        <Pressable key={index} accessibilityLabel="ContainerProfile" className="flex justify-center items-center w-fit">
+        <ButtonScale key={index} scale={1.05} className="flex justify-center items-center w-fit">
           <LinearGradient
             accessibilityLabel="ContainerImage"
             colors={['#4F46E5', '#C622FF', '#FF2222', '#FFA439']}
@@ -57,11 +57,16 @@ const BarStory: React.FC = () => {
             <Image source={images.person} className="border-white border-[2px] rounded-full w-[64px] h-[64px]" />
           </LinearGradient>
           <Text className="text-textStandardDark font-semibold">{user.name}</Text>
-        </Pressable>
+        </ButtonScale>
       ))}
-      <Pressable className="w-8 h-8 absolute rounded-full bg-white right-[10px] border border-borderStandardLight flex items-center justify-center">
+      <ButtonScale
+        scale={1.1}
+        onPress={() => console.log("Pressionou")}
+        className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center absolute justify-center right-3"
+      >
         <CustomIcons name="proximo" color="#475569" size={20} />
-      </Pressable>
+      </ButtonScale>
+
     </View>
   );
 };

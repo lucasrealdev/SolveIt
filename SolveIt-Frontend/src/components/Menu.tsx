@@ -6,6 +6,7 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { signOut } from "@/lib/appwriteConfig";
 import images from "@/constants/images";
 import { useAlert } from "@/context/AlertContext";
+import ButtonScale from "./ButtonScale";
 
 interface MenuProps {
   home?: number;
@@ -34,7 +35,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
     return (
       <Pressable className="flex w-full items-center gap-[8px] justify-center flex-row px-[12px] py-[10px]" onPress={() => navigateTo(route)}>
         <View className="flex flex-1 gap-[8px] flex-row items-center">
-          <CustomIcons name={iconName} size={26} color={iconColor} />
+          <CustomIcons name={iconName} size={26} color={iconColor}/>
           <Text className="text-white text-base font-bold">{label}</Text>
         </View>
         {notificationCount !== undefined && (
@@ -134,11 +135,12 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
               )}
             </View>
           </Pressable>
-          <Pressable
-            onPress={logout}
-          >
+
+          <ButtonScale
+          onPress={logout}
+          scale={1.1}>
             <CustomIcons name="sair" size={24} color="#FFFFFF" />
-          </Pressable>
+          </ButtonScale>
         </View>
       </View>
     </View>

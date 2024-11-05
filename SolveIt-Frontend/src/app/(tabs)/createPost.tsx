@@ -1,29 +1,12 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated} from "react-native";
+import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from "expo-image-picker";
 import MenuRight from "@/components/MenuRight";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import ImageUploadComponent from "@/components/ImageUploadComponent";
-
-const handleHoverIn = (scaleValue) => {
-  Animated.spring(scaleValue, {
-    toValue: 1.04, // Aumenta o tamanho
-    friction: 3,
-    useNativeDriver: true,
-  }).start();
-};
-
-const handleHoverOut = (scaleValue) => {
-  Animated.spring(scaleValue, {
-    toValue: 1, // Volta ao tamanho original
-    friction: 3,
-    useNativeDriver: true,
-  }).start();
-};
-
-const scaleValue = new Animated.Value(1)
+import ButtonScale from "@/components/ButtonScale";
 
 const renderSelectItem = (item) => (
   <View className="flex-row">
@@ -91,13 +74,13 @@ export default function CreatePost() {
     { key: '5', value: 'Entretenimento', icon: 'film', color: '#FF69B4' },
     { key: '6', value: 'Ciência', icon: 'flask', color: '#8A2BE2' },
   ];
-  
+
   const urgencies = [
     { key: '1', value: 'Leve', icon: 'check-square', color: '#4CAF50' },
     { key: '2', value: 'Intermediário', icon: 'exclamation-triangle', color: '#FFC107' },
     { key: '3', value: 'Grave', icon: 'ban', color: '#F44336' },
   ];
-  
+
   const handleImageSelect = (imageData) => {
     // Handle the selected image data
   };
@@ -112,22 +95,22 @@ export default function CreatePost() {
               placeholder="Ex: Dificuldade em encontrar táxis disponíveis"
               maxLength={100}
               inputFilter={/[^a-zA-Z\s]/g}  // Apenas letras e espaços
-              keyboardType="default"  
+              keyboardType="default"
             />
             <TextInputModel
               title="Descreva seu problema"
               placeholder="Ex: Descrição do problema"
               multiline
               maxLength={1000}
-              inputFilter={/[^a-zA-Z\s]/g} 
-              keyboardType="default"  
+              inputFilter={/[^a-zA-Z\s]/g}
+              keyboardType="default"
             />
             <TextInputModel
               title="Quantas pessoas você acha que este problema afeta?"
               placeholder="Ex: 100"
               maxLength={8}
-              keyboardType="numeric"  
-              inputFilter={/[^0-9]/g}  
+              keyboardType="numeric"
+              inputFilter={/[^0-9]/g}
             />
             <DropdownModel data={categories} title="Dê uma categoria ao seu problema" placeholder="Selecione uma categoria" setSelected={setSelectedCategory} />
             <DropdownModel data={urgencies} title="Urgência do problema" placeholder="Selecione uma urgência" setSelected={setSelectedUrgency} />
@@ -135,8 +118,8 @@ export default function CreatePost() {
               title="CEP (Opcional)"
               placeholder="Ex: 130456-03"
               maxLength={9}
-              keyboardType="numeric" 
-              inputFilter={/[^0-9]/g}  
+              keyboardType="numeric"
+              inputFilter={/[^0-9]/g}
             />
             <TextInputModel
               title="Tags (Opcional)"
@@ -144,34 +127,22 @@ export default function CreatePost() {
               multiline
               maxLength={200}
               inputFilter={/[^a-zA-Z\s]/g}
-              keyboardType="default"  
+              keyboardType="default"
             />
 
-            <ImageUploadComponent/>
+            <ImageUploadComponent />
 
-            <Animated.View
-              style={{
-                transform: [{ scale: scaleValue }],
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 150,
-                height: 52,
-                marginLeft: 10,
-                marginTop: 12,
-                backgroundColor: "transparent"
-              }}
-            >
-              <Pressable
-                className="border-[1px] w-full h-full flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px] shadow-[0px_4px_6px_0px_rgba(1,_177,_152,_0.25)]"
-                onHoverIn={() => handleHoverIn(scaleValue)}
-                onHoverOut={() => handleHoverOut(scaleValue)}
-              >
+            <View className="items-start px-[10px]">
+              <ButtonScale
+                className="border-[1px] h-14 flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px]"
+                scale={1.02}
+                style={{ width: 130 }}>
                 <Text className="text-accentStandardDark text-[18px] font-semibold" style={{ lineHeight: 22 }}>
                   Enviar
                 </Text>
                 <CustomIcons name="enviarBotao" size={24} />
-              </Pressable>
-            </Animated.View>
+              </ButtonScale>
+            </View>
           </View>
         </View>
       </ScrollView>

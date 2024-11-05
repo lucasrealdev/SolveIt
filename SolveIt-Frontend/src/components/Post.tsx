@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'expo-router';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import tinycolor from 'tinycolor2';
 import images from '@/constants/images';
+import ButtonScale from './ButtonScale';
 
 interface Comentario {
   autor: string;
@@ -53,15 +54,6 @@ const Post: React.FC<PostProps> = ({
   const color = "#94A3B8";
 
   const darkenColor = (color: string) => tinycolor(color).darken(10).toString();
-  const [scaleRostoFeliz] = useState(new Animated.Value(1));
-  const [scaleEnviar] = useState(new Animated.Value(1));
-
-  const handleHover = (scaleValue: Animated.Value, toValue: number) => {
-    Animated.spring(scaleValue, {
-      toValue,
-      useNativeDriver: true,
-    }).start();
-  };
 
   const renderImage = () => (
     ImagemPost ? (
@@ -155,25 +147,13 @@ const Post: React.FC<PostProps> = ({
           </View>
 
           <View accessibilityLabel='ContainerVectors' className='flex-row gap-2'>
-            <Animated.View style={{ transform: [{ scale: scaleRostoFeliz }] }}>
-              <Pressable
-                onHoverIn={() => handleHover(scaleRostoFeliz, 1.08)}
-                onHoverOut={() => handleHover(scaleRostoFeliz, 1)}
-                className='border-borderStandardLight border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
-              >
-                <CustomIcons name="rostoFeliz" size={24} color="#475569" />
-              </Pressable>
-            </Animated.View>
+            <ButtonScale className='border-borderStandardLight border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center' scale={1.08}>
+              <CustomIcons name="rostoFeliz" size={24} color="#475569" />
+            </ButtonScale>
 
-            <Animated.View style={{ transform: [{ scale: scaleEnviar }] }}>
-              <Pressable
-                onHoverIn={() => handleHover(scaleEnviar, 1.08)}
-                onHoverOut={() => handleHover(scaleEnviar, 1)}
-                className='border-accentStandardDark border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center'
-              >
-                <CustomIcons size={24} name='enviar' color='#01B198' />
-              </Pressable>
-            </Animated.View>
+            <ButtonScale className='border-accentStandardDark border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center' scale={1.08}>
+              <CustomIcons name="enviar" size={24} color="#01B198" />
+            </ButtonScale>
           </View>
         </View>
       </View>

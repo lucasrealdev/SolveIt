@@ -6,7 +6,7 @@ const Loader = ({ isLoading }) => {
   if (!isLoading) return null;
 
   return (
-    <View className="w-full h-svh items-center justify-center">
+    <View className="w-svw h-svh absolute bg-[#f2f2f2] items-center justify-center">
       <ActivityIndicator
         animating={isLoading}
         color="#000"
