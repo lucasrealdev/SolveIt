@@ -132,9 +132,9 @@ export default function CreatePost() {
 
             <ImageUploadComponent />
 
-            <View className="items-start px-[10px]">
+            <View className="items-start px-[10px] mt-4">
               <ButtonScale
-                className="border-[1px] h-14 flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px]"
+                className="border-[1px] h-12 flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px]"
                 scale={1.02}
                 style={{ width: 130 }}>
                 <Text className="text-accentStandardDark text-[18px] font-semibold" style={{ lineHeight: 22 }}>

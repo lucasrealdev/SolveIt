@@ -11,6 +11,8 @@ import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { handleAppwriteUpError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
+import HoverColorComponent from "@/components/HoverColorComponent";
+import colors from "@/constants/colors";
 
 export default function SignUp() {
   const router = useRouter();
@@ -148,9 +150,9 @@ export default function SignUp() {
 
               <View className="w-full flex items-center flex-row justify-center">
                 <Text className="text-textStandardDark font-bold">Você já tem uma conta?{' '}</Text>
-                <Pressable onPress={() => router.push('/signIn')}>
-                  <Text className="text-accentStandardDark font-bold">Entre</Text>
-                </Pressable>
+                <HoverColorComponent onPress={() => router.push('/signIn')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
+                  <Text className="font-bold" style={{color: "#01b297"}}>Entre</Text>
+                </HoverColorComponent>
               </View>
             </View>
 

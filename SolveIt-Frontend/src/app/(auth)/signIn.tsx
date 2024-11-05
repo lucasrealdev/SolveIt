@@ -12,6 +12,8 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { getCurrentUser, signIn, signOut } from "@/lib/appwriteConfig";
 import { handleAppwriteInError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
+import HoverColorComponent from "@/components/HoverColorComponent";
+import colors from "@/constants/colors";
 
 export default function SignIn() {
   const router = useRouter();
@@ -140,11 +142,13 @@ export default function SignIn() {
               <View className="w-full flex items-center gap-2">
                 <View className="flex-row">
                   <Text className="text-textStandardDark font-bold">Não tem uma conta?{' '}</Text>
-                  <Pressable onPress={() => router.push('/signUp')}>
-                    <Text className="text-accentStandardDark font-bold">Cadastre-se</Text>
-                  </Pressable>
+                  <HoverColorComponent onPress={() => router.push('/signUp')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
+                  <Text className="font-bold" style={{color: "#01b297"}}>Cadastre-se</Text>
+                </HoverColorComponent>
                 </View>
-                <Text className="text-accentStandardDark cursor-pointer font-bold">Esqueci a Senha</Text>
+                <HoverColorComponent onPress={() => router.push('/forgotPassword')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
+                  <Text className="font-bold" style={{color: "#01b297"}}>Esqueci a Senha</Text>
+                </HoverColorComponent>
               </View>
 
             </View>
