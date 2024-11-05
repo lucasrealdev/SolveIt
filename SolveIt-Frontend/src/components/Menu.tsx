@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, Text, View, Image, TextInput, useWindowDimensions } from "react-native";
+import { Pressable, Text, View, Image, TextInput, useWindowDimensions, ActivityIndicator } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { useGlobalContext } from "@/context/GlobalProvider";
@@ -7,15 +7,17 @@ import { signOut } from "@/lib/appwriteConfig";
 import images from "@/constants/images";
 import { useAlert } from "@/context/AlertContext";
 import ButtonScale from "./ButtonScale";
+import colors from "@/constants/colors";
 
 interface MenuProps {
   home?: number;
   games?: number;
   friends?: number;
+  profile?: number;
   help?: number;
 }
 
-export default function Menu({ home, games, friends, help }: MenuProps) {
+export default function Menu({ home, games, friends, profile, help }: MenuProps) {
   const primaryColor = "#01B198";
   const greyColor = "#3692C5";
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const { showAlert } = useAlert();
   const { width, height } = useWindowDimensions();
   const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
+  const { setUser, setIsLogged, user } = useGlobalContext();
 
   const navigateTo = (route: string) => {
     router[pathname !== route ? 'push' : 'replace'](route);
@@ -35,7 +38,7 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
     return (
       <Pressable className="flex w-full items-center gap-[8px] justify-center flex-row px-[12px] py-[10px]" onPress={() => navigateTo(route)}>
         <View className="flex flex-1 gap-[8px] flex-row items-center">
-          <CustomIcons name={iconName} size={26} color={iconColor}/>
+          <CustomIcons name={iconName} size={26} color={iconColor} />
           <Text className="text-white text-base font-bold">{label}</Text>
         </View>
         {notificationCount !== undefined && (
@@ -63,7 +66,20 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
               <Text className="text-primaryStandardDark text-[10px] leading-3 font-semibold">{notificationCount}</Text>
             </View>
           )}
-          <CustomIcons name={iconName} size={26} color={iconColor} />
+          {iconName === "profile" ? (
+            user && user.avatar ? (
+              // Renderize a imagem quando user.avatar estiver disponível
+              <Image
+                source={{ uri: user.avatar }}
+                className="w-[26px] h-[26px] rounded-full"
+              />
+            ) : (
+              // Exibe o ActivityIndicator enquanto user.avatar não estiver disponível
+              <ActivityIndicator size="small" color={iconColor} />
+            )
+          ) : (
+            <CustomIcons name={iconName} size={26} color={iconColor} />
+          )}
         </View>
       </Pressable>
     );
@@ -72,8 +88,6 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
   const isMobile = width < 770;
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
-
-  const { setUser, setIsLogged, user } = useGlobalContext();
 
   const logout = async () => {
     await signOut();
@@ -121,7 +135,17 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
         )}
         <View accessibilityLabel="CardConta" className="flex gap-4 pt-6 border-t border-borderStandard flex-row items-end">
           <Pressable className="flex flex-1 flex-row items-center gap-3">
-            <Image className="w-[40px] h-[40px] rounded-full" source={require('@/assets/icon.png')} />
+            {
+              user && user.avatar ? (
+                // Renderize a imagem quando user.avatar estiver disponível
+                <Image
+                  source={{ uri: user.avatar }}
+                  className="w-[40px] h-[40px] rounded-full"
+                />
+              ) : (
+                // Exibe o ActivityIndicator enquanto user.avatar não estiver disponível
+                <ActivityIndicator size="small" color={colors.borderStandard.standard} />
+              )}
             <View className="flex gap-[2px]">
               {user ? (
                 // Se o usuário estiver logado, exiba o nome de usuário e o status de membro
@@ -130,15 +154,16 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
                   <Text className="text-textStandard font-medium text-sm">Membro Básico</Text>
                 </>
               ) : (
-                // Se o usuário não estiver logado, exiba uma mensagem ou interface alternativa
-                <Text className="text-white font-bold text-base">Faça login.</Text>
+                <Pressable onPress={() => router.push("/signIn")}>
+                  <Text className="text-white font-bold text-base">Faça login.</Text>
+                </Pressable>
               )}
             </View>
           </Pressable>
 
           <ButtonScale
-          onPress={logout}
-          scale={1.1}>
+            onPress={logout}
+            scale={1.1}>
             <CustomIcons name="sair" size={24} color="#FFFFFF" />
           </ButtonScale>
         </View>
@@ -148,12 +173,12 @@ export default function Menu({ home, games, friends, help }: MenuProps) {
 
   const renderMobileMenu = () => (
     <View accessibilityLabel="ContainerMenu" className="flex flex-row w-full bg-destaqueAzul px-[25px] py-[13px] justify-center">
-      <View className="flex w-full max-w-[450px] flex-row justify-between">
+      <View className="flex w-full max-w-[400px] flex-row justify-between">
         {renderMenuButtonMobile('/', 'home', home)}
         {renderMenuButtonMobile('/games', 'jogos', games)}
+        {renderMenuButtonMobile('/createPost', 'createPost')}
         {renderMenuButtonMobile('/friends', 'amigos', friends)}
-        {renderMenuButtonMobile('/settings', 'configuracoes')}
-        {renderMenuButtonMobile('/help', 'chat', help)}
+        {renderMenuButtonMobile('/settings', 'profile', profile)}
       </View>
     </View>
   );

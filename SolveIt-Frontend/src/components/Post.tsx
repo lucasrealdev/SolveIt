@@ -84,33 +84,35 @@ const Post: React.FC<PostProps> = ({
         </HoverColorComponent>
       </View>
 
-      <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[14px]'>
+      <View accessibilityLabel="BodyPost" className='w-full flex px-[20px] py-[16px] gap-[5px]'>
         <Text className='font-bold text-base'>{TituloPost}</Text>
-        <Text className='text-sm'>
-          {DescricaoPost}
-          {/* Renderizando as Hashtags */}
+        <View>
+          <Text className="text-base">
+            {DescricaoPost}
+          </Text>
+
           {HashtagPost && HashtagPost.length > 0 && (
-            <View className='ml-1 flex-row'>
-            {HashtagPost.map((hashtag, index) => (
-              <Text key={index} className='text-sm text-accentStandardDark'>
-                {`#${hashtag} `}
-              </Text>
-            ))}
+            <View className="flex-row mt-1">
+              {HashtagPost.map((hashtag, index) => (
+                <Text key={index} className="text-base text-accentStandardDark">
+                  {`#${hashtag} `}
+                </Text>
+              ))}
             </View>
           )}
-        </Text>
+        </View>
 
         <View style={{ height: ImagemPost ? 320 : 0, width: '100%' }} accessibilityLabel="ImagePost">
           {renderImage()}
         </View>
 
-        <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center' onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
+        <View accessibilityLabel="OptionsPost" className='flex w-full flex-row justify-center mt-2' onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
           <View accessibilityLabel="ContainerOptions" className='flex flex-row gap-4 flex-1'>
             {options.map(({ icon, text }) => (
               <HoverColorComponent colorHover={colors.textSecondary.pressIn} colorPressIn={colors.primaryStandardDark.standard} key={icon} className='flex flex-row gap-[5px] justify-center items-center'>
                 <CustomIcons name={icon} color="#94A3B8" size={iconSize} />
                 {!shouldHideText && (
-                  <Text className='font-medium text-sm' style={{color: "#1d283a"}}>
+                  <Text className='font-medium text-sm' style={{ color: "#1d283a" }}>
                     {text} {icon.charAt(0).toUpperCase() + icon.slice(1)}
                   </Text>
                 )}

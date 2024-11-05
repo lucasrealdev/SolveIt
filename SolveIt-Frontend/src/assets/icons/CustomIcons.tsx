@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { G, Path } from 'react-native-svg';
+import Svg, { G, Path, ClipPath, Defs } from 'react-native-svg';
 
 interface IconProps {
     name: string; // Nome do ícone que será exibido
@@ -619,7 +619,25 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                     d="M12.5 10a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                 ></Path>
             </Svg>
-        )
+        ),
+        createPost: (
+            <Svg
+                width={size}
+                height={size}
+                fill="none"
+                viewBox="0 0 27 27"
+            >
+                <G stroke={color} strokeWidth="2.5" clipPath="url(#clip0_1078_4902)">
+                    <Path d="M19.945 1.25H8.39C5.332 1.25 2.853 3.824 2.853 7v12c0 3.176 2.479 5.75 5.537 5.75h11.555c3.058 0 5.537-2.574 5.537-5.75V7c0-3.176-2.479-5.75-5.537-5.75Z"></Path>
+                    <Path strokeLinecap="round" d="M14.168 21V5m-7.704 8H21.87"></Path>
+                </G>
+                <Defs>
+                    <ClipPath id="clip0_1078_4902">
+                        <Path fill={color} d="M.84 0h26v26h-26z"></Path>
+                    </ClipPath>
+                </Defs>
+            </Svg>
+        ),
     };
     return Icons[name] || undefined;
 }
