@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, TextInput, StyleSheet, Pressable, Animated } from "react-native";
+import { Text, View, ScrollView, TextInput, StyleSheet } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
-import * as ImagePicker from "expo-image-picker";
 import MenuRight from "@/components/MenuRight";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomIcons from "@/assets/icons/CustomIcons";
