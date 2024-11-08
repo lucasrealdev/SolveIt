@@ -38,6 +38,8 @@ const databases = new Databases(client);
 // Função para criar um novo usuário
 export async function createUser(email, password, username) {
   try {
+    await signOut();
+
     const newAccount = await account.create(
       ID.unique(),
       email,
@@ -73,6 +75,7 @@ export async function createUser(email, password, username) {
 // Função para fazer login de usuário
 export async function signIn(email, password) {
   try {
+    await signOut();
     const session = await account.createEmailPasswordSession(email, password);
 
     return session;
@@ -87,6 +90,7 @@ export async function getSession() {
     const session = await account.getSession("current");
     return session;
   } catch (error) {
+    console.error("Erro ao obter sessao atual: ", error)
     return null; // Retorna null se o usuário não estiver autenticado
   }
 }

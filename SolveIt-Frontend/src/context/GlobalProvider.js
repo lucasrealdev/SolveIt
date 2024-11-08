@@ -24,7 +24,7 @@ const GlobalProvider = ({ children }) => {
                 }
             })
             .catch((error) => {
-                console.log(error);
+                console.log("Erro ao obter dados do usuario, GlobalProvider",error);
             })
             .finally(() => {
                 setLoading(false);
