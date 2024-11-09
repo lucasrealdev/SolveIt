@@ -12,7 +12,7 @@ interface TextInputModelProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'; // Opcional
   icon?: string | null; // Opcional
   password?: boolean; // Opcional
-  strength?: boolean
+  strength?: boolean 
   onChangeText?: (text: string) => void; // Opcional
 }
 

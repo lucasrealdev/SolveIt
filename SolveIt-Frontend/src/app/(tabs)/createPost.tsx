@@ -7,6 +7,7 @@ import CustomIcons from "@/assets/icons/CustomIcons";
 import ImageUploadComponent from "@/components/ImageUploadComponent";
 import ButtonScale from "@/components/ButtonScale";
 
+
 const renderSelectItem = (item) => (
   <View className="flex-row">
     <Icon name={item.icon} size={20} color={item.color} style={styles.icon} />
