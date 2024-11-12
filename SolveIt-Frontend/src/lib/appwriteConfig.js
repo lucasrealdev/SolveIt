@@ -90,7 +90,7 @@ export async function getSession() {
     const session = await account.getSession("current");
     return session;
   } catch (error) {
-    console.error("Erro ao obter sessao atual: ", error)
+    console.log("Erro ao obter sessao atual: ", error)
     return null; // Retorna null se o usuário não estiver autenticado
   }
 }

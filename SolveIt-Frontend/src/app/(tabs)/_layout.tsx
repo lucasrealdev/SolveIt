@@ -6,7 +6,7 @@ import Loader from '@/components/Loader';
 const TabsLayout = () => {
   const {loading, isLogged} = useGlobalContext();
   if (!loading && !isLogged) return <Redirect href="/signIn" />;
-   
+  
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
