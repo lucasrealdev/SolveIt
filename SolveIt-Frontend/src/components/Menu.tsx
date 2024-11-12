@@ -134,14 +134,16 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
           </View>
         )}
         <View accessibilityLabel="CardConta" className="flex gap-4 pt-6 border-t border-borderStandard flex-row items-end">
-          <Pressable className="flex flex-1 flex-row items-center gap-3">
+          <View className="flex flex-1 flex-row items-center gap-3">
             {
               user && user.avatar ? (
                 // Renderize a imagem quando user.avatar estiver disponível
-                <Image
+                <ButtonScale scale={1.05} onPress={() => router.push("/personalProfile")}>
+                  <Image
                   source={{ uri: user.avatar }}
                   className="w-[40px] h-[40px] rounded-full"
-                />
+                  />
+                </ButtonScale>
               ) : (
                 // Exibe o ActivityIndicator enquanto user.avatar não estiver disponível
                 <ActivityIndicator size="small" color={colors.borderStandard.standard} />
@@ -159,7 +161,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
                 </Pressable>
               )}
             </View>
-          </Pressable>
+          </View>
 
           <ButtonScale
             onPress={logout}

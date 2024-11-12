@@ -8,7 +8,6 @@ import SearchHeader from "@/components/SearchHeader";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
-import HoverColorComponent from "@/components/HoverColorComponent";
 
 export default function Index() {
   return (

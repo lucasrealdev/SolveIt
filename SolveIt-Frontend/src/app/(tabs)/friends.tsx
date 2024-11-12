@@ -5,6 +5,7 @@ import CardAmigo from "@/components/CardFriend";
 import SearchHeader from "@/components/SearchHeader";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
+import ButtonScale from "@/components/ButtonScale";
 
 export default function Friends() {
   const animation = useRef(new Animated.Value(0)).current;
@@ -42,9 +43,17 @@ export default function Friends() {
       <View className="flex-1 bg-backgroundStandardDark items-center">
         <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-4">
           <View accessibilityLabel="ContainerSugestaoAmigos">
-            <Text className="font-bold text-xl text-textStandardDark mb-6">
-              Sugestão de amigos
-            </Text>
+
+            <View className="w-full flex flex-row justify-between mb-6 items-center">
+              <Text className="font-bold text-xl text-textStandardDark">
+                Sugestão de amigos
+              </Text>
+              <ButtonScale
+                scale={1.07}
+                className="flex p-[11px] border border-borderStandard rounded-full">
+                <CustomIcons name="chat" size={24} color="#475569" />
+              </ButtonScale>
+            </View>
 
             <View accessibilityLabel="ContainerAmigos" className="rounded-[10px] border border-borderStandardLight bg-white">
               <CardAmigo label="seguidores" />

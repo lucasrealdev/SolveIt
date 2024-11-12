@@ -6,12 +6,13 @@ import Post from "@/components/Post";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
+import HoverColorComponent from "@/components/HoverColorComponent";
+import colors from "@/constants/colors";
 
-const Profile = () => {
+const PersonalProfile = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const [buttonWidth, setButtonWidth] = useState(0);
-  const [isFollowing, setIsFollowing] = useState(false); 
 
   const moveTo = (value) => {
     Animated.timing(animation, {
@@ -30,10 +31,6 @@ const Profile = () => {
     setButtonWidth(nativeEvent.layout.width);
   };
 
-  const toggleFollow = () => {
-    setIsFollowing(!isFollowing); 
-  };
-
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-white">
       <View className="flex-1 bg-white pb-[40px] items-center">
@@ -49,15 +46,9 @@ const Profile = () => {
           </View>
           <View className="flex flex-row justify-between items-end px-[20px] mt-[-75px]">
             <Image source={images.person} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
-            <ButtonScale 
-              className="bg-primaryStandardDark px-[20px] py-[12px] rounded-full" 
-              scale={1.06}
-              onPress={toggleFollow} // Função de alternância ao pressionar
-            >
-              <Text className="text-white font-bold">
-                {isFollowing ? "Seguindo" : "Seguir"}
-              </Text>
-            </ButtonScale>
+            <HoverColorComponent colorHover={colors.primaryStandardDark.hover} colorPressIn={colors.primaryStandardDark.pressIn}>
+              <Text className="underline font-bold" style={{color: colors.primaryStandardDark.standard}}>Editar Perfil</Text>
+            </HoverColorComponent>
           </View>
         </View>
 
@@ -126,4 +117,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Profile;
+export default PersonalProfile;
