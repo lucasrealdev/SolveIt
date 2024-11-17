@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: '#3692C5',
     borderWidth: 1,
+    backgroundColor: '#fff'
   },
   dropdownInput: {
     color: '#333',

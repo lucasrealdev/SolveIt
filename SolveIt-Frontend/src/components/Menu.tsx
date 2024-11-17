@@ -153,7 +153,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
                 // Se o usuário estiver logado, exiba o nome de usuário e o status de membro
                 <>
                   <Text className="text-white font-bold text-base">{user.username}</Text>
-                  <Text className="text-textStandard font-medium text-sm">Membro Básico</Text>
+                  <Text className="text-textStandard font-medium text-sm">Membro {user.accountType}</Text>
                 </>
               ) : (
                 <Pressable onPress={() => router.push("/signIn")}>

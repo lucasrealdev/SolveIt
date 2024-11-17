@@ -167,6 +167,33 @@ export async function getCurrentUser() {
   }
 }
 
+export async function toggleUserOnlineStatus() {
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      throw new Error("Usuário não encontrado ou não autenticado.");
+    }
+
+    // Alterna o status entre true e false
+    const updatedStatus = !currentUser.isOnline;
+
+    // Atualiza o status no banco de dados
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      currentUser.$id,
+      { isOnline: updatedStatus }
+    );
+
+    // Retorna o novo valor de isOnline
+    return updatedStatus;
+  } catch (error) {
+    console.error("Erro ao alternar isOnline:", error);
+    throw error;
+  }
+}
+
 // Função para fazer logout do usuário
 export async function signOut() {
   try {
@@ -318,19 +345,31 @@ export async function getPostById(postId) {
   }
 }
 
-// Função para obter as postagens de um usuário específico
-export async function getUserPosts(userId) {
+export async function getUserPosts(userId, page = 1, limit = 10) {
   try {
-    // Obtém todos os documentos de postagens do banco de dados, filtrados pelo ID do usuário e ordenados pela data de criação em ordem descrescente
+    // Calcula o offset baseado na página e no limite
+    const offset = (page - 1) * limit;
+
+    // Obtém os IDs dos documentos de postagens de um usuário específico com paginação
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,
-      [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+      [
+        Query.equal("creator", userId),  // Filtra os posts pelo ID do usuário
+        Query.orderDesc('$createdAt'),    // Ordena pela data de criação (decrescente)
+        Query.limit(limit),               // Limita o número de postagens
+        Query.offset(offset),             // Desloca o início da busca para a página correta
+        Query.select(['$id'])             // Seleciona apenas o campo ID dos documentos
+      ]
     );
 
-    return posts.documents;
+    return {
+      documents: posts.documents,   // Retorna os documentos com os IDs
+      total: posts.total,           // Retorna o total de posts para controle de paginação
+      pages: Math.ceil(posts.total / limit),  // Calcula o número total de páginas
+    };
   } catch (error) {
-    throw new Error(error);
+    throw new Error(`Erro ao buscar posts: ${error.message}`);
   }
 }
 

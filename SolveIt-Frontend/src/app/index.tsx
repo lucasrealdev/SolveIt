@@ -5,17 +5,17 @@ import MenuRight from "@/components/MenuRight";
 import Post from '@/components/Post';
 import SearchHeader from "@/components/SearchHeader";
 import { getAllPosts } from "@/lib/appwriteConfig";
-import PostSkeleton from "@/components/PostSkeleton"; // Import the skeleton component we created earlier
+import PostSkeleton from "@/components/PostSkeleton"; // Importa o componente esqueleto criado anteriormente
 
 export default function Index() {
-  const [posts, setPosts] = useState([]); // Stores all posts
-  const [loading, setLoading] = useState(false); // Controls initial loading state
-  const [loadingMore, setLoadingMore] = useState(false); // Controls loading more posts state
-  const [page, setPage] = useState(1); // Current page
-  const [hasMore, setHasMore] = useState(true); // Indicates if there are more posts to load
-  const POSTS_PER_PAGE = 3; // Number of posts per page
+  const [posts, setPosts] = useState([]); // Armazena todos os posts
+  const [loading, setLoading] = useState(false); // Controla o estado de carregamento inicial
+  const [loadingMore, setLoadingMore] = useState(false); // Controla o estado de carregar mais posts
+  const [page, setPage] = useState(1); // Página atual
+  const [hasMore, setHasMore] = useState(true); // Indica se há mais posts para carregar
+  const POSTS_PER_PAGE = 3; // Número de posts por página
 
-  // Function to fetch initial posts
+  // Função para buscar posts iniciais
   const fetchPosts = async (refresh = false) => {
     if (refresh) {
       setLoading(true);
@@ -25,14 +25,14 @@ export default function Index() {
         setPosts(newPosts);
         setHasMore(newPosts.length === POSTS_PER_PAGE);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Erro ao buscar posts:', error);
       } finally {
         setLoading(false);
       }
     }
   };
 
-  // Function to fetch more posts
+  // Função para buscar mais posts
   const fetchMorePosts = async () => {
     if (loadingMore || !hasMore) return;
 
@@ -40,7 +40,7 @@ export default function Index() {
     try {
       const nextPage = page + 1;
       const newPosts = await getAllPosts(nextPage, POSTS_PER_PAGE);
-      
+
       if (newPosts.length > 0) {
         setPosts(prevPosts => [...prevPosts, ...newPosts]);
         setPage(nextPage);
@@ -49,16 +49,16 @@ export default function Index() {
         setHasMore(false);
       }
     } catch (error) {
-      console.error('Error fetching more posts:', error);
+      console.error('Erro ao buscar mais posts:', error);
     } finally {
       setLoadingMore(false);
     }
   };
 
-  // Handle scroll event to detect when we're near the bottom
-  const handleScroll = useCallback(({nativeEvent}) => {
+  // Lida com o evento de rolagem para detectar quando está próximo do final da lista
+  const handleScroll = useCallback(({ nativeEvent }) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    const isNearBottom = (layoutMeasurement.height + contentOffset.y) 
+    const isNearBottom = (layoutMeasurement.height + contentOffset.y)
       >= (contentSize.height - layoutMeasurement.height);
 
     if (isNearBottom && !loadingMore && hasMore) {
@@ -70,7 +70,7 @@ export default function Index() {
     fetchPosts(true);
   }, []);
 
-  // Render footer loading indicator
+  // Renderiza o indicador de carregamento no rodapé
   const renderFooter = () => {
     if (!loadingMore) return null;
 
@@ -87,7 +87,7 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         className="flex-1 bg-[#F8FAFC]"
         onScroll={handleScroll}
-        scrollEventThrottle={16} // Controls how often the scroll event fires
+        scrollEventThrottle={16} // Controla com que frequência o evento de rolagem é disparado
         refreshControl={
           <RefreshControl
             refreshing={loading}
@@ -98,23 +98,23 @@ export default function Index() {
         <SearchHeader />
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[800px] gap-4 w-full">
-            
-            {/* Initial loading state */}
+
+            {/* Estado inicial de carregamento */}
             {loading ? (
               Array.from({ length: 3 }).map((_, index) => (
                 <PostSkeleton key={`skeleton-${index}`} />
               ))
             ) : (
-              // Render posts
+              // Renderiza os posts
               posts.map((post) => (
                 <Post key={post.$id} postId={post.$id} />
               ))
             )}
 
-            {/* Footer loading indicator */}
+            {/* Indicador de carregamento no rodapé */}
             {renderFooter()}
 
-            {/* No more posts message */}
+            {/* Mensagem de "não há mais posts" */}
             {!hasMore && posts.length > 0 && (
               <View className="py-4 items-center">
                 <Text className="text-textSecondary">Não há mais posts para carregar</Text>
@@ -127,8 +127,6 @@ export default function Index() {
     </View>
   );
 }
-
-// ... rest of your code (BarStory component and styles) remains the same
 
 const styles = StyleSheet.create({
   containerImage: {

@@ -1,16 +1,82 @@
-import React, { useRef, useState } from "react";
-import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from 'expo-router';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { getUserPosts } from "@/lib/appwriteConfig";
+import PostSkeleton from "@/components/PostSkeleton";
+import Post from "@/components/Post";
 
 const PersonalProfile = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const [buttonWidth, setButtonWidth] = useState(0);
+  const { user } = useGlobalContext();
+
+  const [posts, setPosts] = useState([]); // Armazena todas as postagens
+  const [loading, setLoading] = useState(false); // Controla o estado de carregamento inicial
+  const [loadingMore, setLoadingMore] = useState(false); // Controla o estado de carregamento de mais postagens
+  const [page, setPage] = useState(1); // Página atual
+  const [hasMore, setHasMore] = useState(true); // Indica se há mais postagens para carregar
+  const POSTS_PER_PAGE = 3; // Número de postagens por página
+
+  // Função para buscar posts iniciais
+  const fetchPosts = async (refresh = false) => {
+    if (refresh && user) { // Só faz a requisição se o usuário estiver carregado
+      setLoading(true);
+      setPage(1);
+      try {
+        const { documents, pages } = await getUserPosts(user.$id, 1, POSTS_PER_PAGE); // Obtém posts do usuário
+        setPosts(documents); // Armazena os posts
+        setHasMore(pages > 1); // Define se há mais postagens
+      } catch (error) {
+        console.error('Erro ao buscar posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Função para buscar mais posts
+  const fetchMorePosts = async () => {
+    if (loadingMore || !hasMore || !user) return; // Garante que o usuário está carregado e que não está carregando mais postagens
+
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const { documents, pages } = await getUserPosts(user.$id, nextPage, POSTS_PER_PAGE); // Obtém mais posts do usuário
+      if (documents.length > 0) {
+        setPosts(prevPosts => [...prevPosts, ...documents]); // Adiciona os novos posts
+        setPage(nextPage); // Atualiza a página
+        setHasMore(pages > nextPage); // Define se há mais postagens
+      } else {
+        setHasMore(false); // Se não houver mais posts, atualiza o estado
+      }
+    } catch (error) {
+      console.error('Erro ao buscar mais posts:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Detecta quando está perto do fim da lista
+  const handleScroll = useCallback(({ nativeEvent }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const isNearBottom = (layoutMeasurement.height + contentOffset.y) >= (contentSize.height - layoutMeasurement.height);
+    if (isNearBottom && !loadingMore && hasMore) {
+      fetchMorePosts();
+    }
+  }, [loadingMore, hasMore]);
+
+  useEffect(() => {
+    if (user) {
+      fetchPosts(true); // Chama fetchPosts assim que o usuário estiver carregado
+    }
+  }, [user]); // Atualiza quando o usuário é carregado
 
   const moveTo = (value) => {
     Animated.timing(animation, {
@@ -29,31 +95,68 @@ const PersonalProfile = () => {
     setButtonWidth(nativeEvent.layout.width);
   };
 
+  const renderProfileIcon = () => {
+    const iconColor = "#01B198"; // Cor ativa, pode ajustar conforme necessário
+
+    return (
+      <View className="relative">
+        {user?.avatar ? (
+          <Image source={{ uri: user.avatar }} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
+        ) : (
+          <ActivityIndicator size="small" color={iconColor} />
+        )}
+      </View>
+    );
+  };
+
+  // Renderiza o indicador de carregamento no rodapé
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+
+    return (
+      <View className="px-5 items-center justify-center">
+        <ActivityIndicator size="large" color="#3692C5" />
+      </View>
+    );
+  };
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-white">
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      className="flex-1 bg-white"
+      onScroll={handleScroll}
+      scrollEventThrottle={16} // Controla a frequência do evento de rolagem
+      refreshControl={
+        <RefreshControl
+          refreshing={loading}
+          onRefresh={() => fetchPosts(true)}
+        />
+      }
+    >
       <View className="flex-1 bg-white pb-[40px] items-center">
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
-            <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover"/>
+            <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover" />
             <ButtonScale
-            className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
-            onPress={() => router.back()}
-            scale={1.04}>
+              className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
+              onPress={() => router.back()}
+              scale={1.04}
+            >
               <CustomIcons name="anterior" color="#475569" size={24} />
             </ButtonScale>
           </View>
           <View className="flex flex-row justify-between items-end px-[20px] mt-[-75px]">
-            <Image source={images.person} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
+            {renderProfileIcon()}
             <HoverColorComponent colorHover={colors.primaryStandardDark.hover} colorPressIn={colors.primaryStandardDark.pressIn}>
-              <Text className="underline font-bold" style={{color: colors.primaryStandardDark.standard}}>Editar Perfil</Text>
+              <Text className="underline font-bold" style={{ color: colors.primaryStandardDark.standard }}>Editar Perfil</Text>
             </HoverColorComponent>
           </View>
         </View>
 
-        <View className="flex w-full max-w-[700px] px-[10px] gap-[10px]">
-          <Text className="font-bold text-xl text-textStandardDark">Rodrigo Silva 1223</Text>
-          <Text className="text-base">Olá! 👋 Eu tenho 19 anos, gosto do mundo de algoritmos e sou estudante da Tecnologia da Informação.</Text>
-          <View className="w-full mt-1 gap-4 items-center justify-center flex-row">
+        <View className="flex w-full max-w-[700px] px-[10px]">
+          <Text className="font-bold text-xl text-textStandardDark">{user?.username || "Nome do Usuário"}</Text>
+          <Text className="text-base">{user?.biography || "Opa, sou novo por aqui!"}</Text>
+          <View className="w-full mt-6 mb-3 gap-4 items-center justify-center flex-row">
             <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
               <Text className="text-textStandardDark font-semibold text-lg">1000</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguidores</Text>
@@ -73,6 +176,25 @@ const PersonalProfile = () => {
                 </Pressable>
               ))}
             </View>
+          </View>
+
+          <View className="gap-3">
+            {loading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <PostSkeleton key={`skeleton-${index}`} />
+              ))
+            ) : (
+              posts.map((post) => (
+                <Post key={post.$id} postId={post.$id} typePost="ownProfile"/>
+              ))
+            )}
+            {renderFooter()}
+
+            {!hasMore && posts.length > 0 && (
+              <View className="py-4 items-center">
+                <Text className="text-textSecondary">Não há mais posts para carregar</Text>
+              </View>
+            )}
           </View>
         </View>
       </View>

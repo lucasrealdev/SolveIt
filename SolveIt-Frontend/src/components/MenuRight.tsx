@@ -1,18 +1,58 @@
-import React, { useState } from "react";
-import { Pressable, Text, View, Image, StyleSheet, useWindowDimensions, Animated } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, Text, View, Image, StyleSheet, useWindowDimensions, Animated, ActivityIndicator } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 
 import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "./CardFriend";
-import images from "@/constants/images";
 import ButtonScale from "./ButtonScale";
 import HoverColorComponent from "./HoverColorComponent";
 import colors from "@/constants/colors";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { toggleUserOnlineStatus } from "@/lib/appwriteConfig";
+import { useAlert } from "@/context/AlertContext";
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
   const pathname = usePathname();
+  const { user, setUser } = useGlobalContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(null); // Inicializa como null
+  const { showAlert } = useAlert();
+
+  const isMobile = width > 1250;
+  const isTablet = height <= 835 ? "hidden" : "";
+  const containerWidth = width >= 1400 ? 368 : 320;
+
+  useEffect(() => {
+    if (user?.isOnline !== undefined) {
+      // Define o status diretamente como booleano
+      setCurrentStatus(user.isOnline);
+    }
+  }, [user]);
+
+  const handleStatusToggle = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      const newStatus = await toggleUserOnlineStatus();
+      // Atualiza o status no estado local e global
+      setCurrentStatus(newStatus);
+      setUser({ ...user, isOnline: newStatus });
+      const statusMessage = newStatus ? "Estado alterado para online" : "Estado alterado para offline";
+      showAlert("Sucesso!", statusMessage);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!isMobile) return null;
+
+  if (!user?.avatar) {
+    return <ActivityIndicator size="small" color="#C0C0C0" />;
+  }
 
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
@@ -31,18 +71,36 @@ export default function MenuRight() {
     </View>
   );
 
-  const isMobile = width > 1250;
-  const isTablet = height <= 835 ? "hidden" : "";
-  const containerWidth = width >= 1400 ? 368 : 320;
-
-  if (!isMobile) return null;
-
   return (
     <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] border-l border-borderStandardLight bg-white" style={{ width: containerWidth }}>
-      <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[20px] flex-row justify-between border-b border-borderStandardLight">
-        <Pressable className="flex justify-center items-end">
-          <Image className="w-12 h-12 object-cover rounded-full" source={images.person} />
-          <View className="w-3 h-3 bg-[#22C55E] border-white border-[1.5px] rounded-full mt-[-12px]" />
+      <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[19px] flex-row justify-between border-b border-borderStandardLight">
+        <Pressable className="flex justify-center">
+          {
+            user && user.avatar && currentStatus !== null ? (
+              <ButtonScale
+                onPress={handleStatusToggle}
+                scale={1.05}
+                className="items-end"
+                disabled={isLoading}
+              >
+                <Image
+                  source={{ uri: user.avatar }}
+                  className="w-12 h-12 rounded-full"
+                />
+                <View
+                  className={`w-3 h-3 border-white border-[1.5px] rounded-full mt-[-12px] ${isLoading
+                    ? "bg-gray-400"
+                    : currentStatus
+                      ? "bg-green-500"
+                      : "bg-red-500"
+                    }`}
+                />
+              </ButtonScale>
+            ) : (
+              // Exibe o ActivityIndicator enquanto user.avatar não estiver disponível
+              <ActivityIndicator size="small" color="#C0C0C0" />
+            )
+          }
         </Pressable>
         <View className="flex flex-row gap-2">
           {['chat', 'notificacao'].map((icon, index) => {
@@ -66,9 +124,9 @@ export default function MenuRight() {
               onPress={() => navigateTo("/friends")}
               colorHover={colors.accentStandardDark.hover}
               colorPressIn={colors.accentStandardDark.pressIn}>
-              <Text className="font-bold text-[14px]" style={{color: "#01b297"}}>
+              <Text className="font-bold text-[14px]" style={{ color: "#01b297" }}>
                 Ver tudo
-              </Text> 
+              </Text>
               <CustomIcons name="setaDireita" color="#01B198" size={20} />
             </HoverColorComponent>
           </View>
