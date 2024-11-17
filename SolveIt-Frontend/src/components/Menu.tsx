@@ -179,8 +179,8 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
         {renderMenuButtonMobile('/games', 'jogos', games)}
         {renderMenuButtonMobile('/createPost', 'createPost')}
         {renderMenuButtonMobile('/friends', 'amigos', friends)}
-        {renderMenuButtonMobile('/settings', 'profile', profile)}
-      </View>
+        {renderMenuButtonMobile('/personalProfile', 'profile', profile)}
+      </View> 
     </View>
   );
 

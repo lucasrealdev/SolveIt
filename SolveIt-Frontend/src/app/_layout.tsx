@@ -44,8 +44,8 @@ export default function Layout() {
   if (!fontsLoaded && !error) return null;
 
   // Lista de rotas onde o menu e o header devem ser exibidos
-  const showMenuRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile', '/personalProfile'];
-  const showHeaderRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile', '/personalProfile'];
+  const showMenuRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/[id]', '/personalProfile'];
+  const showHeaderRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/[id]', '/personalProfile'];
 
   const shouldShowMenu = showMenuRoutes.includes(pathname);
   const shouldShowHeader = showHeaderRoutes.includes(pathname);
