@@ -1,8 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated } from "react-native";
-import { base64Image, base64Image2, Imagem64Agua } from "../../assets/images/base64Image";
 import { useRouter } from 'expo-router';
-import Post from "@/components/Post";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
@@ -76,32 +74,6 @@ const PersonalProfile = () => {
               ))}
             </View>
           </View>
-
-          <Post
-              FotoPerfil={base64Image2}
-              CategoriaPost="Questões Ambientais"
-              Comentarios={null}
-              Compartilhamentos={120}
-              Curtidas={1220}
-              DescricaoPost="A escassez de água afeta milhões de pessoas ao redor do mundo. Este tema explora as causas, como mudanças climáticas e má gestão de recursos hídricos, e sugere soluções sustentáveis para o futuro."
-              HashtagPost={['crise', 'sustentabilidade', '']}
-              NomePerfil="Rodrigo Silva 1223"
-              TituloPost="A Crise Global da Água: Desafios e Soluções"
-              ImagemPost={Imagem64Agua}
-          />
-
-          <Post
-              FotoPerfil={base64Image}
-              CategoriaPost="Ambiental"
-              Comentarios={null}
-              Compartilhamentos={4}
-              Curtidas={20}
-              DescricaoPost="De acordo com o ministério do meio ambiente, São Paulo está entre as 10 cidades mais poluídas do mundo."
-              HashtagPost={['energia', 'sustentabilidade']}
-              NomePerfil="AAAA GUilherme"
-              TituloPost="Queimadas no Estado de São Paulo"
-            />
-            
         </View>
       </View>
     </ScrollView>

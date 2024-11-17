@@ -72,6 +72,32 @@ export async function createUser(email, password, username) {
   }
 }
 
+export async function getUserProfile(accountId) {
+  try {
+    // Busca o documento do usuário pelo accountId
+    const user = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal('accountId', [accountId])]
+    );
+
+    if (!user.documents || user.documents.length === 0) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    const userDoc = user.documents[0];
+
+    return {
+      username: userDoc.username,
+      email: userDoc.email,
+      avatar: userDoc.avatar,
+      biography: userDoc.biography
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 // Função para fazer login de usuário
 export async function signIn(email, password) {
   try {
@@ -161,25 +187,36 @@ export async function signOut() {
 }
 
 // Função para fazer upload de um arquivo
-export async function uploadFile(file, type) {
+export async function uploadFile(file, type, isWeb) {
   if (!file) return;
-
-  // Extrai o tipo MIME do arquivo e mantém o restante das propriedades
-  const { mimeType, ...rest } = file;
-  const asset = { type: mimeType, ...rest }; // Cria um objeto asset com o tipo e as outras propriedades do arquivo
-
   try {
-    // Faz o upload do arquivo para o storage do Appwrite
-    const uploadedFile = await storage.createFile(
-      appwriteConfig.storageId,
-      ID.unique(),
-      asset
-    );
+    let uploadedFile;
 
+    if (isWeb) {
+      // Caso seja web, utilize o objeto File diretamente
+      uploadedFile = await storage.createFile(
+        appwriteConfig.storageId,
+        ID.unique(),
+        file // Envia o objeto File diretamente
+      );
+    } else {
+      // Extrai o tipo MIME do arquivo para não-Web
+      const { mimeType, ...rest } = file;
+      const asset = { type: mimeType, ...rest };
+
+      // Faz o upload do arquivo no formato necessário
+      uploadedFile = await storage.createFile(
+        appwriteConfig.storageId,
+        ID.unique(),
+        asset
+      );
+    }
+
+    // Obter o preview do arquivo
     const fileUrl = await getFilePreview(uploadedFile.$id, type);
     return fileUrl;
   } catch (error) {
-    throw new Error(error);
+    throw new Error('Falha ao enviar o arquivo. Tente novamente.');
   }
 }
 
@@ -210,11 +247,11 @@ export async function getFilePreview(fileId, type) {
 }
 
 // Função para criar uma nova postagem
-export async function createPost(form) {
+export async function createPost(form, isWeb) {
   try {
     // Faz o upload da imagem de miniatura
     const [thumbnailUrl] = await Promise.all([
-      uploadFile(form.thumbnail, "image"),
+      uploadFile(form.thumbnail, "image", isWeb)
     ]);
 
     const newPost = await databases.createDocument(
@@ -223,9 +260,16 @@ export async function createPost(form) {
       ID.unique(),
       {
         title: form.title,
-        thumbnail: thumbnailUrl,
         description: form.description,
+        tags: form.tags || "",
+        zipCode: form.zipCode || "",
+        peopleAffects: form.peopleAffects,
+        category: form.category,
+        urgencyProblem: form.urgencyProblem,
+        thumbnail: thumbnailUrl,
+        thumbnailRatio: form.thumbnailRatio,
         creator: form.userId,
+        shares: "0", // Valor padrão
       }
     );
 
@@ -235,19 +279,42 @@ export async function createPost(form) {
   }
 }
 
-// Função para obter todas as postagens
-export async function getAllPosts() {
+
+export async function getAllPosts(page = 1, limit = 10) {
   try {
-    // Obtém todos os documentos de postagens do banco de dados, ordenados pela data de criação em ordem descrescente
+    // Calcula o offset baseado na página e no limite
+    const offset = (page - 1) * limit;
+
+    // Obtém os IDs dos documentos de postagens com a paginação
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,
-      [Query.orderDesc("$createdAt")]
+      [
+        Query.orderDesc('$createdAt'), // Ordena pela data de criação (decrescente)
+        Query.limit(limit),            // Limita o número de postagens
+        Query.offset(offset),          // Desloca o início da busca para a página correta
+        Query.select(['$id'])          // Seleciona apenas o campo ID dos documentos
+      ]
     );
 
-    return posts.documents;
+    return posts.documents; // Retorna apenas os documentos com os IDs
   } catch (error) {
-    throw new Error(error);
+    throw new Error(`Erro ao buscar posts: ${error.message}`);
+  }
+}
+
+// Função para pegar um post pelo ID
+export async function getPostById(postId) {
+  try {
+    const post = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      postId
+    );
+
+    return post;
+  } catch (error) {
+    throw new Error('Erro ao buscar o post: ' + error.message);
   }
 }
 

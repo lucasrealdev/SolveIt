@@ -1,255 +1,323 @@
-import React, { useState } from "react";
-import { Text, View, Pressable, Image, Platform, Linking } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import CustomIcons from "@/assets/icons/CustomIcons";
-import { useAlert } from "@/context/AlertContext";
-import Constants from 'expo-constants';
+import React, { useState } from 'react';
+import { View, Text, Pressable, Platform, Linking, Image as RNImage } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import CustomIcons from '@/assets/icons/CustomIcons';
+import { useAlert } from '@/context/AlertContext';
 
-// Definindo o tipo para o aspect ratio
 type AspectRatio = [number, number];
 
-// Interface para o estado da imagem
-interface ImageState extends ImagePicker.ImagePickerAsset {
-    aspect?: AspectRatio;
+interface ImageUploadProps {
+    onImageUpload: (image: any) => void; // Não alterado
+    onAspectRatioCalculated?: (ratio: String) => void; // Nova função opcional
 }
 
-const ImageUploadComponent = () => {
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+const ASPECT_RATIO_TOLERANCE = 0.1;
+
+const ImageUploadComponent: React.FC<ImageUploadProps> = ({
+    onImageUpload,
+    onAspectRatioCalculated,
+}) => {
     const { showAlert } = useAlert();
-    const [image, setImage] = useState<ImageState | null>(null);
-    const isExpoGo = Constants.appOwnership === 'expo';
+    const [image, setImage] = useState<{ uri: string; aspect?: AspectRatio } | null>(null);
 
-    const requestMediaLibraryPermission = async () => {
-        if (isExpoGo || Platform.OS === 'web') return true;
+    const [imageWeb, setImageWeb] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const isWeb = Platform.OS === 'web';
 
+    const cropImage = async (aspect: AspectRatio) => {
+        if (!image) return;
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect,
+            quality: 1,
+        });
+
+        if (!result.canceled && result.assets?.[0]) {
+            const response = await fetch(result.assets[0].uri);
+            const blob = await response.blob();
+
+            const croppedImage = {
+                name: 'cropped_image',
+                type: blob.type,
+                size: blob.size,
+                uri: result.assets[0].uri,
+            };
+
+            setImage({ uri: croppedImage.uri, aspect });
+            onImageUpload(croppedImage);
+        }
+    };
+
+    const ACCEPTED_ASPECT_RATIOS: AspectRatio[] = [
+        [1, 1], // Square
+        [16, 9], // Wide
+        [4, 5], // Portrait
+    ];
+
+    const verifyImageAspectRatio = (
+        width: number,
+        height: number,
+        acceptedRatios: AspectRatio[]
+    ) => {
+        const imageRatio = width / height;
+        return acceptedRatios.some(([expectedWidth, expectedHeight]) => {
+            const expectedRatio = expectedWidth / expectedHeight;
+            return Math.abs(imageRatio - expectedRatio) < ASPECT_RATIO_TOLERANCE;
+        });
+    };
+
+    const handleImageValidation = async (uri: string, fileType?: string, fileSize?: number) => {
+        if (fileType && !ALLOWED_TYPES.includes(fileType)) {
+            showAlert('Aviso', 'Formato de imagem não suportado. Use JPG ou PNG.');
+            return false;
+        }
+
+        if (fileSize && fileSize > MAX_FILE_SIZE) {
+            showAlert('Aviso', 'O tamanho da imagem deve ser menor que 5MB.');
+            return false;
+        }
+
+        if (isWeb) {
+            const img = new Image();
+            img.src = uri;
+            await new Promise((resolve) => {
+                img.onload = resolve;
+            });
+
+            if (!verifyImageAspectRatio(img.width, img.height, ACCEPTED_ASPECT_RATIOS)) {
+                showAlert('Aviso', 'A imagem deve ter uma proporção válida (1:1, 16:9 ou 4:5).');
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    const processImage = async (uri: string, type?: string, size?: number) => {
         try {
-            const { status: currentStatus } = await ImagePicker.getMediaLibraryPermissionsAsync();
-            
-            if (currentStatus === 'granted') {
-                return true;
-            }
+            const isValid = await handleImageValidation(uri, type, size);
+            if (!isValid) return; // Não prossiga se a validação falhar
 
-            if (currentStatus === 'undetermined') {
-                const { status: newStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                return newStatus === 'granted';
-            }
+            const processedImage = {
+                name: 'uploaded_image',
+                type: type || 'image/jpeg',
+                size: size || 0,
+                uri,
+            };
 
-            if (currentStatus === 'denied') {
+            setImage({ uri, aspect: [1, 1] });
+            onImageUpload(processedImage);
+        } catch (error) {
+            console.log(error instanceof Error ? error.message : 'Erro ao processar imagem');
+        }
+    };
+
+    const pickImage = async () => {
+        if (!isWeb) {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
                 showAlert(
                     "Permissão Necessária",
-                    "As permissões de câmera são necessárias para selecionar uma imagem. Vá até as configurações do seu dispositivo e conceda as permissões necessárias.",
+                    "As permissões de câmera são necessárias para selecionar uma imagem. Vá até as configurações do seu dispositivo e clique em permitir tudo em Fotos e Videos.",
                     [
                         { text: 'Abrir configurações', onPress: () => Linking.openSettings() },
                         { text: 'Recusar', onPress: () => null },
                     ],
                     10000
                 );
-                return false;
+                return;
             }
-
-            return false;
-        } catch (error) {
-            console.error('Erro ao verificar permissões:', error);
-            return false;
         }
-    };
 
-    const selectImage = async (aspectRatio: AspectRatio = [1, 1]) => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
+            aspect: [1, 1], // Default aspect ratio for cropping
             quality: 1,
-            aspect: aspectRatio,
-            allowsMultipleSelection: false,
-            exif: false,
-            presentationStyle: Platform.OS === 'ios'
-                ? ImagePicker.UIImagePickerPresentationStyle.PAGE_SHEET
-                : ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
         });
 
-        return result;
-    };
-
-    const handleImageSelection = async (aspectRatio: AspectRatio = [1, 1]) => {
-        try {
-            const result = await selectImage(aspectRatio);
-            if (result.canceled) return;
-
+        if (!result.canceled && result.assets?.[0]) {
             const response = await fetch(result.assets[0].uri);
             const blob = await response.blob();
-            const fileType = blob.type;
-            const fileSize = blob.size;
-            const maxSize = 10 * 1024 * 1024;
+            await processImage(result.assets[0].uri, blob.type, blob.size);
+        }
+    };
 
-            if (fileType !== "image/jpeg" && fileType !== "image/png") {
-                showAlert("Atenção", "Formato de imagem não suportado. Por favor, envie um arquivo JPG ou PNG.");
-                return;
-            }
-
-            if (fileSize > maxSize) {
-                showAlert("Atenção", "O tamanho da imagem deve ser menor que 10MB");
-                return;
-            }
-
-            setImage({ 
-                ...result.assets[0], 
-                aspect: aspectRatio 
+    const validateImage = (file: File, onSuccess: (imageUrl: string, aspectRatio: string) => void) => {
+        if (!file) {
+            showAlert('Aviso', 'Nenhum arquivo selecionado.');
+            return;
+        }
+    
+        // Verifica se o tamanho do arquivo é menor que 10MB
+        const MAX_SIZE_MB = 5;
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+            showAlert('Aviso', 'O arquivo selecionado é maior que 5MB. Por favor, escolha outro arquivo.');
+            return;
+        }
+    
+        // Cria uma URL temporária para analisar as dimensões da imagem
+        const imageUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = imageUrl;
+    
+        img.onload = () => {
+            const width = img.width;
+            const height = img.height;
+    
+            // Calcula o aspect ratio
+            const ratio = width / height;
+    
+            // Mapeia os aspect ratios esperados
+            const aspectRatios = [
+                { label: '1:1', ratio: 1 },
+                { label: '16:9', ratio: 16 / 9 },
+                { label: '4:5', ratio: 4 / 5 },
+            ];
+    
+            // Encontra o aspecto mais próximo
+            let closestAspectRatio = aspectRatios[0]; // Padrão é 1:1
+            let minDifference = Math.abs(ratio - aspectRatios[0].ratio);
+    
+            aspectRatios.forEach((r) => {
+                const diff = Math.abs(ratio - r.ratio);
+                if (diff < minDifference) {
+                    closestAspectRatio = r;
+                    minDifference = diff;
+                }
             });
-        } catch (error) {
-            console.error('Erro ao processar imagem:', error);
-            showAlert("Erro", "Erro ao processar a imagem. Tente novamente.");
-        }
+    
+            // Verifica se o aspecto encontrado é suficientemente próximo de um dos formatos válidos
+            if (minDifference > 0.05) {
+                showAlert('Aviso', 'Formato inválido. Use imagens com proporções 1:1, 16:9 ou 4:5.');
+                return;
+            }
+    
+            // Chama a função de sucesso com a URL da imagem e o aspect ratio correto
+            onSuccess(imageUrl, closestAspectRatio.label);
+        };
+    
+        img.onerror = () => {
+            showAlert('Aviso', 'Erro ao carregar a imagem. Por favor, tente novamente.');
+        };
+    };    
+
+    // Função de seleção de imagem
+    const pickImageWeb = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        validateImage(file, (imageUrl, aspectRatio) => {
+            setImageWeb(file);
+            setPreviewUrl(imageUrl);
+            onImageUpload(file)
+            onAspectRatioCalculated(aspectRatio)
+        });
     };
 
-    const pickImage = async (aspectRatio: AspectRatio = [1, 1]) => {
-        try {
-            const hasPermission = await requestMediaLibraryPermission();
-            if (!hasPermission) return;
-
-            await handleImageSelection(aspectRatio);
-        } catch (error) {
-            console.error('Erro ao selecionar imagem:', error);
-            showAlert("Erro", "Erro ao selecionar a imagem. Tente novamente.");
-        }
-    };
-
-    const handleRemoveImage = () => {
-        setImage(null);
-    };
-
-    const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    // Função de drop
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
-
-        if (!file) return;
-
-        if (file.type !== "image/jpeg" && file.type !== "image/png") {
-            showAlert("Atenção", "Formato de imagem não suportado. Por favor, envie um arquivo JPG ou PNG.");
-            return;
+        if (file && file.type.startsWith('image/')) {
+            validateImage(file, (imageUrl, aspectRatio) => {
+                setImageWeb(file);
+                setPreviewUrl(imageUrl);
+                onImageUpload(file)
+                onAspectRatioCalculated(aspectRatio)
+            });
         }
-
-        if (file.size > 10 * 1024 * 1024) {
-            showAlert("Atenção", "O tamanho da imagem deve ser menor que 10MB");
-            return;
-        }
-
-        const fileUri = URL.createObjectURL(file);
-        setImage({ uri: fileUri, aspect: [1, 1] as AspectRatio } as ImageState);
     };
 
-    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-    };
+    const componentText = () => {
+        return (
+            <>
+                <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
+                    <CustomIcons name="upload" size={24} />
+                </View>
+                <Text className="text-[14px] font-medium text-textStandardDark text-center">
+                    <Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu
+                    arquivo
+                </Text>
+                <Text className="text-textStandard text-[14px] text-center">
+                    Formatos suportados: JPG, PNG (10mb cada)
+                </Text>
+            </>
+        )
+    }
 
-    const AspectRatioButton = ({ 
-        label, 
-        aspectRatio, 
-        currentImage, 
-        onPress 
-    }: { 
-        label: string; 
-        aspectRatio: AspectRatio; 
-        currentImage: ImageState | null; 
-        onPress: (ratio: AspectRatio) => void;
-    }) => (
+    const renderCropButton = (label: string, aspect: AspectRatio) => (
         <Pressable
-            onPress={() => onPress(aspectRatio)}
-            className={`px-4 py-2 rounded-full ${
-                currentImage?.aspect?.[0] === aspectRatio[0] &&
-                currentImage?.aspect?.[1] === aspectRatio[1]
-                    ? "bg-accentStandardDark"
-                    : "bg-gray-200"
-            } mr-2`}
+            key={label}
+            onPress={() => cropImage(aspect)}
+            className="bg-blue-500 rounded-full px-4 py-2 mx-1"
         >
-            <Text
-                className={
-                    currentImage?.aspect?.[0] === aspectRatio[0] &&
-                    currentImage?.aspect?.[1] === aspectRatio[1]
-                        ? "text-white"
-                        : "text-black"
-                }
-            >
-                {label}
-            </Text>
+            <Text className="text-white font-bold">{label}</Text>
         </Pressable>
     );
-
-    const pickImageWithAspect = async (aspectRatio: AspectRatio) => {
-        await pickImage(aspectRatio);
-    };
 
     return (
         <View className="p-[10px] gap-2">
             <Text className="font-bold">Carregar Imagem (Opcional)</Text>
 
-            {!image ? (
-                Platform.OS === 'web' ? (
+            {!imageWeb && !image ? (
+                isWeb ? (
                     <div
-                        onDragOver={handleDragOver}
+                        onDragOver={(e) => e.preventDefault()}
                         onDrop={handleDrop}
-                        onClick={() => pickImage([1, 1])}
-                        className="rounded-[20px] border-dashed border-2 border-borderStandard flex flex-col justify-center items-center bg-white py-7 px-4" 
+                        onClick={() => document.getElementById('fileInput')?.click()}
+                        className="rounded-[20px] border-dashed border-2 border-borderStandard flex flex-col justify-center items-center bg-white py-7 px-4"
                     >
-                        <div className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
-                            <CustomIcons name="upload" size={24} />
-                        </div>
-                        <Text className="text-[14px] font-medium text-textStandardDark text-center">
-                            <Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu
-                            arquivo ou arraste
-                        </Text>
-                        <Text className="text-textStandard text-[14px] text-center">
-                            Formatos suportados: JPG, PNG (10mb cada)
-                        </Text>
+                        {componentText()}
+                        <input
+                            id="fileInput"
+                            type="file"
+                            accept="image/png, image/jpeg" // Define os tipos de arquivo permitidos
+                            onChange={pickImageWeb} // Função para lidar com a seleção de arquivos
+                            className="hidden" // Oculta o input
+                        />
                     </div>
                 ) : (
                     <Pressable
-                        onPress={() => pickImage([1, 1])}
+                        onPress={pickImage}
                         className="rounded-[20px] border-dashed border-2 border-borderStandard flex justify-center items-center bg-white py-7 px-4"
                     >
-                        <View className="w-12 h-12 bg-[#CBE2EF] flex items-center justify-center rounded-full">
-                            <CustomIcons name="upload" size={24} />
-                        </View>
-                        <Text className="text-[14px] font-medium text-textStandardDark text-center">
-                            <Text className="text-destaqueAzul">Clique aqui</Text> para enviar seu
-                            arquivo
-                        </Text>
-                        <Text className="text-textStandard text-[14px] text-center">
-                            Formatos suportados: JPG, PNG (10mb cada)
-                        </Text>
+                        {componentText()}
                     </Pressable>
                 )
             ) : (
                 <View className="gap-1">
-                    <View className="flex-row mb-2">
-                        <AspectRatioButton
-                            label="1:1"
-                            aspectRatio={[1, 1] as AspectRatio}
-                            currentImage={image}
-                            onPress={pickImageWithAspect}
-                        />
-                        <AspectRatioButton
-                            label="16:9"
-                            aspectRatio={[16, 9] as AspectRatio}
-                            currentImage={image}
-                            onPress={pickImageWithAspect}
-                        />
-                        <AspectRatioButton
-                            label="4:5"
-                            aspectRatio={[4, 5] as AspectRatio}
-                            currentImage={image}
-                            onPress={pickImageWithAspect}
-                        />
-                    </View>
-
+                    {isWeb ? null : (
+                        <View className="flex-row justify-center mt-2">
+                            {renderCropButton('1:1', [1, 1])}
+                            {renderCropButton('16:9', [16, 9])}
+                            {renderCropButton('4:5', [4, 5])}
+                        </View>
+                    )}
                     <View className="rounded-[20px] border-2 border-borderStandard overflow-hidden">
-                        <Image
-                            source={{ uri: image.uri }}
-                            className="w-full h-[300px]"
-                            resizeMode="contain"
-                        />
+                        {isWeb ? (
+                            <img
+                                src={previewUrl}
+                                alt="Preview"
+                                className="w-full h-[300px] object-contain"
+                            />
+                        ) : (
+                            <RNImage
+                                source={{ uri: image.uri }}
+                                className="w-full h-[300px]"
+                                resizeMode="contain"
+                            />
+                        )}
                     </View>
-
                     <Pressable
-                        onPress={handleRemoveImage}
+                        onPress={() => {
+                            setImage(null);
+                            onImageUpload(null);
+                            setImageWeb(null);
+                            setPreviewUrl(null);
+                        }}
                         className="bg-transparent rounded-full items-start"
                     >
                         <Text className="text-red-500 font-bold">Remover</Text>
@@ -260,4 +328,4 @@ const ImageUploadComponent = () => {
     );
 };
 
-export default ImageUploadComponent;
+export default ImageUploadComponent; 

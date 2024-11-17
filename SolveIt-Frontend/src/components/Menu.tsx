@@ -104,7 +104,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
         <Image style={{ width: 115, height: 32 }} source={images.logo} />
         <View className="flex gap-[6px] rounded-[124px] border border-[#3692C5] h-[40px] flex-row items-center p-[12px] py-[8px]">
           <CustomIcons name="pesquisar" size={17} color="#FFFFFF" />
-          <TextInput className="outline-none flex-1 text-white text-base h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" />
+          <TextInput className="outline-none flex-1 text-white text-base h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" keyboardType="default"/>
         </View>
         <View className="flex w-full gap-[8px]">
           {renderMenuButton('/', 'Descubra o mundo', 'home', home)}
