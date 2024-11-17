@@ -102,9 +102,8 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
     <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
       <View className="flex gap-[32px] w-full">
         <Image style={{ width: 115, height: 32 }} source={images.logo} />
-        <View className="flex gap-[6px] rounded-[124px] border border-[#3692C5] h-[40px] flex-row items-center p-[12px] py-[8px]">
-          <CustomIcons name="pesquisar" size={17} color="#FFFFFF" />
-          <TextInput className="outline-none flex-1 text-white text-base h-[24px] pb-[2px] font-medium" placeholder="Procurar" placeholderTextColor="#fff" keyboardType="default"/>
+        <View className="flex rounded-[124px] border border-[#3692C5] items-center justify-center px-[12px] py-[8px]">
+          <Text className="text-white font-semibold text-center">A necessidade é a mãe da invenção.</Text>
         </View>
         <View className="flex w-full gap-[8px]">
           {renderMenuButton('/', 'Descubra o mundo', 'home', home)}
