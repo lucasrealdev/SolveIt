@@ -80,7 +80,7 @@ export async function getUserProfile(accountId) {
     const user = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.equal('accountId', [accountId])]
+      [Query.equal('$id', [accountId])]
     );
 
     if (!user.documents || user.documents.length === 0) {

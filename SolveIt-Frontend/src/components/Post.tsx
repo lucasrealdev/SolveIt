@@ -109,7 +109,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const renderHeader = () => (
     <View accessibilityLabel="HeaderPost" className="flex w-full px-[20px] py-3 gap-[15px] border-b border-borderStandardLight flex-row items-center">
       <View accessibilityLabel="ContainerProfile" className="flex flex-1 flex-row gap-[12px] items-center">
-        <Pressable onPress={() => navigateTo(`/profile/${post.creator.accountId}`)}>
+        <Pressable onPress={() => navigateTo(`/profile/${post.creator.$id}`)}>
           <Image source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
         </Pressable>
         <View accessibilityLabel="ContainerText">
