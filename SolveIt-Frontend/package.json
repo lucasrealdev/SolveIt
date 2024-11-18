@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/match-media": "^0.4.0",
+    "axios": "^1.7.7",
     "expo": "~51.0.39",
     "expo-blur": "~13.0.2",
     "expo-constants": "~16.0.2",

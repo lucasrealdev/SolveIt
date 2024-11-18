@@ -50,10 +50,6 @@ export default function MenuRight() {
 
   if (!isMobile) return null;
 
-  if (!user?.avatar) {
-    return <ActivityIndicator size="small" color="#C0C0C0" />;
-  }
-
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
   };
