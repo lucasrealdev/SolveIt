@@ -43,12 +43,18 @@ export default function Layout() {
 
   if (!fontsLoaded && !error) return null;
 
-  // Lista de rotas onde o menu e o header devem ser exibidos
-  const showMenuRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/[id]', '/personalProfile'];
-  const showHeaderRoutes = ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/[id]', '/personalProfile'];
-
-  const shouldShowMenu = showMenuRoutes.includes(pathname);
-  const shouldShowHeader = showHeaderRoutes.includes(pathname);
+  const showRoutes = {
+    menu: ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/', '/postDetails/', '/personalProfile'],
+    header: ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/', '/postDetails/', '/personalProfile'],
+  };
+  
+  const hideRoutes = {
+    menu: ['/signUp', '/signIn'], // Adicione rotas onde o Menu não deve aparecer
+    header: ['/signUp', '/signIn'], // Adicione rotas onde o Header não deve aparecer
+  };
+  
+  const shouldShowMenu = showRoutes.menu.some(route => pathname.startsWith(route)) && !hideRoutes.menu.some(route => pathname.startsWith(route));
+  const shouldShowHeader = showRoutes.header.some(route => pathname.startsWith(route)) && !hideRoutes.header.some(route => pathname.startsWith(route));  
 
   const isMobile = width <= 770 ? "column-reverse" : "row";
 

@@ -22,6 +22,8 @@ export const appwriteConfig = {
   favoritesCollectionId: "6726bca00024d78f6036"
 };
 
+import axios from "axios";
+
 // Criação de uma instância do cliente Appwrite
 const client = new Client();
 client
@@ -163,6 +165,32 @@ export async function getCurrentUser() {
     return currentUser.documents[0];
   } catch (error) {
     console.error("Erro ao obter dados do usuário:", error);
+    return null;
+  }
+}
+
+export async function getCityAndStateByZipCode(zipCode) {
+  try {
+    if (!zipCode) {
+      throw new Error("CEP não encontrado no post");
+    }
+
+    // Fazendo a requisição para a API ViaCEP
+    const response = await axios.get(`https://viacep.com.br/ws/${zipCode}/json/`);
+
+    if (response.data.erro) {
+      throw new Error("CEP não encontrado");
+    }
+
+    const { localidade: city, uf: state } = response.data;
+
+    return {
+      city,
+      state,
+      country: "Brasil",
+    };
+  } catch (error) {
+    console.error("Erro ao buscar informações do CEP:", error.message);
     return null;
   }
 }

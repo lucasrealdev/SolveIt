@@ -7,7 +7,6 @@ import ButtonScale from './ButtonScale';
 import HoverColorComponent from './HoverColorComponent';
 import colors from '@/constants/colors';
 import { getPostById } from '@/lib/appwriteConfig';
-import { useGlobalContext } from '@/context/GlobalProvider';
 import PostSkeleton from './PostSkeleton';
 
 interface PostProps {
@@ -16,11 +15,9 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
-  const { width } = useWindowDimensions();
   const [containerWidth, setContainerWidth] = useState(0);
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useGlobalContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -120,8 +117,8 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           <Text className="text-[14px] text-textSecondary">{post.category}</Text>
         </View>
       </View>
-      <HoverColorComponent colorHover={colors.textSecondary.standard} colorPressIn={colors.textSecondary.pressIn}>
-        <CustomIcons name="tresPontos" color="#94A3B8" size={20} />
+      <HoverColorComponent colorHover={colors.primaryStandardDark.standard} className='w-fit' onPress={() => navigateTo(`/postDetails/${post.$id}`)}>
+        <Text className='text-xs underline' style={{ color: colors.textSecondary.standard }}>Ver Detalhes</Text>
       </HoverColorComponent>
     </View>
   );
@@ -181,7 +178,9 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             return (
               <>
                 <View accessibilityLabel="BodyPost" className="w-full flex px-[20px] py-[16px] gap-[5px]">
-                  <Text className="font-bold text-base">{post.title}</Text>
+                  <View className='w-full'>
+                    <Text className="font-bold text-base">{post.title}</Text>
+                  </View>
                   <View>
                     <Text className="text-base">{post.description}</Text>
                     <Text className="text-base text-accentStandardDark">{post.tags}</Text>

@@ -103,7 +103,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
       <View className="flex gap-[32px] w-full">
         <Image style={{ width: 115, height: 32 }} source={images.logo} />
         <View className="flex rounded-[124px] border border-[#3692C5] items-center justify-center px-[12px] py-[8px]">
-          <Text className="text-white font-semibold text-center">A necessidade é a mãe da invenção.</Text>
+          <Text className="text-white font-semibold text-center">"A necessidade é a mãe da invenção"    Platão</Text>
         </View>
         <View className="flex w-full gap-[8px]">
           {renderMenuButton('/', 'Descubra o mundo', 'home', home)}
