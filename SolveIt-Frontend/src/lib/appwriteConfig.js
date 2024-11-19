@@ -477,6 +477,20 @@ export async function userLikedPost(postId, userId) {
   }
 }
 
+export async function getLikeCount(postId) {
+  try {
+    const likes = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.likesCollectionId,
+      [Query.equal("postId", postId)]
+    );
+    return likes.total;
+  } catch (error) {
+    console.error("Erro ao obter número de likes:", error);
+    return 0;
+  }
+}
+
 // Função para verificar se o post está nos favoritos do usuário
 export async function userFavoritedPost(postId, userId) {
   try {
@@ -565,23 +579,52 @@ export async function toggleFavorite(postId, userId) {
   }
 }
 
-// Função para incrementar o número de compartilhamentos
-export async function incrementShare(postId) {
+export async function getFavoriteCount(postId) {
   try {
-    const updatedPost = await databases.updateDocument(
+    // Lista os documentos na coleção de favoritos para o postId
+    const favorites = await databases.listDocuments(
       appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      postId
+      appwriteConfig.favoritesCollectionId,
+      [Query.equal("postId", postId)]
     );
 
-    console.log("Post compartilhado:", updatedPost);
-    return updatedPost;
+    // Retorna o número de documentos encontrados (quantidade de favoritos)
+    return favorites.total;
   } catch (error) {
-    console.error("Erro ao compartilhar o post:", error.message);
+    console.error("Erro ao obter contagem de favoritos:", error.message);
     throw error;
   }
 }
 
+
+// Função para incrementar o número de compartilhamentos
+export const incrementShares = async (postId) => {
+  try {
+      // Buscar o post pelo ID
+      const post = await getPostById(postId);
+
+      // Converter o campo shares de string para número
+      const currentShares = parseInt(post.shares || "0", 10);
+
+      // Incrementar o valor
+      const updatedShares = currentShares + 1;
+
+      // Atualizar o documento com shares convertido de volta para string
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        postId,
+        {
+          shares: updatedShares.toString(), // Converter para string antes de salvar
+        }
+      );
+
+      return true;
+  } catch (error) {
+      console.error("Erro ao incrementar shares:", error);
+      return false;
+  }
+};
 
 //Perfil
 export async function followUser(followerId, followingId) {
