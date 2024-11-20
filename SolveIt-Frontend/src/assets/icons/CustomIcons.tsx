@@ -721,6 +721,23 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 ></Path>
             </Svg>
         ),
+        coracao: (
+            <Svg
+            width={size}
+            height={size}
+                fill="none"
+                viewBox="0 0 20 21"
+            > 
+                <Path
+                    stroke={color}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 5.5c-1.5-1.747-4.005-2.287-5.884-.687s-2.143 4.275-.668 6.168c1.227 1.574 4.94 4.892 6.156 5.967.136.12.204.18.284.203.069.02.145.02.214 0 .08-.023.147-.083.284-.203 1.216-1.075 4.929-4.393 6.156-5.967 1.475-1.893 1.243-4.585-.668-6.168S11.499 3.753 10 5.5"
+                    clipRule="evenodd"
+                ></Path>
+            </Svg>
+        ),
     };
     return Icons[name] || undefined;
 }

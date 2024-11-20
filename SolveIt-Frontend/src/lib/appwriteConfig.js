@@ -118,7 +118,6 @@ export async function getSession() {
     const session = await account.getSession("current");
     return session;
   } catch (error) {
-    console.log("Erro ao obter sessao atual: ", error)
     return null; // Retorna null se o usuário não estiver autenticado
   }
 }
@@ -190,7 +189,6 @@ export async function getCityAndStateByZipCode(zipCode) {
       country: "Brasil",
     };
   } catch (error) {
-    console.error("Erro ao buscar informações do CEP:", error.message);
     return null;
   }
 }
@@ -419,18 +417,32 @@ export async function searchPosts(query) {
   }
 }
 
-export async function getCommentsForPost(postId) {
+export async function getCommentsForPost(postId, page = 1, limit = 2) {
   try {
+    const offset = (page - 1) * limit;  // Cálculo para o deslocamento (pular itens anteriores)
+
     const comments = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.commentsCollectionId,
-      [Query.equal("postId", postId)]
+      [
+        Query.equal("postId", postId),
+        Query.orderDesc("$createdAt"),  // Ordena por data de criação, se necessário
+        Query.limit(limit),             // Limita o número de comentários por página
+        Query.offset(offset),           // Desloca o início da busca para a página correta
+      ]
     );
-    return comments.documents;
+
+    return {
+      documents: comments.documents,  // Retorna os comentários
+      total: comments.total,          // Retorna o total de comentários
+      pages: Math.ceil(comments.total / limit),  // Calcula o número total de páginas
+    };
   } catch (error) {
     console.error("Erro ao obter comentários do post:", error);
+    return { documents: [], total: 0, pages: 0 };  // Retorna dados padrão em caso de erro
   }
 }
+
 
 // Função para adicionar um comentário a um post
 export async function addComment(postId, userId, content) {
@@ -447,16 +459,42 @@ export async function addComment(postId, userId, content) {
       ID.unique(),                            // ID único para o novo comentário
       {
         postId: postId,
-        userId: userId,
+        creator: userId,
         content: content,
-        createdAt: new Date().toISOString(),  // Adiciona data/hora de criação (opcional)
       }
     );
-
-    console.log("Comentário adicionado com sucesso:", newComment);
     return newComment;
   } catch (error) {
     console.error("Erro ao adicionar comentário:", error.message);
+    throw error;
+  }
+}
+
+// Função para pegar o comentário pelo ID
+export async function getCommentById(commentId) {
+  try {
+      const response = await databases.getDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.commentsCollectionId,
+          commentId
+      );
+      return response; // Retorna o comentário
+  } catch (error) {
+      console.error('Erro ao buscar comentário:', error);
+  }
+}
+
+// Função para deletar o comentário por ID (no backend)
+export async function deleteCommentById(commentId) {
+  try {
+    // Implementar a lógica de exclusão no Appwrite ou outro banco
+    await databases.deleteDocument(
+      appwriteConfig.databaseId,  // ID do banco de dados
+      appwriteConfig.commentsCollectionId,  // ID da coleção de comentários
+      commentId  // ID do comentário a ser deletado
+    );
+  } catch (error) {
+    console.error('Erro ao excluir comentário:', error);
     throw error;
   }
 }

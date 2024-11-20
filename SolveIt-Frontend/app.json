@@ -2,7 +2,7 @@
   "expo": {
     "scheme": "SolveIt",
     "userInterfaceStyle": "automatic",
-    "orientation": "default",
+    "orientation": "portrait",
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "cover",
