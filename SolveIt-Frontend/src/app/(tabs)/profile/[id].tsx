@@ -132,6 +132,15 @@ const Profile = () => {
     return null;
   }, [loadingMore, hasMore, posts.length]);
 
+  // Exibe um ActivityIndicator enquanto os dados estão sendo carregados
+  if (loading) {
+    return (
+      <View className="mt-4">
+        <ActivityIndicator size="large" color="#3692C5" />
+      </View>
+    );
+  }
+
   if (!userData) return null;
 
   return (

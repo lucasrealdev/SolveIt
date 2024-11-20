@@ -1,18 +1,15 @@
 import { ScrollView, View } from "react-native";
 import MenuRight from "@/components/MenuRight";
-import SearchHeader from "@/components/SearchHeader";
 import { useEffect, useState } from "react";
 import { getPostById, incrementShares } from "@/lib/appwriteConfig";
 import { useLocalSearchParams } from "expo-router";
 import PostSkeleton from "@/components/PostSkeleton";
-import { useGlobalContext } from "@/context/GlobalProvider";
 import Post from "@/components/Post";
 
 export default function PostDetails() {
     const [post, setPost] = useState(null); // Armazena o post específico
     const [loading, setLoading] = useState(false); // Controla o estado de carregamento
     const { id, shared } = useLocalSearchParams();
-    const { user } = useGlobalContext();
 
     useEffect(() => { 
         const fetchPost = async () => {
@@ -40,11 +37,7 @@ export default function PostDetails() {
 
     if (loading || !post) {
         return (
-            <View className="w-full h-full items-center justify-center" aria-label="containerSkeleton">
-                <View className="flex-1 max-w-[700px] justify-center items-center">
-                    <PostSkeleton />
-                </View>
-            </View>
+            <PostSkeleton />
         );
     }
 

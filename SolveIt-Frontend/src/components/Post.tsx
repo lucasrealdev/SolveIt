@@ -226,7 +226,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             </ButtonScale>
           </View>
         ) : (
-          <ButtonScale onPress={() => handleNavigateToProfile(post.creator.$id)}>
+          <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(post.creator.$id)}>
             <Image source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
           </ButtonScale>
         )}
@@ -503,8 +503,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       colorHover={colors.textSecondary.standard}
                       colorPressIn={colors.primaryStandardDark.standard}
                       className="flex-row items-center ml-[-3px]"
-                      onPress={handleToggleFavorite}
-                    >
+                      onPress={handleToggleFavorite}>
                       {loadingFavorite ? (
                         <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} />
                       ) : (

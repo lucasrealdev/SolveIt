@@ -82,7 +82,7 @@ const Comment = ({ id, onDelete }) => {
     const formattedDate = timeAgo();
 
     return (
-        <View className="flex-row justify-between items-start gap-2">
+        <View className="flex-row items-start gap-2">
             <Image
                 source={creator?.avatar ? { uri: creator.avatar } : images.person}
                 className="w-10 h-10 rounded-full"
@@ -93,9 +93,9 @@ const Comment = ({ id, onDelete }) => {
                 <Text className="text-textStandardDark text-sm">{content}</Text>
                 <Text className="text-textSecondary text-xs">{formattedDate}</Text>
             </View>
-            <View>
+            <View className="flex justify-center flex-1 max-w-5">
                 {isUserCreator ? (
-                    <ButtonScale scale={1.09} onPress={handleDelete}>
+                    <ButtonScale scale={1.09} onPress={handleDelete} className="w-fit">
                         {deleting ? (
                             <ActivityIndicator size={20} color="#FF0000" />
                         ) : (
@@ -103,13 +103,13 @@ const Comment = ({ id, onDelete }) => {
                         )}
                     </ButtonScale>
                 ) : (
-                    <ButtonScale scale={1.09}>
+                    <ButtonScale scale={1.09} className="w-fit">
                         <CustomIcons name="coracao" size={20} color="#94A3B8" />
                     </ButtonScale>
                 )}
             </View>
         </View>
-    );
+    );    
 };
 
 export default Comment;

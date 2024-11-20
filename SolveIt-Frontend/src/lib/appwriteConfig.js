@@ -19,7 +19,8 @@ export const appwriteConfig = {
   followsCollectionId: "6726b21000240fd51f28",
   commentsCollectionId: "6726b76f001832887fad",
   likesCollectionId: "6726bec6003e2fbe6d73",
-  favoritesCollectionId: "6726bca00024d78f6036"
+  favoritesCollectionId: "6726bca00024d78f6036",
+  likesCommentCollectionId: "673df510002f41d33ae3",
 };
 
 import axios from "axios";
@@ -37,136 +38,170 @@ const storage = new Storage(client);
 const avatars = new Avatars(client);
 const databases = new Databases(client);
 
-// Função para criar um novo usuário
-export async function createUser(email, password, username) {
-  try {
-    await signOut();
+//INICIO FUNCOES USUARIO
+  // Função para criar um novo usuário
+  export async function createUser(email, password, username) {
+    try {
+      await signOut();  // Logout antes de criar o novo usuário
 
-    const newAccount = await account.create(
-      ID.unique(),
-      email,
-      password,
-      username
-    );
+      // Criação da conta
+      const newAccount = await account.create(ID.unique(), email, password, username);
+      if (!newAccount) throw new Error("Falha ao criar a conta.");
 
-    if (!newAccount) throw Error;
+      // Gera uma URL de avatar inicial usando as iniciais do usuário
+      const avatarUrl = avatars.getInitials(username);
 
-    // Gera uma URL de avatar inicial usando as iniciais do usuário
-    const avatarUrl = avatars.getInitials(username);
+      // Faz login após criação da conta
+      await signIn(email, password);
 
-    await signIn(email, password);
+      // Cria o documento do usuário no banco de dados
+      const newUser = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        ID.unique(),
+        {
+          accountId: newAccount.$id,
+          email: email,
+          username: username,
+          avatar: avatarUrl,
+        }
+      );
 
-    const newUser = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      ID.unique(),
-      {
-        accountId: newAccount.$id,
-        email: email,
-        username: username,
-        avatar: avatarUrl,
-      }
-    );
-
-    return newUser;
-  } catch (error) {
-    throw { message: error.message, code: error.code };
-  }
-}
-
-export async function getUserProfile(accountId) {
-  try {
-    // Busca o documento do usuário pelo accountId
-    const user = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal('$id', [accountId])]
-    );
-
-    if (!user.documents || user.documents.length === 0) {
-      throw new Error('Usuário não encontrado');
+      return newUser;
+    } catch (error) {
+      console.error("Erro ao criar usuário:", error.message);
+      throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
     }
-
-    const userDoc = user.documents[0];
-
-    return {
-      username: userDoc.username,
-      email: userDoc.email,
-      avatar: userDoc.avatar,
-      biography: userDoc.biography
-    };
-  } catch (error) {
-    throw new Error(error.message);
   }
-}
 
-// Função para fazer login de usuário
-export async function signIn(email, password) {
-  try {
-    await signOut();
-    const session = await account.createEmailPasswordSession(email, password);
+  // Função para obter o perfil do usuário
+  export async function getUserProfile(accountId) {
+    try {
+      const user = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        [Query.equal('$id', [accountId])]
+      );
 
-    return session;
-  } catch (error) {
-    throw new Error(error);
+      // Verifica se o usuário foi encontrado
+      if (!user.documents?.length) {
+        throw new Error('Usuário não encontrado');
+      }
+
+      const userDoc = user.documents[0];
+
+      return {
+        username: userDoc.username,
+        email: userDoc.email,
+        avatar: userDoc.avatar,
+        biography: userDoc.biography || "", // Definindo como string vazia caso não haja biografia
+      };
+    } catch (error) {
+      console.error("Erro ao obter perfil:", error.message);
+      throw new Error(error.message || "Erro desconhecido");
+    }
   }
-}
 
-// Função para verificar e obter a sessão do usuário
-export async function getSession() {
-  try {
-    const session = await account.getSession("current");
-    return session;
-  } catch (error) {
-    return null; // Retorna null se o usuário não estiver autenticado
+  // Função para fazer login de usuário
+  export async function signIn(email, password) {
+    try {
+      const session = await account.createEmailPasswordSession(email, password);
+      return session;
+    } catch (error) {
+      console.error("Erro ao fazer login:", error.message);
+      throw new Error("Falha ao autenticar o usuário.");
+    }
   }
-}
 
-// Função para obter a conta do usuário atual, se autenticado
-export async function getAccount() {
-  try {
-    const session = await getSession(); // Verifica se há uma sessão ativa
+  // Função para verificar e obter a sessão do usuário
+  export async function getSession() {
+    try {
+      const session = await account.getSession("current");
+      return session;
+    } catch (error) {
+      return null; // Retorna null se o usuário não estiver autenticado
+    }
+  }
 
-    if (!session) {
+  
+  // Função para obter a conta do usuário atual, se autenticado
+  export async function getAccount() {
+    try {
+      const session = await getSession(); // Verifica se há uma sessão ativa
+
+      if (!session) {
+        return null;
+      }
+
+      const currentAccount = await account.get(); // Obtém a conta se autenticado
+      return currentAccount;
+    } catch (error) {
+      console.error("Erro ao obter conta do usuário:", error.message);
       return null;
     }
-
-    const currentAccount = await account.get(); // Obtém a conta se autenticado
-
-    return currentAccount;
-  } catch (error) {
-    console.error("Erro ao obter conta do usuário:", error);
-    return null; // Retorna null em caso de erro
   }
-}
 
-// Função para obter os dados do usuário atual
-export async function getCurrentUser() {
-  try {
-    const currentAccount = await getAccount();
-
-    if (!currentAccount) return null;
-
-    let currentUser;
-
+  // Função para obter os dados do usuário atual
+  export async function getCurrentUser() {
     try {
-      currentUser = await databases.listDocuments(
+      const currentAccount = await getAccount();
+
+      if (!currentAccount) return null;
+
+      const currentUser = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.userCollectionId,
         [Query.equal("accountId", currentAccount.$id)]
       );
-    } catch (listError) {
+
+      return currentUser?.documents?.[0] || null;
+    } catch (error) {
+      console.error("Erro ao obter dados do usuário:", error.message);
       return null;
     }
-
-    if (!currentUser) return null;
-
-    return currentUser.documents[0];
-  } catch (error) {
-    console.error("Erro ao obter dados do usuário:", error);
-    return null;
   }
-}
+
+  // Função para alternar o status 'isOnline' do usuário
+  export async function toggleUserOnlineStatus() {
+    try {
+      const currentUser = await getCurrentUser();
+    
+      if (!currentUser) {
+        throw new Error("Usuário não encontrado ou não autenticado.");
+      }
+    
+      const updatedStatus = !currentUser.isOnline;  // Alterna o status
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        currentUser.$id,
+        { isOnline: updatedStatus }
+      );
+    
+      return updatedStatus;
+    } catch (error) {
+      console.error("Erro ao alternar isOnline:", error.message);
+      throw new Error("Erro ao alternar status de online.");
+    }
+  }
+  
+  // Função para fazer logout do usuário
+  export async function signOut() {
+    try {
+      const session = await getSession(); // Verifica se há uma sessão ativa antes de tentar deletá-la
+    
+      if (!session) {
+        return null; // Retorna null caso não haja sessão ativa
+      }
+    
+      const deletedSession = await account.deleteSession("current");
+      return deletedSession;
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error.message);
+      throw new Error("Erro ao fazer logout.");
+    }
+  }
+//FIM FUNCOES USUARIO
 
 export async function getCityAndStateByZipCode(zipCode) {
   try {
@@ -193,544 +228,587 @@ export async function getCityAndStateByZipCode(zipCode) {
   }
 }
 
-export async function toggleUserOnlineStatus() {
-  try {
-    const currentUser = await getCurrentUser();
+//INICIO funcoes storage
+  // Função para fazer upload de um arquivo
+  export async function uploadFile(file, type, isWeb) {
+    if (!file) return;
+    try {
+      let uploadedFile;
 
-    if (!currentUser) {
-      throw new Error("Usuário não encontrado ou não autenticado.");
-    }
+      if (isWeb) {
+        // Caso seja web, utilize o objeto File diretamente
+        uploadedFile = await storage.createFile(
+          appwriteConfig.storageId,
+          ID.unique(),
+          file // Envia o objeto File diretamente
+        );
+      } else {
+        // Extrai o tipo MIME do arquivo para não-Web
+        const { mimeType, ...rest } = file;
+        const asset = { type: mimeType, ...rest };
 
-    // Alterna o status entre true e false
-    const updatedStatus = !currentUser.isOnline;
-
-    // Atualiza o status no banco de dados
-    await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      currentUser.$id,
-      { isOnline: updatedStatus }
-    );
-
-    // Retorna o novo valor de isOnline
-    return updatedStatus;
-  } catch (error) {
-    console.error("Erro ao alternar isOnline:", error);
-    throw error;
-  }
-}
-
-// Função para fazer logout do usuário
-export async function signOut() {
-  try {
-    // Verifica se há uma sessão ativa antes de tentar deletá-la
-    const session = await getSession(); // Função que retorna a sessão atual ou null se não houver sessão
-
-    if (!session) {
-      return null; // Retorna null caso não haja sessão ativa
-    }
-
-    // Se há uma sessão ativa, procede com o logout
-    const deletedSession = await account.deleteSession("current");
-    return deletedSession;
-  } catch (error) {
-    console.error("Erro ao fazer logout:", error);
-    throw new Error(error);
-  }
-}
-
-// Função para fazer upload de um arquivo
-export async function uploadFile(file, type, isWeb) {
-  if (!file) return;
-  try {
-    let uploadedFile;
-
-    if (isWeb) {
-      // Caso seja web, utilize o objeto File diretamente
-      uploadedFile = await storage.createFile(
-        appwriteConfig.storageId,
-        ID.unique(),
-        file // Envia o objeto File diretamente
-      );
-    } else {
-      // Extrai o tipo MIME do arquivo para não-Web
-      const { mimeType, ...rest } = file;
-      const asset = { type: mimeType, ...rest };
-
-      // Faz o upload do arquivo no formato necessário
-      uploadedFile = await storage.createFile(
-        appwriteConfig.storageId,
-        ID.unique(),
-        asset
-      );
-    }
-
-    // Obter o preview do arquivo
-    const fileUrl = await getFilePreview(uploadedFile.$id, type);
-    return fileUrl;
-  } catch (error) {
-    throw new Error('Falha ao enviar o arquivo. Tente novamente.');
-  }
-}
-
-// Função para obter a URL de visualização de um arquivo
-export async function getFilePreview(fileId, type) {
-  let fileUrl;
-
-  try {
-    if (type === "image") {
-      fileUrl = storage.getFilePreview(
-        appwriteConfig.storageId,
-        fileId, // ID do arquivo
-        2000,   // Largura máxima da imagem
-        2000,   // Altura máxima da imagem
-        "top",  // Posição do corte
-        100     // Qualidade da imagem
-      );
-    } else {
-      throw new Error("Invalid file type");
-    }
-
-    if (!fileUrl) throw Error;
-
-    return fileUrl;
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-// Função para criar uma nova postagem
-export async function createPost(form, isWeb) {
-  try {
-    // Faz o upload da imagem de miniatura
-    const [thumbnailUrl] = await Promise.all([
-      uploadFile(form.thumbnail, "image", isWeb)
-    ]);
-
-    const newPost = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      ID.unique(),
-      {
-        title: form.title,
-        description: form.description,
-        tags: form.tags || "",
-        zipCode: form.zipCode || "",
-        peopleAffects: form.peopleAffects,
-        category: form.category,
-        urgencyProblem: form.urgencyProblem,
-        thumbnail: thumbnailUrl,
-        thumbnailRatio: form.thumbnailRatio,
-        creator: form.userId,
-        shares: "0", // Valor padrão
+        // Faz o upload do arquivo no formato necessário
+        uploadedFile = await storage.createFile(
+          appwriteConfig.storageId,
+          ID.unique(),
+          asset
+        );
       }
-    );
 
-    return newPost;
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-
-export async function getAllPosts(page = 1, limit = 10) {
-  try {
-    // Calcula o offset baseado na página e no limite
-    const offset = (page - 1) * limit;
-
-    // Obtém os IDs dos documentos de postagens com a paginação
-    const posts = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      [
-        Query.orderDesc('$createdAt'), // Ordena pela data de criação (decrescente)
-        Query.limit(limit),            // Limita o número de postagens
-        Query.offset(offset),          // Desloca o início da busca para a página correta
-        Query.select(['$id'])          // Seleciona apenas o campo ID dos documentos
-      ]
-    );
-
-    return posts.documents; // Retorna apenas os documentos com os IDs
-  } catch (error) {
-    throw new Error(`Erro ao buscar posts: ${error.message}`);
-  }
-}
-
-// Função para pegar um post pelo ID
-export async function getPostById(postId) {
-  try {
-    const post = await databases.getDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      postId
-    );
-
-    return post;
-  } catch (error) {
-    throw new Error('Erro ao buscar o post: ' + error.message);
-  }
-}
-
-export async function getUserPosts(userId, page = 1, limit = 10) {
-  try {
-    // Calcula o offset baseado na página e no limite
-    const offset = (page - 1) * limit;
-
-    // Obtém os IDs dos documentos de postagens de um usuário específico com paginação
-    const posts = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      [
-        Query.equal("creator", userId),  // Filtra os posts pelo ID do usuário
-        Query.orderDesc('$createdAt'),    // Ordena pela data de criação (decrescente)
-        Query.limit(limit),               // Limita o número de postagens
-        Query.offset(offset),             // Desloca o início da busca para a página correta
-        Query.select(['$id'])             // Seleciona apenas o campo ID dos documentos
-      ]
-    );
-
-    return {
-      documents: posts.documents,   // Retorna os documentos com os IDs
-      total: posts.total,           // Retorna o total de posts para controle de paginação
-      pages: Math.ceil(posts.total / limit),  // Calcula o número total de páginas
-    };
-  } catch (error) {
-    throw new Error(`Erro ao buscar posts: ${error.message}`);
-  }
-}
-
-// Função para pesquisar postagens por uma string de consulta
-// Pesquisar por uma string em específico requer a criação de um index 'fulltext' (AppWrite)
-export async function searchPosts(query) {
-  try {
-    const posts = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.postsCollectionId,
-      [Query.search("title", query)]
-    );
-
-    if (!posts) throw new Error("Something went wrong");
-
-    return posts.documents;
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-export async function getCommentsForPost(postId, page = 1, limit = 2) {
-  try {
-    const offset = (page - 1) * limit;  // Cálculo para o deslocamento (pular itens anteriores)
-
-    const comments = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-      [
-        Query.equal("postId", postId),
-        Query.orderDesc("$createdAt"),  // Ordena por data de criação, se necessário
-        Query.limit(limit),             // Limita o número de comentários por página
-        Query.offset(offset),           // Desloca o início da busca para a página correta
-      ]
-    );
-
-    return {
-      documents: comments.documents,  // Retorna os comentários
-      total: comments.total,          // Retorna o total de comentários
-      pages: Math.ceil(comments.total / limit),  // Calcula o número total de páginas
-    };
-  } catch (error) {
-    console.error("Erro ao obter comentários do post:", error);
-    return { documents: [], total: 0, pages: 0 };  // Retorna dados padrão em caso de erro
-  }
-}
-
-
-// Função para adicionar um comentário a um post
-export async function addComment(postId, userId, content) {
-  try {
-    // Verifica se o texto do comentário não está vazio
-    if (!content) {
-      throw new Error("O comentário não pode estar vazio.");
+      // Obter o preview do arquivo
+      const fileUrl = await getFilePreview(uploadedFile.$id, type);
+      return fileUrl;
+    } catch (error) {
+      throw new Error('Falha ao enviar o arquivo. Tente novamente.');
     }
-
-    // Cria o documento de comentário
-    const newComment = await databases.createDocument(
-      appwriteConfig.databaseId,             // ID do banco de dados
-      appwriteConfig.commentsCollectionId,    // ID da coleção de comentários
-      ID.unique(),                            // ID único para o novo comentário
-      {
-        postId: postId,
-        creator: userId,
-        content: content,
-      }
-    );
-    return newComment;
-  } catch (error) {
-    console.error("Erro ao adicionar comentário:", error.message);
-    throw error;
   }
-}
 
-// Função para pegar o comentário pelo ID
-export async function getCommentById(commentId) {
-  try {
-      const response = await databases.getDocument(
+  // Função para obter a URL de visualização de um arquivo
+  export async function getFilePreview(fileId, type) {
+    let fileUrl;
+
+    try {
+      if (type === "image") {
+        fileUrl = storage.getFilePreview(
+          appwriteConfig.storageId,
+          fileId, // ID do arquivo
+          2000,   // Largura máxima da imagem
+          2000,   // Altura máxima da imagem
+          "top",  // Posição do corte
+          100     // Qualidade da imagem
+        );
+      } else {
+        throw new Error("Invalid file type");
+      }
+
+      if (!fileUrl) throw Error;
+
+      return fileUrl;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+//Fim funcoes storage
+
+//INICIO funcoes post
+  // Função para criar uma nova postagem
+  export async function createPost(form, isWeb) {
+    try {
+      // Faz o upload da imagem de miniatura
+      const [thumbnailUrl] = await Promise.all([
+        uploadFile(form.thumbnail, "image", isWeb)
+      ]);
+
+      const newPost = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        ID.unique(),
+        {
+          title: form.title,
+          description: form.description,
+          tags: form.tags || "",
+          zipCode: form.zipCode || "",
+          peopleAffects: form.peopleAffects,
+          category: form.category,
+          urgencyProblem: form.urgencyProblem,
+          thumbnail: thumbnailUrl,
+          thumbnailRatio: form.thumbnailRatio,
+          creator: form.userId,
+          shares: "0", // Valor padrão
+        }
+      );
+
+      return newPost;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Função para pegar todas as postagens com paginação
+  export async function getAllPosts(page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit;
+
+      const posts = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        [
+          Query.orderDesc('$createdAt'),  // Ordena pela data de criação (decrescente)
+          Query.limit(limit),             // Limita o número de postagens
+          Query.offset(offset),           // Desloca o início da busca para a página correta
+          Query.select(['$id'])           // Seleciona apenas os campos necessários (id)
+        ]
+      );
+
+      return posts.documents;  // Retorna apenas os documentos com os IDs
+    } catch (error) {
+      console.error("Erro ao buscar todos os posts:", error.message);
+      throw new Error("Erro ao buscar todos os posts.");
+    }
+  }
+
+  // Função para pegar um post pelo ID
+  export async function getPostById(postId) {
+    try {
+      const post = await databases.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        postId
+      );
+
+      return post;
+    } catch (error) {
+      throw new Error('Erro ao buscar o post: ' + error.message);
+    }
+  }
+
+    // Função para pegar postagens de um usuário com paginação
+  export async function getUserPosts(userId, page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit;
+
+      const posts = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        [
+          Query.equal("creator", userId),   // Filtra os posts pelo ID do usuário
+          Query.orderDesc('$createdAt'),     // Ordena pela data de criação (decrescente)
+          Query.limit(limit),                // Limita o número de postagens
+          Query.offset(offset),              // Desloca o início da busca para a página correta
+          Query.select(['$id'])              // Seleciona apenas o campo ID dos documentos
+        ]
+      );
+
+      return {
+        documents: posts.documents,        // Retorna os documentos com os IDs
+        total: posts.total,                // Retorna o total de posts para controle de paginação
+        pages: Math.ceil(posts.total / limit),  // Calcula o número total de páginas
+      };
+    } catch (error) {
+      console.error("Erro ao buscar posts de usuário:", error.message);
+      throw new Error("Erro ao buscar posts de usuário.");
+    }
+  }
+
+  // Função para pesquisar postagens por uma string de consulta
+  export async function searchPosts(query, limit = 10) {
+    try {
+      // Limita o número de resultados retornados para melhorar a performance
+      const posts = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        [
+          Query.search("title", query),
+          Query.limit(limit) // Limita o número de posts retornados
+        ]
+      );
+
+      return posts.documents; // Retorna os documentos encontrados
+    } catch (error) {
+      console.error("Erro ao pesquisar postagens:", error.message);
+      throw new Error("Erro ao realizar a busca");
+    }
+  }
+
+  // Função para incrementar o número de compartilhamentos
+  export const incrementShares = async (postId) => {
+    try {
+      // Buscar o post e obter o campo 'shares'
+      const post = await databases.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        postId
+      );
+
+      // Incrementa o número de compartilhamentos diretamente
+      const updatedShares = (parseInt(post.shares || "0", 10) + 1).toString();
+
+      // Atualiza o post com o novo número de compartilhamentos
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        postId,
+        { shares: updatedShares }
+      );
+
+      return true; // Indica que a operação foi bem-sucedida
+    } catch (error) {
+      console.error("Erro ao incrementar compartilhamentos:", error.message);
+      return false; // Retorna false se houver erro
+    }
+  };
+
+//FIM funcoes post
+
+//INICIO funcoes follow
+  export async function followUser(followerId, followingId) {
+    try {
+      const followDocument = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId, // A coleção de follows
+        ID.unique(),
+        {
+          followerId,
+          followingId,
+          createdAt: new Date().toISOString(),
+        }
+      );
+      return followDocument;
+    } catch (error) {
+      console.error("Erro ao seguir usuário:", error);
+    }
+  }
+
+  export async function unfollowUser(followerId, followingId) {
+    try {
+      // Obter o documento de follow usando uma query para garantir que é o correto
+      const follows = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [
+          Query.equal("followerId", followerId),
+          Query.equal("followingId", followingId)
+        ]
+      );
+
+      if (follows.documents.length > 0) {
+        const followDocument = follows.documents[0];
+        await databases.deleteDocument(
           appwriteConfig.databaseId,
-          appwriteConfig.commentsCollectionId,
-          commentId
+          appwriteConfig.followsCollectionId,
+          followDocument.$id
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao deixar de seguir usuário:", error);
+    }
+  }
+
+  export async function getFollowers(userId) {
+    try {
+      const followers = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [Query.equal("followingId", userId)]
       );
-      return response; // Retorna o comentário
-  } catch (error) {
-      console.error('Erro ao buscar comentário:', error);
+      return followers.documents;
+    } catch (error) {
+      console.error("Erro ao obter seguidores:", error);
+    }
   }
-}
 
-// Função para deletar o comentário por ID (no backend)
-export async function deleteCommentById(commentId) {
-  try {
-    // Implementar a lógica de exclusão no Appwrite ou outro banco
-    await databases.deleteDocument(
-      appwriteConfig.databaseId,  // ID do banco de dados
-      appwriteConfig.commentsCollectionId,  // ID da coleção de comentários
-      commentId  // ID do comentário a ser deletado
-    );
-  } catch (error) {
-    console.error('Erro ao excluir comentário:', error);
-    throw error;
+  export async function getFollowing(userId) {
+    try {
+      const following = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [Query.equal("followerId", userId)]
+      );
+      return following.documents;
+    } catch (error) {
+      console.error("Erro ao obter lista de seguindo:", error);
+    }
   }
-}
+//FIM funcoes follow
 
-// Função para verificar se o usuário curtiu o post
-export async function userLikedPost(postId, userId) {
-  try {
-    const likes = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.likesCollectionId,
-      [Query.equal("postId", postId), Query.equal("userId", userId)]
-    );
+//INICIO funcoes comentario
+  export async function getCommentsForPost(postId, page = 1, limit = 2) {
+    try {
+      const offset = (page - 1) * limit;  // Cálculo para o deslocamento (pular itens anteriores)
 
-    return likes.total > 0; // Retorna true se o usuário curtiu
-  } catch (error) {
-    console.error("Erro ao verificar se o usuário curtiu o post:", error.message);
-    throw error;
+      // Reutilizando a consulta para pegar comentários, sem carregar dados desnecessários
+      const comments = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.commentsCollectionId,
+        [
+          Query.equal("postId", postId),
+          Query.orderDesc("$createdAt"),  // Ordena por data de criação
+          Query.limit(limit),             // Limita o número de comentários por página
+          Query.offset(offset),           // Desloca o início da busca para a página correta
+        ]
+      );
+
+      return {
+        documents: comments.documents,  // Retorna os comentários
+        total: comments.total,          // Retorna o total de comentários
+        pages: Math.ceil(comments.total / limit),  // Calcula o número total de páginas
+      };
+    } catch (error) {
+      console.error("Erro ao obter comentários do post:", error.message);
+      return { documents: [], total: 0, pages: 0 };  // Retorna dados padrão em caso de erro
+    }
   }
-}
 
-export async function getLikeCount(postId) {
-  try {
-    const likes = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.likesCollectionId,
-      [Query.equal("postId", postId)]
-    );
-    return likes.total;
-  } catch (error) {
-    console.error("Erro ao obter número de likes:", error);
-    return 0;
+  // Função para adicionar um comentário a um post
+  export async function addComment(postId, userId, content) {
+    try {
+      if (!content.trim()) {
+        throw new Error("O comentário não pode estar vazio.");
+      }
+  
+      // Cria o documento de comentário
+      const newComment = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.commentsCollectionId,
+        ID.unique(),
+        {
+          postId: postId,
+          creator: userId,
+          content: content,
+        }
+      );
+      return newComment;
+    } catch (error) {
+      console.error("Erro ao adicionar comentário:", error.message);
+      throw error;
+    }
   }
-}
 
-// Função para verificar se o post está nos favoritos do usuário
-export async function userFavoritedPost(postId, userId) {
-  try {
-    const favorites = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.favoritesCollectionId,
-      [Query.equal("postId", postId), Query.equal("userId", userId)]
-    );
-
-    return favorites.total > 0; // Retorna true se o post é favorito
-  } catch (error) {
-    console.error("Erro ao verificar se o post é favorito:", error.message);
-    throw error;
+ // Função para pegar o comentário pelo ID
+  export async function getCommentById(commentId) {
+    try {
+      // Utiliza getDocument para pegar um comentário específico
+      const response = await databases.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.commentsCollectionId,
+        commentId
+      );
+      return response;  // Retorna o comentário
+    } catch (error) {
+      console.error('Erro ao buscar comentário:', error.message);
+      throw error;
+    }
   }
-}
 
-// Função para alternar o estado do like e retornar se curtiu ou não
-export async function toggleLike(postId, userId) {
-  try {
-    const liked = await userLikedPost(postId, userId);
-    if (liked) {
-      // Se já curtiu, remove o like
+  // Função para deletar o comentário por ID
+  export async function deleteCommentById(commentId) {
+    try {
+      // Realiza a exclusão diretamente
+      await databases.deleteDocument(
+        appwriteConfig.databaseId,  // ID do banco de dados
+        appwriteConfig.commentsCollectionId,  // ID da coleção de comentários
+        commentId  // ID do comentário a ser deletado
+      );
+    } catch (error) {
+      console.error('Erro ao excluir comentário:', error.message);
+      throw error;
+    }
+  }
+//FIM funcoes comentario
+
+
+//INICIO funcoes like post
+  // Função para verificar se o usuário curtiu o post
+  export async function userLikedPost(postId, userId) {
+    try {
+      // Limita a consulta a 1 resultado para verificar rapidamente se o post foi curtido
       const likes = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.likesCollectionId,
-        [Query.equal("postId", postId), Query.equal("userId", userId)]
+        [Query.equal("postId", postId), Query.equal("userId", userId)],
+        1 // Limita a consulta a 1 resultado
       );
-
-      await databases.deleteDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.likesCollectionId,
-        likes.documents[0].$id
-      );
-
-      return false; // Retorna que não curtiu mais
-    } else {
-      // Se não curtiu, adiciona o like
-      await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.likesCollectionId,
-        ID.unique(),
-        { userId, postId }
-      );
-
-      return true; // Retorna que agora curtiu
+  
+      return likes.total > 0; // Retorna true se o usuário curtiu o post
+    } catch (error) {
+      console.error("Erro ao verificar se o usuário curtiu o post:", error.message);
+      throw error;
     }
-  } catch (error) {
-    console.error("Erro ao alternar like:", error.message);
-    throw error;
   }
-}
+  
+  export async function getLikeCount(postId) {
+    try {
+      // Apenas retorna o total de likes, sem carregar os documentos completos
+      const likes = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.likesCollectionId,
+        [Query.equal("postId", postId)]
+      );
+      return likes.total; // Retorna a quantidade total de likes
+    } catch (error) {
+      console.error("Erro ao obter número de likes do post:", error.message);
+      return 0; // Retorna 0 em caso de erro
+    }
+  }
+  
+  export async function toggleLike(postId, userId) {
+    try {
+      // Verifica se o usuário já curtiu o post
+      const liked = await userLikedPost(postId, userId);
+  
+      if (liked) {
+        // Se já curtiu, remove o like
+        const likes = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCollectionId,
+          [Query.equal("postId", postId), Query.equal("userId", userId)],
+          1 // Limita a consulta a 1 resultado
+        );
+  
+        await databases.deleteDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCollectionId,
+          likes.documents[0].$id
+        );
+  
+        return false; // Retorna que não curtiu mais
+      } else {
+        // Se não curtiu, adiciona o like
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCollectionId,
+          ID.unique(),
+          { userId, postId }
+        );
+  
+        return true; // Retorna que agora curtiu
+      }
+    } catch (error) {
+      console.error("Erro ao alternar like no post:", error.message);
+      throw error;
+    }
+  }  
+//FIM funcoes like post
 
-// Função para alternar o estado do favorito e retornar se é favorito ou não
-export async function toggleFavorite(postId, userId) {
-  try {
-    const favorited = await userFavoritedPost(postId, userId);
-    if (favorited) {
-      // Se já está nos favoritos, remove
+//INICIO funcoes favoritos 
+  // Função para alternar o estado do favorito e retornar se é favorito ou não
+  export async function toggleFavorite(postId, userId) {
+    try {
+      // Consulta para verificar se o post já está favoritado e obter o documento, se existir
       const favorites = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.favoritesCollectionId,
         [Query.equal("postId", postId), Query.equal("userId", userId)]
       );
+  
+      if (favorites.total > 0) {
+        // Remove o documento diretamente, já que sabemos seu $id
+        await databases.deleteDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.favoritesCollectionId,
+          favorites.documents[0].$id
+        );
+        return false; // Agora não é mais favorito
+      } else {
+        // Adiciona um novo favorito
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.favoritesCollectionId,
+          ID.unique(),
+          { userId, postId }
+        );
+        return true; // Agora é favorito
+      }
+    } catch (error) {
+      console.error("Erro ao alternar favorito:", error.message);
+      throw error;
+    }
+  }
+
+  export async function getFavoriteCount(postId) {
+    try {
+      // Lista os documentos na coleção de favoritos para o postId
+      const favorites = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.favoritesCollectionId,
+        [Query.equal("postId", postId)]
+      );
+
+      // Retorna o número de documentos encontrados (quantidade de favoritos)
+      return favorites.total;
+    } catch (error) {
+      console.error("Erro ao obter contagem de favoritos:", error.message);
+      throw error;
+    }
+  }
+
+  // Função para verificar se o post está nos favoritos do usuário
+  export async function userFavoritedPost(postId, userId) {
+    try {
+      // Evita buscas desnecessárias, já que só queremos saber se existe
+      const favorites = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.favoritesCollectionId,
+        [Query.equal("postId", postId), Query.equal("userId", userId)],
+        1 // Limita a consulta a 1 resultado
+      );
+  
+      return favorites.total > 0; // Retorna true se há favoritos
+    } catch (error) {
+      console.error("Erro ao verificar se o post é favorito:", error.message);
+      throw error;
+    }
+  }
+//FIM funcoes favoritos 
+
+//INICIO Curtidas Comentario
+export async function userLikedComment(userId, commentId) {
+  try {
+    // Limita a consulta a 1 resultado para evitar a busca desnecessária de múltiplos documentos
+    const likes = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.likesCommentCollectionId,
+      [Query.equal("commentId", commentId), Query.equal("userId", userId)],
+      1 // Limita a consulta a 1 documento
+    );
+
+    return likes.total > 0; // Retorna true se o usuário curtiu o comentário
+  } catch (error) {
+    console.error("Erro ao verificar se o usuário curtiu o comentário:", error.message);
+    throw error;
+  }
+}
+
+export async function getLikeCountComment(commentId) {
+  try {
+    // Apenas retorna o total de likes, sem carregar os documentos
+    const likes = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.likesCommentCollectionId,
+      [Query.equal("commentId", commentId)]
+    );
+    return likes.total;
+  } catch (error) {
+    console.error("Erro ao obter número de likes do comentário:", error.message);
+    return 0; // Retorna 0 em caso de erro
+  }
+}
+
+export async function toggleLikeComment(userId, commentId) {
+  try {
+    // Verifica se o usuário já curtiu o comentário
+    const liked = await userLikedComment(userId, commentId);
+
+    if (liked) {
+      // Se o usuário já curtiu, busca e remove o like
+      const likes = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.likesCommentCollectionId,
+        [Query.equal("commentId", commentId), Query.equal("userId", userId)],
+        1 // Limita a consulta a 1 resultado
+      );
 
       await databases.deleteDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.favoritesCollectionId,
-        favorites.documents[0].$id
+        appwriteConfig.likesCommentCollectionId,
+        likes.documents[0].$id
       );
 
-      return false; // Retorna que não é mais favorito
+      return false; // Retorna que o comentário não é mais curtir
     } else {
-      // Se não está nos favoritos, adiciona
+      // Se o usuário não curtiu, adiciona o like
       await databases.createDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.favoritesCollectionId,
+        appwriteConfig.likesCommentCollectionId,
         ID.unique(),
-        { userId, postId }
+        { userId, commentId }
       );
 
-      return true; // Retorna que agora é favorito
+      return true; // Retorna que o comentário foi curtido
     }
   } catch (error) {
-    console.error("Erro ao alternar favorito:", error.message);
+    console.error("Erro ao alternar like no comentário:", error.message);
     throw error;
   }
 }
-
-export async function getFavoriteCount(postId) {
-  try {
-    // Lista os documentos na coleção de favoritos para o postId
-    const favorites = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.favoritesCollectionId,
-      [Query.equal("postId", postId)]
-    );
-
-    // Retorna o número de documentos encontrados (quantidade de favoritos)
-    return favorites.total;
-  } catch (error) {
-    console.error("Erro ao obter contagem de favoritos:", error.message);
-    throw error;
-  }
-}
-
-
-// Função para incrementar o número de compartilhamentos
-export const incrementShares = async (postId) => {
-  try {
-      // Buscar o post pelo ID
-      const post = await getPostById(postId);
-
-      // Converter o campo shares de string para número
-      const currentShares = parseInt(post.shares || "0", 10);
-
-      // Incrementar o valor
-      const updatedShares = currentShares + 1;
-
-      // Atualizar o documento com shares convertido de volta para string
-      await databases.updateDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.postsCollectionId,
-        postId,
-        {
-          shares: updatedShares.toString(), // Converter para string antes de salvar
-        }
-      );
-
-      return true;
-  } catch (error) {
-      console.error("Erro ao incrementar shares:", error);
-      return false;
-  }
-};
-
-//Perfil
-export async function followUser(followerId, followingId) {
-  try {
-    const followDocument = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId, // A coleção de follows
-      ID.unique(),
-      {
-        followerId,
-        followingId,
-        createdAt: new Date().toISOString(),
-      }
-    );
-    return followDocument;
-  } catch (error) {
-    console.error("Erro ao seguir usuário:", error);
-  }
-}
-
-export async function unfollowUser(followerId, followingId) {
-  try {
-    // Obter o documento de follow usando uma query para garantir que é o correto
-    const follows = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId,
-      [
-        Query.equal("followerId", followerId),
-        Query.equal("followingId", followingId)
-      ]
-    );
-
-    if (follows.documents.length > 0) {
-      const followDocument = follows.documents[0];
-      await databases.deleteDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.followsCollectionId,
-        followDocument.$id
-      );
-    }
-  } catch (error) {
-    console.error("Erro ao deixar de seguir usuário:", error);
-  }
-}
-
-
-export async function getFollowers(userId) {
-  try {
-    const followers = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId,
-      [Query.equal("followingId", userId)]
-    );
-    return followers.documents;
-  } catch (error) {
-    console.error("Erro ao obter seguidores:", error);
-  }
-}
-
-export async function getFollowing(userId) {
-  try {
-    const following = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId,
-      [Query.equal("followerId", userId)]
-    );
-    return following.documents;
-  } catch (error) {
-    console.error("Erro ao obter lista de seguindo:", error);
-  }
-}
+//FIM curtidas comentario

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, KeyboardTypeOptions } from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 
 // Definir as propriedades do componente
 interface TextInputMaskProps {
@@ -7,7 +7,7 @@ interface TextInputMaskProps {
   placeholder: string;
   multiline?: boolean;
   maxLength: number;
-  keyboardType: KeyboardTypeOptions;
+  inputMode: "text" | "numeric" | "tel" | "email" | "url"; // Alterado para inputMode
   inputFilter: RegExp;
   value: string;
   onChangeText: (text: string) => void;
@@ -20,7 +20,7 @@ const TextInputMask = ({
   placeholder,
   multiline = false,
   maxLength,
-  keyboardType,
+  inputMode,  // Alterado para inputMode
   inputFilter,
   value,
   onChangeText,
@@ -67,7 +67,7 @@ const TextInputMask = ({
           maxLength={maxLength}
           multiline={multiline}
           textAlignVertical="top"
-          keyboardType={keyboardType}
+          inputMode={inputMode}  // Alterado de keyboardType para inputMode
           value={value}
           onChangeText={handleTextChange}
           onFocus={() => setIsFocused(true)} // Atualiza o estado quando o campo é focado

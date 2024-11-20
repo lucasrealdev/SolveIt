@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, StyleSheet, ActivityIndicator, Image, Platform } from "react-native";
+import { Text, View, ScrollView, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
 import MenuRight from "@/components/MenuRight";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -138,7 +138,7 @@ export default function CreatePost() {
               placeholder="Ex: Dificuldade em encontrar táxis disponíveis"
               maxLength={100}
               inputFilter={/[^\p{L}\p{N}\s\p{P}\p{So}]/gu} // Permite letras (com acento), números, espaços, pontuação e emojis
-              keyboardType="default"
+              inputMode="text"
               value={form.title}
               onChangeText={(text) => updateForm("title", text)}
             />
@@ -148,7 +148,7 @@ export default function CreatePost() {
               multiline
               maxLength={1000}
               inputFilter={/[^\p{L}\p{N}\s\p{P}\p{So}]/gu} // Permite letras (com acento), números, espaços, pontuação e emojis
-              keyboardType="default"
+              inputMode="text"
               value={form.description}
               onChangeText={(text) => updateForm("description", text)}
             />
@@ -156,7 +156,7 @@ export default function CreatePost() {
               title="Quantas pessoas você acha que este problema afeta?"
               placeholder="Ex: 100"
               maxLength={12}
-              keyboardType="numeric"
+              inputMode="numeric"
               maskType="number"
               inputFilter={/[^0-9]/g}
               value={form.peopleAffects}
@@ -178,7 +178,7 @@ export default function CreatePost() {
               title="CEP (Opcional)"
               placeholder="Ex: 130456-03"
               maxLength={9}
-              keyboardType="numeric"
+              inputMode="numeric"
               maskType="cep"
               inputFilter={/[^0-9]/g}
               value={form.zipCode}
@@ -190,7 +190,7 @@ export default function CreatePost() {
               multiline
               maxLength={200}
               inputFilter={/[^a-zA-ZÀ-ÿ0-9\s#]/g}
-              keyboardType="default"
+              inputMode="text"
               value={form.tags}
               onChangeText={(text) => updateForm("tags", text)}
             />
