@@ -9,7 +9,7 @@ import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getCurrentUser, signIn, signOut } from "@/lib/appwriteConfig";
+import { getCurrentUser, signIn } from "@/lib/appwriteConfig";
 import { handleAppwriteInError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
 import HoverColorComponent from "@/components/HoverColorComponent";
@@ -36,7 +36,6 @@ export default function SignIn() {
     let result = null; // Inicializa a variável result
 
     try {
-      await signOut();
       await signIn(formData.email, formData.password);
       result = await getCurrentUser(); // Atribui o valor a result
 

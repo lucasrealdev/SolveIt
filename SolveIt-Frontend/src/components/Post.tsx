@@ -505,7 +505,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       className="flex-row items-center ml-[-3px]"
                       onPress={handleToggleFavorite}>
                       {loadingFavorite ? (
-                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} />
+                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1'/>
                       ) : (
                         <CustomIcons
                           name="favorito"
@@ -601,7 +601,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       onPress={handleToggleFavorite}
                     >
                       {loadingFavorite ? (
-                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} />
+                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1'/>
                       ) : (
                         <CustomIcons
                           name="favorito"

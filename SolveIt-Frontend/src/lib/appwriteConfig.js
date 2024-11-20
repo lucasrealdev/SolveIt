@@ -105,6 +105,7 @@ const databases = new Databases(client);
   // Função para fazer login de usuário
   export async function signIn(email, password) {
     try {
+      await signOut();
       const session = await account.createEmailPasswordSession(email, password);
       return session;
     } catch (error) {

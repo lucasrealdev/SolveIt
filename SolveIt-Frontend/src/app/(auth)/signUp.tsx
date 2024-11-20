@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { createUser, signOut } from '@/lib/appwriteConfig';
+import { createUser } from '@/lib/appwriteConfig';
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
@@ -42,7 +42,6 @@ export default function SignUp() {
     setSubmitting(true);
 
     try {
-      await signOut();
       const result = await createUser(formData.email, formData.password, formData.username);
 
       if (!result) {
