@@ -21,7 +21,7 @@ export default function SearchHeader() {
 
     return (
         <View className={`bg-white w-full flex px-3 py-[21px] border-b border-borderStandardLight gap-2 ${isMobile}`}>
-            <View accessibilityLabel="containerInput" className="border border-borderStandardLight rounded-full flex flex-row gap-3 px-3 py-[7px] items-center flex-1">
+            <View aria-label="containerInput" className="border border-borderStandardLight rounded-full flex flex-row gap-3 px-3 py-[7px] items-center flex-1">
                 <TextInput
                     placeholder="Pesquise problemas"
                     className="flex flex-1 outline-none text-base text-textStandardDark font-medium"

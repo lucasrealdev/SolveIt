@@ -99,7 +99,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
   };
 
   const renderDesktopMenu = () => (
-    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
+    <View aria-label="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
       <View className="flex gap-[32px] w-full">
         <Image style={{ width: 115, height: 32 }} source={images.logo} />
         <View className="flex rounded-[124px] border border-[#3692C5] items-center justify-center px-[12px] py-[8px]">
@@ -116,7 +116,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
 
       <View className="flex w-full gap-6">
         {isVisible && (
-          <View accessibilityLabel="CardPremium" className={`flex gap-[16px] p-[16px] bg-secondaryStandardDark rounded-[24px] w-full ${isTablet}`}>
+          <View aria-label="CardPremium" className={`flex gap-[16px] p-[16px] bg-secondaryStandardDark rounded-[24px] w-full ${isTablet}`}>
             <View className="flex flex-row justify-between">
               <View className="w-[40px] h-[40px] flex bg-secondaryStandard rounded-full items-center justify-center">
                 <CustomIcons name="perigo" size={20} color="#FFF" />
@@ -132,7 +132,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
             </View>
           </View>
         )}
-        <View accessibilityLabel="CardConta" className="flex gap-4 pt-6 border-t border-borderStandard flex-row items-end">
+        <View aria-label="CardConta" className="flex gap-4 pt-6 border-t border-borderStandard flex-row items-end">
           <View className="flex flex-1 flex-row items-center gap-3">
             {
               user && user.avatar ? (
@@ -173,7 +173,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
   );
 
   const renderMobileMenu = () => (
-    <View accessibilityLabel="ContainerMenu" className="flex flex-row w-full bg-destaqueAzul px-[25px] py-[13px] justify-center">
+    <View aria-label="ContainerMenu" className="flex flex-row w-full bg-destaqueAzul px-[25px] py-[13px] justify-center">
       <View className="flex w-full max-w-[400px] flex-row justify-between">
         {renderMenuButtonMobile('/', 'home', home)}
         {renderMenuButtonMobile('/games', 'jogos', games)}

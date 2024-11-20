@@ -21,7 +21,7 @@ const NotFoundScreen = () => {
 
   return (
     <View className="flex-1 flex items-center justify-center bg-backgroundStandardLight px-4">
-      <View accessibilityLabel="ContainerErro" className="flex pb-1 items-center justify-center max-w-[600px]">
+      <View aria-label="ContainerErro" className="flex pb-1 items-center justify-center max-w-[600px]">
         <Text className="font-bold text-xl text-primaryStandardDark mb-4">404 Error</Text>
         <Text className="font-extrabold text-4xl sm:text-7xl text-textStandardDark mb-6 text-center">Oops! Página não encontrada.</Text>
         <Text className="font-normal text-lg text-textStandardDark mb-8 text-center">Infelizmente, a página que você está procurando desapareceu ou foi movida :(</Text>

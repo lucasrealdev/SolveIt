@@ -89,14 +89,14 @@ export default function SignUp() {
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
       <LinearGradient
-        accessibilityLabel="Gradient"
+        aria-label="Gradient"
         className="flex-1 justify-between items-center"
         colors={['#EBD4FF', '#ABB9FF', '#0145F3']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       >
         <View className="flex-1 justify-center items-center w-full p-2">
-          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" accessibilityLabel="CardSignUp">
+          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" aria-label="CardSignUp">
             <View className="gap-2">
               <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]"/>
               <View className="gap-2">
@@ -105,7 +105,7 @@ export default function SignUp() {
               </View>
             </View>
 
-            <View accessibilityLabel="FieldsCard" className="gap-4">
+            <View aria-label="FieldsCard" className="gap-4">
               <TextInputModel
                 title="Nome de Usuario"
                 placeholder="X_AE_A_13b"
@@ -140,7 +140,7 @@ export default function SignUp() {
               />
             </View>
 
-            <View accessibilityLabel="ContainerButtonSignUp" className="gap-6">
+            <View aria-label="ContainerButtonSignUp" className="gap-6">
               <Button className="bg-accentStandardDark rounded-full py-3 gap-2"  isLoading={isSubmitting}
                 onPress={sendUser}
               >

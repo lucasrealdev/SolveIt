@@ -62,7 +62,7 @@ export default function Layout() {
     <GlobalProvider>
       <AlertProvider>
         <SafeAreaView style={{ flex: 1, backgroundColor: "#0172B1" }} edges={["top"]}>
-          <View className='flex flex-1' accessibilityLabel="containerLayout" style={{ flexDirection: isMobile }}>
+          <View className='flex flex-1' aria-label="containerLayout" style={{ flexDirection: isMobile }}>
             {/* Renderiza o menu apenas se a rota atual estiver na lista de exibição */}
             {shouldShowMenu && <Menu home={10} friends={2} />}
             

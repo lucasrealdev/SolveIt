@@ -17,7 +17,7 @@ const CardFriend: React.FC<CardFriendProps> = ({ label }) => {
 
   return (
     <View
-      accessibilityLabel="Amigo"
+      aria-label="Amigo"
       className={`flex flex-row border-b border-borderStandardLight py-4 ${label !== 'menu' ? 'px-[15px]' : ''} gap-3 items-center`}
     >
       <Image className="w-[40px] h-[40px] rounded-full" source={images.person} />

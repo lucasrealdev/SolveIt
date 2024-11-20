@@ -55,7 +55,7 @@ export default function MenuRight() {
   };
 
   const renderEventCard = ({ title, date, icon }, index) => (
-    <View key={index} accessibilityLabel="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
+    <View key={index} aria-label="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
       <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
         <CustomIcons name={icon} color="#01B198" size={20} />
       </View>
@@ -68,8 +68,8 @@ export default function MenuRight() {
   );
 
   return (
-    <View accessibilityLabel="ContainerMenu" className="flex h-[100vh] border-l border-borderStandardLight bg-white" style={{ width: containerWidth }}>
-      <View accessibilityLabel="ContainerHeaderMenu" className="flex w-full px-6 py-[19px] flex-row justify-between border-b border-borderStandardLight">
+    <View aria-label="ContainerMenu" className="flex h-[100vh] border-l border-borderStandardLight bg-white" style={{ width: containerWidth }}>
+      <View aria-label="ContainerHeaderMenu" className="flex w-full px-6 py-[19px] flex-row justify-between border-b border-borderStandardLight">
         <Pressable className="flex justify-center">
           {
             user && user.avatar && currentStatus !== null ? (
@@ -112,9 +112,9 @@ export default function MenuRight() {
         </View>
       </View>
 
-      <View accessibilityLabel="ContainerSections" className="flex w-full gap-8 p-6">
-        <View accessibilityLabel="ContainerAmigos" className="flex">
-          <View accessibilityLabel="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
+      <View aria-label="ContainerSections" className="flex w-full gap-8 p-6">
+        <View aria-label="ContainerAmigos" className="flex">
+          <View aria-label="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
             <Text className="font-bold text-[18px]">Sugestão de amigos</Text>
             <HoverColorComponent className="flex flex-row items-end gap-2"
               onPress={() => navigateTo("/friends")}
@@ -129,8 +129,8 @@ export default function MenuRight() {
           {[...Array(5)].map((_, index) => <CardAmigo key={index} label="menu" />)}
         </View>
 
-        <View accessibilityLabel="ContainerEventos" className={isTablet}>
-          <View accessibilityLabel="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
+        <View aria-label="ContainerEventos" className={isTablet}>
+          <View aria-label="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
             <Text className="font-bold text-[18px]">Próximos eventos</Text>
           </View>
           {[

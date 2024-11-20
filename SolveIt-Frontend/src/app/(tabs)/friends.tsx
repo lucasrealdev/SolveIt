@@ -44,13 +44,13 @@ export default function Friends() {
         <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-7">
 
           <View className="gap-3" aria-label="ContainerPerfil">
-            <View className="w-full flex-row flex-wrap justify-between items-center gap-3">
+            <View className="w-full flex-row flex-wrap justify-between items-center">
               <Text className="font-bold text-xl text-textStandardDark text-nowrap">
                 Seu Perfil
               </Text>
 
-              <View className="flex-row gap-4 items-center justify-end">
-                <View aria-label="Buttons" className="w-full h-[45px] rounded-[20px] flex-row items-center justify-between max-w-[311px] bg-textStandardDark">
+              <View className="flex-row gap-2 items-center justify-end w-fit">
+                <View aria-label="Buttons" className="h-[45px] rounded-[20px] flex-row items-center justify-between w-[280px] bg-textStandardDark">
                   <Animated.View style={[styles.activeBar, { transform: [{ translateX }], width: buttonWidth }]} />
 
                   <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguidores} onLayout={handleButtonLayout}>

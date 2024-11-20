@@ -25,7 +25,7 @@ const BarStory: React.FC<BarStoryProps> = ({
 }) => {
   return (
     <View 
-      accessibilityLabel="ContainerStory" 
+      aria-label="ContainerStory" 
       className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-borderStandardLight"
     >
       {users.map((user, index) => (
@@ -35,7 +35,7 @@ const BarStory: React.FC<BarStoryProps> = ({
           className="flex justify-center items-center w-fit"
         >
           <LinearGradient
-            accessibilityLabel="ContainerImage"
+            aria-label="ContainerImage"
             colors={['#4F46E5', '#C622FF', '#FF2222', '#FFA439']}
             style={styles.containerImage}
             start={{ x: 0.5, y: 0.5 }}

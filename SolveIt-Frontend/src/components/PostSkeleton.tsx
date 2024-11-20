@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 const PostSkeleton = () => {
   return (
-    <View accessibilityLabel="PostSkeleton" className="bg-white rounded-[24px] w-full border border-borderStandardLight">
+    <View aria-label="PostSkeleton" className="bg-white rounded-[24px] w-full border border-borderStandardLight">
       {/* Header Skeleton */}
       <View className="flex w-full px-[20px] py-3 gap-[15px] border-b border-borderStandardLight flex-row items-center">
         <View className="flex flex-1 flex-row gap-[12px] items-center">
