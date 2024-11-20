@@ -44,7 +44,7 @@ export default function Friends() {
         <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-7">
 
           <View className="gap-3" aria-label="ContainerPerfil">
-            <View className="w-full flex-row flex-wrap justify-between items-center">
+            <View className="w-full flex-row flex-wrap justify-between items-center gap-3">
               <Text className="font-bold text-xl text-textStandardDark text-nowrap">
                 Seu Perfil
               </Text>

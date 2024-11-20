@@ -43,9 +43,43 @@ const Comment = ({ id, onDelete }) => {
 
     if (!commentData) return <Text className="text-red-500">Comentário não encontrado.</Text>;
 
-    const { content, creator, createdAt } = commentData;
+    const { content, creator, $createdAt } = commentData;
 
     const isUserCreator = user?.$id === creator?.$id;
+
+    const timeAgo = () => {
+        const now = new Date(); // Obtém a data atual
+        const createdAt = new Date($createdAt); // Converte a string de $createdAt para um objeto Date
+        
+        if (isNaN(createdAt.getTime())) {
+            console.error('Data de criação inválida:', $createdAt);
+            return;
+        }
+    
+        const diffInSeconds = Math.floor((now.getTime() - createdAt.getTime()) / 1000); // Converte ambos para milissegundos antes da subtração
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        const diffInDays = Math.floor(diffInHours / 24);
+        const diffInMonths = Math.floor(diffInDays / 30);
+        const diffInYears = Math.floor(diffInMonths / 12);
+    
+        if (diffInYears > 0) {
+            return `há ${diffInYears} ano${diffInYears > 1 ? 's' : ''}`;
+        } else if (diffInMonths > 0) {
+            return `há ${diffInMonths} mês${diffInMonths > 1 ? 'es' : ''}`;
+        } else if (diffInDays > 0) {
+            return `há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
+        } else if (diffInHours > 0) {
+            return `há ${diffInHours}h`;
+        } else if (diffInMinutes > 0) {
+            return `há ${diffInMinutes}m`;
+        } else {
+            return `há menos de 1 minuto`;
+        }
+    };      
+
+    // Usando a função timeAgo para formatar a data
+    const formattedDate = timeAgo();
 
     return (
         <View className="flex-row justify-between items-start gap-2">
@@ -55,8 +89,9 @@ const Comment = ({ id, onDelete }) => {
                 alt={`Avatar de ${creator?.username || 'usuário desconhecido'}`}
             />
             <View className="flex-1">
+                <Text className="text-textStandardDark text-sm">{creator?.username}</Text>
                 <Text className="text-textStandardDark text-sm">{content}</Text>
-                <Text className="text-textSecondary text-xs">{createdAt}</Text>
+                <Text className="text-textSecondary text-xs">{formattedDate}</Text>
             </View>
             <View>
                 {isUserCreator ? (
