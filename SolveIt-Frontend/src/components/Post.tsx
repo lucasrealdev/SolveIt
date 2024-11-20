@@ -357,6 +357,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             value={commentContent}
             onChangeText={setCommentContent}
             placeholder="Comente aqui"
+            maxLength={150}
             className="border-borderStandardLight border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-textStandardDark text-sm font-medium outline-none"
           />
         </View>
@@ -392,6 +393,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             value={commentContent}  // Define o texto no campo de comentário
             onChangeText={setCommentContent}  // Atualiza o estado conforme o usuário digita
             placeholder="Comente aqui"
+            maxLength={150}
             className="border-borderStandardLight border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-textStandardDark text-sm font-medium outline-none"
           />
         </View>
