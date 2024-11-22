@@ -95,7 +95,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     }
   }, [postId, user]);
   
-  if (loading || !post || !post.creator) {
+  if (loading) {
     return <PostSkeleton />;
   }
 

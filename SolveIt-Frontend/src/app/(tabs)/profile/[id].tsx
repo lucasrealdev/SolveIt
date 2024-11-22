@@ -112,6 +112,14 @@ const Profile = () => {
     setIsFollowing((prev) => !prev);
   };
 
+  const handleBackNavigation = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push('/');  // Vai para a página inicial se não houver uma página anterior
+    }
+  };
+
   const renderFooter = useCallback(() => {
     if (loadingMore) {
       return (
@@ -157,7 +165,7 @@ const Profile = () => {
             <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover" />
             <ButtonScale
               className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
-              onPress={() => router.back()}
+              onPress={() => handleBackNavigation}
               scale={1.04}
             >
               <CustomIcons name="anterior" color="#475569" size={24} />

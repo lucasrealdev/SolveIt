@@ -4,7 +4,6 @@ import MenuRight from "@/components/MenuRight";
 import Post from '@/components/Post';
 import SearchHeader from "@/components/SearchHeader";
 import { getAllPosts } from "@/lib/appwriteConfig";
-import PostSkeleton from "@/components/PostSkeleton";
 
 export default function Index() {
   const [posts, setPosts] = useState([]);
@@ -64,14 +63,15 @@ export default function Index() {
     fetchInitialPosts(); // Carrega os posts ao iniciar
   }, [fetchInitialPosts]);
 
-  const renderFooter = useMemo(() => {
+  const renderFooter = useCallback(() => {
     if (loadingMore) {
       return (
-        <View style={styles.footerLoader}>
-          <ActivityIndicator size="large" color="#01b297" />
+        <View className="px-5 items-center justify-center">
+          <ActivityIndicator size="large" color="#3692C5" />
         </View>
       );
     }
+
     if (!hasMore && posts.length > 0) {
       return (
         <View className="py-4 items-center">
@@ -79,15 +79,11 @@ export default function Index() {
         </View>
       );
     }
+
     return null;
   }, [loadingMore, hasMore, posts.length]);
 
   const renderPosts = useMemo(() => {
-    if (loading) {
-      return Array.from({ length: POSTS_PER_PAGE }).map((_, index) => (
-        <PostSkeleton key={`skeleton-${index}`} />
-      ));
-    }
     return posts.map((post) => (
       <Post key={post.$id} postId={post.$id} />
     ));
@@ -111,7 +107,7 @@ export default function Index() {
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
             {renderPosts}
-            {renderFooter}
+            {renderFooter()}
           </View>
         </View>
       </ScrollView>
