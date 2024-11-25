@@ -221,7 +221,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             <ButtonScale scale={1.09} onPress={handleBackNavigation}>
               <CustomIcons name="anterior" color={colors.textStandard.standard} size={24} />
             </ButtonScale>
-            <ButtonScale scale={1}>
+            <ButtonScale scale={1} onPress={() => handleNavigateToProfile(post.creator.$id)}>
               <Image source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
             </ButtonScale>
           </View>

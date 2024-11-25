@@ -147,7 +147,7 @@ const PersonalProfile = () => {
             <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover" />
             <ButtonScale
               className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
-              onPress={() => handleBackNavigation}
+              onPress={() => handleBackNavigation()}
               scale={1.04}
             >
               <CustomIcons name="anterior" color="#475569" size={24} />
