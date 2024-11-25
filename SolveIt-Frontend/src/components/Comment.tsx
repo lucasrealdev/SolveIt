@@ -16,7 +16,6 @@ const Comment = ({ id, onDelete }) => {
     const { user } = useGlobalContext();
 
     const [containerHeight, setContainerHeight] = useState(0); // Estado para armazenar a altura do container
-    const containerRef = useRef(null); // Ref para o container
 
     useEffect(() => {
         const fetchCommentData = async () => {
@@ -26,11 +25,16 @@ const Comment = ({ id, onDelete }) => {
                 setCommentData(fetchedComment);
 
                 // Verificar se o usuário curtiu o comentário e obter a contagem de likes
-                const userLiked = await userLikedComment(user?.$id, id);
-                setLiked(userLiked);
+                if (user?.$id) {
+                    const userLiked = await userLikedComment(user?.$id, id);
+                    setLiked(userLiked);
 
-                const likesCount = await getLikeCountComment(id);
-                setLikeCount(likesCount);
+                    const likesCount = await getLikeCountComment(id);
+                    setLikeCount(likesCount);
+                } else {
+                    setLiked(false);
+                    setLikeCount(0); // Garantir que, se não estiver logado, o contador de likes é zero
+                }
             } catch (error) {
                 console.error("Erro ao carregar os dados do comentário:", error);
             } finally {
@@ -38,10 +42,11 @@ const Comment = ({ id, onDelete }) => {
             }
         };
 
-        if (id && user?.$id) fetchCommentData();
+        if (id) fetchCommentData();
     }, [id, user?.$id]);
 
     const handleDelete = async () => {
+        if (!user) return; // Impede que o usuário exclua o comentário se não estiver logado
         setDeleting(true);
         try {
             await onDelete(id);
@@ -53,6 +58,7 @@ const Comment = ({ id, onDelete }) => {
     };
 
     const handleLike = async () => {
+        if (!user) return; // Impede que o usuário curta o comentário se não estiver logado
         setLikeLoading(true); // Começa o carregamento do like
         try {
             const likedStatus = await toggleLikeComment(user?.$id, id);
