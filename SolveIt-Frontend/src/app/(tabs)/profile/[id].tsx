@@ -4,9 +4,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
-import { getUserPosts, getUserProfile } from "@/lib/appwriteConfig";
+import { followUser, getFollowers, getFollowing, getUserPosts, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { useAlert } from "@/context/AlertContext";
 
 interface UserData {
   biography: string;
@@ -21,15 +23,55 @@ const Profile = () => {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingButton, setLoadingButton] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [buttonWidth, setButtonWidth] = useState(0);
-  const [isFollowing, setIsFollowing] = useState(false);
   const { id } = useLocalSearchParams();
+  const { user } = useGlobalContext();
 
   const POSTS_PER_PAGE = 3;
+
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  
+  const { showAlert } = useAlert();
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      setLoading(true);
+  
+      try {
+        // 1. Obter o número de seguidores
+        const followers = await getFollowers(id);
+        const followersCount = followers.length;
+  
+        // 2. Obter o número de "seguindo"
+        const following = await getFollowing(id);
+        const followingCount = following.length;
+  
+        // 3. Verificar se o usuário atual está seguindo o perfil
+        const isFollowing = followers.some(follower => follower.followerId === user?.$id);
+  
+        // Definir os dados no estado
+        setFollowersCount(followersCount);
+        setFollowingCount(followingCount);
+        setIsFollowing(isFollowing);
+      } catch (error) {
+        console.error("Erro ao buscar informações de amigos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (id) {
+      fetchPost();
+    }
+  }, [id, user?.$id]);
+  
 
   const fetchPosts = useCallback(
     async (refresh = false) => {
@@ -108,10 +150,6 @@ const Profile = () => {
     setButtonWidth(nativeEvent.layout.width);
   };
 
-  const toggleFollow = () => {
-    setIsFollowing((prev) => !prev);
-  };
-
   const handleBackNavigation = () => {
     if (router.canGoBack()) {
       router.back();
@@ -151,6 +189,27 @@ const Profile = () => {
 
   if (!userData) return null;
 
+  // Função para alternar entre "Seguir" e "Seguindo"
+  const toggleFollow = async () => {
+    if (loading) return; // Evita chamadas repetidas enquanto a ação está em andamento
+
+    setLoadingButton(true);
+    try {
+      if (isFollowing) {
+        await unfollowUser(user?.$id, id); // Remove o "follow" no backend
+        setIsFollowing(false); // Atualiza o estado local
+      } else {
+        await followUser(user?.$id, id); // Adiciona o "follow" no backend
+        setIsFollowing(true); // Atualiza o estado local
+      }
+    } catch (error) {
+      console.error("Erro ao alternar estado de seguir:", error);
+      showAlert("Erro", "Erro ao alternar estado de seguir")
+    } finally {
+      setLoadingButton(false);
+    }
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -178,7 +237,11 @@ const Profile = () => {
               scale={1.06}
               onPress={toggleFollow}
             >
-              <Text className="text-white font-bold">{isFollowing ? "Seguindo" : "Seguir"}</Text>
+              {loadingButton ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <Text className="text-white font-bold">{isFollowing ? "Seguindo" : "Seguir"}</Text>
+              )}
             </ButtonScale>
           </View>
         </View>
@@ -187,11 +250,11 @@ const Profile = () => {
           <Text className="text-base">{userData.biography}</Text>
           <View className="w-full mt-1 gap-4 items-center justify-center flex-row">
             <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
-              <Text className="text-textStandardDark font-semibold text-lg">1000</Text>
+              <Text className="text-textStandardDark font-semibold text-lg">{followersCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguidores</Text>
             </ButtonScale>
             <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
-              <Text className="text-textStandardDark font-semibold text-lg">1000</Text>
+              <Text className="text-textStandardDark font-semibold text-lg">{followingCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguindo</Text>
             </ButtonScale>
           </View>

@@ -33,7 +33,7 @@ export default function PostDetails() {
         if (id) {
             fetchPost();
         }
-    }, [id, shared]); // Removido 'user' das dependências, pois não é usado diretamente
+    }, [id, shared]);
 
     if (loading || !post) {
         return (
