@@ -8,7 +8,7 @@ import ButtonScale from "./ButtonScale";
 import HoverColorComponent from "./HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getSuggestedFriends, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
+import { getAllEvents, getSuggestedFriends, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
 
 export default function MenuRight() {
@@ -24,6 +24,7 @@ export default function MenuRight() {
   const isTablet = height <= 835 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 368 : 320;
   const [suggestedFriends, setSuggestedFriends] = useState([]);
+  const [events, setEvents] = useState([]);
 
   // Supondo que `getSuggestedFriends` é uma função que retorna usuários sugeridos
   useEffect(() => {
@@ -34,6 +35,9 @@ export default function MenuRight() {
 
         // Atualiza o estado com os 5 primeiros amigos sugeridos
         setSuggestedFriends(suggestedFriendsData.documents);
+
+        const eventsData = await getAllEvents();
+        setEvents(eventsData);
       } catch (error) {
         console.error("Error fetching initial data:", error);
       }
@@ -74,19 +78,6 @@ export default function MenuRight() {
     pathname !== route ? router.push(route) : router.replace(route);
   };
 
-  const renderEventCard = ({ title, date, icon }, index) => (
-    <View key={index} aria-label="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
-      <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-        <CustomIcons name={icon} color="#01B198" size={20} />
-      </View>
-      <View className="flex flex-1">
-        <Text className="text-textSecondary font-bold text-[14px]">{title}</Text>
-        <Text className="text-textSecondary font-normal text-[14px]">{date}</Text>
-      </View>
-      <CustomIcons name="notificacao" color="#94A3B8" size={20} />
-    </View>
-  );
-
   const renderUserCardsSuggested = () => {
     return suggestedFriends.map((user, index) => (
       <CardAmigo
@@ -95,6 +86,21 @@ export default function MenuRight() {
         idUser={user.$id}
       />
     ));
+  };
+
+  const renderEventCard = (event) => {
+    return (
+      <View key={event.$id} aria-label="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
+      <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
+        <CustomIcons name={event.icon} color="#01B198" size={20} />
+      </View>
+      <View className="flex flex-1">
+        <Text className="text-textSecondary font-bold text-[14px]">{event.title}</Text>
+        <Text className="text-textSecondary font-normal text-[14px]">{event.dateEvent}</Text>
+      </View>
+      <CustomIcons name="notificacao" color="#94A3B8" size={20} />
+    </View>
+    );
   };
 
   return (
@@ -163,12 +169,9 @@ export default function MenuRight() {
           <View aria-label="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
             <Text className="font-bold text-[18px]">Próximos eventos</Text>
           </View>
-          {[
-            { title: "Aniversário do amigo", date: "25 de junho de 2028", icon: "presente" },
-            { title: "Feriado", date: "28 de junho de 2028", icon: "moon" },
-            { title: "Encontro de grupo", date: "19 de agosto de 2028", icon: "team" },
-            { title: "Graduação", date: "22 de dezembro de 2028", icon: "graduacao" },
-          ].map(renderEventCard)}
+
+          {/* Mapeia os eventos dinamicamente */}
+          {events.map((event) => renderEventCard(event))}
         </View>
       </View>
     </View>

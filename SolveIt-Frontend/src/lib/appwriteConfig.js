@@ -21,6 +21,7 @@ export const appwriteConfig = {
   likesCollectionId: "6726bec6003e2fbe6d73",
   favoritesCollectionId: "6726bca00024d78f6036",
   likesCommentCollectionId: "673df510002f41d33ae3",
+  eventsCollectionId: "67465b65000f8d48c88c"
 };
 
 import axios from "axios";
@@ -874,73 +875,88 @@ export async function getCityAndStateByZipCode(zipCode) {
 //FIM funcoes favoritos 
 
 //INICIO Curtidas Comentario
-export async function userLikedComment(userId, commentId) {
-  try {
-    // Limita a consulta a 1 resultado para evitar a busca desnecessária de múltiplos documentos
-    const likes = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.likesCommentCollectionId,
-      [Query.equal("commentId", commentId), Query.equal("userId", userId)],
-      1 // Limita a consulta a 1 documento
-    );
-
-    return likes.total > 0; // Retorna true se o usuário curtiu o comentário
-  } catch (error) {
-    console.error("Erro ao verificar se o usuário curtiu o comentário:", error.message);
-    throw error;
-  }
-}
-
-export async function getLikeCountComment(commentId) {
-  try {
-    // Apenas retorna o total de likes, sem carregar os documentos
-    const likes = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.likesCommentCollectionId,
-      [Query.equal("commentId", commentId)]
-    );
-    return likes.total;
-  } catch (error) {
-    console.error("Erro ao obter número de likes do comentário:", error.message);
-    return 0; // Retorna 0 em caso de erro
-  }
-}
-
-export async function toggleLikeComment(userId, commentId) {
-  try {
-    // Verifica se o usuário já curtiu o comentário
-    const liked = await userLikedComment(userId, commentId);
-
-    if (liked) {
-      // Se o usuário já curtiu, busca e remove o like
+  export async function userLikedComment(userId, commentId) {
+    try {
+      // Limita a consulta a 1 resultado para evitar a busca desnecessária de múltiplos documentos
       const likes = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.likesCommentCollectionId,
         [Query.equal("commentId", commentId), Query.equal("userId", userId)],
-        1 // Limita a consulta a 1 resultado
+        1 // Limita a consulta a 1 documento
       );
 
-      await databases.deleteDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.likesCommentCollectionId,
-        likes.documents[0].$id
-      );
-
-      return false; // Retorna que o comentário não é mais curtir
-    } else {
-      // Se o usuário não curtiu, adiciona o like
-      await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.likesCommentCollectionId,
-        ID.unique(),
-        { userId, commentId }
-      );
-
-      return true; // Retorna que o comentário foi curtido
+      return likes.total > 0; // Retorna true se o usuário curtiu o comentário
+    } catch (error) {
+      console.error("Erro ao verificar se o usuário curtiu o comentário:", error.message);
+      throw error;
     }
-  } catch (error) {
-    console.error("Erro ao alternar like no comentário:", error.message);
-    throw error;
   }
-}
+
+  export async function getLikeCountComment(commentId) {
+    try {
+      // Apenas retorna o total de likes, sem carregar os documentos
+      const likes = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.likesCommentCollectionId,
+        [Query.equal("commentId", commentId)]
+      );
+      return likes.total;
+    } catch (error) {
+      console.error("Erro ao obter número de likes do comentário:", error.message);
+      return 0; // Retorna 0 em caso de erro
+    }
+  }
+
+  export async function toggleLikeComment(userId, commentId) {
+    try {
+      // Verifica se o usuário já curtiu o comentário
+      const liked = await userLikedComment(userId, commentId);
+
+      if (liked) {
+        // Se o usuário já curtiu, busca e remove o like
+        const likes = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCommentCollectionId,
+          [Query.equal("commentId", commentId), Query.equal("userId", userId)],
+          1 // Limita a consulta a 1 resultado
+        );
+
+        await databases.deleteDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCommentCollectionId,
+          likes.documents[0].$id
+        );
+
+        return false; // Retorna que o comentário não é mais curtir
+      } else {
+        // Se o usuário não curtiu, adiciona o like
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.likesCommentCollectionId,
+          ID.unique(),
+          { userId, commentId }
+        );
+
+        return true; // Retorna que o comentário foi curtido
+      }
+    } catch (error) {
+      console.error("Erro ao alternar like no comentário:", error.message);
+      throw error;
+    }
+  }
 //FIM curtidas comentario
+
+//INICIO funcoes eventos
+  export async function getAllEvents() {
+    try {
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.eventsCollectionId,
+      );
+      
+      return response.documents; // Retorna todos os documentos da coleção
+    } catch (error) {
+      console.error('Erro ao buscar os documentos:', error);
+    }
+  };
+//FIM funcoes eventos
