@@ -1,17 +1,166 @@
-import React, { useRef, useState } from "react";
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "@/components/CardFriend";
 import SearchHeader from "@/components/SearchHeader";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import ButtonScale from "@/components/ButtonScale";
+import { getFollowerCount, getFollowers, getFollowing, getFollowingCount, getSuggestedFriends } from "@/lib/appwriteConfig";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 export default function Friends() {
   const animation = useRef(new Animated.Value(0)).current;
   const [buttonWidth, setButtonWidth] = useState(0);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [suggestedFriends, setSuggestedFriends] = useState([]);
+  const [activeTab, setActiveTab] = useState<'followers' | 'following'>('followers');
+  const { user } = useGlobalContext();
+  const [loading, setLoading] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+
+  // Pagination states
+  const [pageFollowers, setPageFollowers] = useState(1);
+  const [hasMoreFollowers, setHasMoreFollowers] = useState(true);
+  const [pageFollowing, setPageFollowing] = useState(1);
+  const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
+  const [pageSuggestedFriends, setPageSuggestedFriends] = useState(1);
+  const [hasMoreSuggestedFriends, setHasMoreSuggestedFriends] = useState(true);
+
+  const LIMIT = 3; // Número de comentários por página
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+
+        // Reset pagination
+        setPageFollowers(1);
+        setPageFollowing(1);
+        setPageSuggestedFriends(1);
+        setFollowers([]);
+        setFollowing([]);
+        setSuggestedFriends([]);
+        setHasMoreFollowers(true);
+        setHasMoreFollowing(true);
+        setHasMoreSuggestedFriends(true);
+
+        // Fetch counts
+        const followersCount = await getFollowerCount(user?.$id);
+        const followingCount = await getFollowingCount(user?.$id);
+        setFollowersCount(followersCount);
+        setFollowingCount(followingCount);
+
+        // Fetch initial data based on active tab
+        if (activeTab === 'followers') {
+          const followersData = await getFollowers(user?.$id, 1, LIMIT);
+          setFollowers(followersData.documents);
+          setHasMoreFollowers(
+            followersData.total > LIMIT &&
+            followersData.documents.length === LIMIT
+          );
+        } else {
+          const followingData = await getFollowing(user?.$id, 1, LIMIT);
+          setFollowing(followingData.documents);
+          setHasMoreFollowing(
+            followingData.total > LIMIT &&
+            followingData.documents.length === LIMIT
+          );
+        }
+
+        const suggestedFriendsData = await getSuggestedFriends(user?.$id, 1, LIMIT);
+        setSuggestedFriends(suggestedFriendsData.documents);
+        setHasMoreSuggestedFriends(
+          suggestedFriendsData.total > LIMIT &&
+          suggestedFriendsData.documents.length === LIMIT
+        );
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [user, activeTab]);
+
+  const fetchMoreUsers = async (type: 'followers' | 'following' | 'suggested') => {
+    if (!user || loading) return;
+
+    try {
+      setLoading(true);
+
+      switch (type) {
+        case 'followers':
+          if (!hasMoreFollowers) return;
+          const followersData = await getFollowers(
+            user?.$id,
+            pageFollowers + 1,
+            LIMIT
+          );
+          const newFollowers = followersData.documents.filter(
+            newUser => !followers.some(existingUser => existingUser.$id === newUser.$id)
+          );
+          if (newFollowers.length > 0) {
+            setFollowers(prevFollowers => [...prevFollowers, ...newFollowers]);
+            setPageFollowers(prev => prev + 1);
+          }
+          setHasMoreFollowers(
+            followersData.total > (pageFollowers + 1) * LIMIT
+          );
+          break;
+
+        case 'following':
+          if (!hasMoreFollowing) return;
+          const followingsData = await getFollowing(
+            user?.$id,
+            pageFollowing + 1,
+            LIMIT
+          );
+          const newFollowing = followingsData.documents.filter(
+            newUser => !following.some(existingUser => existingUser.$id === newUser.$id)
+          );
+          if (newFollowing.length > 0) {
+            setFollowing(prevFollowing => [...prevFollowing, ...newFollowing]);
+            setPageFollowing(prev => prev + 1);
+          }
+          setHasMoreFollowing(
+            followingsData.total > (pageFollowing + 1) * LIMIT
+          );
+          break;
+
+        case 'suggested':
+          if (!hasMoreSuggestedFriends) return;
+          const suggestedFriendsData = await getSuggestedFriends(
+            user?.$id,
+            pageSuggestedFriends + 1,
+            LIMIT
+          );
+          const newSuggestedFriends = suggestedFriendsData.documents.filter(
+            newUser => !suggestedFriends.some(existingUser => existingUser.$id === newUser.$id)
+          );
+          if (newSuggestedFriends.length > 0) {
+            setSuggestedFriends(prevSuggestedFriends => [...prevSuggestedFriends, ...newSuggestedFriends]);
+            setPageSuggestedFriends(prev => prev + 1);
+          }
+          setHasMoreSuggestedFriends(
+            suggestedFriendsData.total > (pageSuggestedFriends + 1) * LIMIT
+          );
+          break;
+      }
+    } catch (error) {
+      console.log(`Erro ao carregar ${type}:`, error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const moveToSeguidores = () => {
+    setActiveTab('followers');
     Animated.timing(animation, {
       toValue: 0,
       duration: 300,
@@ -20,6 +169,7 @@ export default function Friends() {
   };
 
   const moveToSeguindo = () => {
+    setActiveTab('following');
     Animated.timing(animation, {
       toValue: 1,
       duration: 300,
@@ -37,12 +187,41 @@ export default function Friends() {
     setButtonWidth(width);
   };
 
+  const renderUserCards = () => {
+    const currentUsers = activeTab === 'followers' ? followers : following;
+
+    return currentUsers.map((user, index) => (
+      <CardAmigo
+        key={`${activeTab}-${user.$id}-${index}`}
+        idUser={activeTab === 'followers'
+          ? user.followerId
+          : user.followingId}
+      />
+    ));
+  };
+
+  const renderUserCardsSuggested = () => {
+    return suggestedFriends.map((user, index) => (
+      <CardAmigo
+        key={`${activeTab}-${user.$id}-${index}`}
+        idUser={user.$id}
+      />
+    ));
+  };
+
+  if (!user || loading) {
+    return (
+      <View className="mt-4">
+        <ActivityIndicator size="large" color="#3692C5" />
+      </View>
+    );
+  }
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+    <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-backgroundStandardDark">
       <SearchHeader />
       <View className="flex-1 bg-backgroundStandardDark items-center">
         <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-7">
-
           <View className="gap-3" aria-label="ContainerPerfil">
             <View className="w-full flex-row flex-wrap justify-between items-center gap-3">
               <Text className="font-bold text-xl text-textStandardDark text-nowrap">
@@ -55,10 +234,12 @@ export default function Friends() {
 
                   <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguidores} onLayout={handleButtonLayout}>
                     <Text className="text-white text-[14px] font-bold">Seguidores</Text>
+                    <Text className="text-white text-[14px] font-bold">{followersCount}</Text>
                   </Pressable>
 
                   <Pressable className="flex-1 items-center justify-center bg-transparent" onPress={moveToSeguindo} onLayout={handleButtonLayout}>
                     <Text className="text-white text-[14px] font-bold">Seguindo</Text>
+                    <Text className="text-white text-[14px] font-bold">{followingCount}</Text>
                   </Pressable>
                 </View>
                 <ButtonScale
@@ -70,24 +251,29 @@ export default function Friends() {
             </View>
 
             <View aria-label="ContainerSeguidores" className="rounded-[10px] border border-borderStandardLight bg-white">
-              <CardAmigo label="amigo" />
-              <CardAmigo label="amigo" />
-              <CardAmigo label="amigo" />
-              <CardAmigo label="amigo" />
-              <CardAmigo label="amigo" />
-              <HoverColorComponent className="flex flex-row gap-2 w-full justify-center my-4" colorHover={colors.accentStandardDark.hover}
-                colorPressIn={colors.accentStandardDark.pressIn}>
-                <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
-                  Carregar Mais
-                </Text>
+              {renderUserCards()}
 
-                <CustomIcons name="mais"
-                  color='#01B198'
-                  size={20} />
-              </HoverColorComponent>
+              {((activeTab === 'followers' && hasMoreFollowers) ||
+                (activeTab === 'following' && hasMoreFollowing)) && (
+                  <HoverColorComponent
+                    className="flex flex-row gap-2 w-full justify-center my-4"
+                    colorHover={colors.accentStandardDark.hover}
+                    colorPressIn={colors.accentStandardDark.pressIn}
+                    onPress={() => fetchMoreUsers(activeTab)}
+                  >
+                    <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
+                      Carregar Mais
+                    </Text>
+
+                    <CustomIcons
+                      name="mais"
+                      color='#01B198'
+                      size={20}
+                    />
+                  </HoverColorComponent>
+                )}
             </View>
           </View>
-
 
           <View aria-label="ContainerSugestaoAmigos" className="gap-3">
             <View className="w-full flex flex-row justify-between items-center">
@@ -97,21 +283,26 @@ export default function Friends() {
             </View>
 
             <View aria-label="ContainerAmigos" className="rounded-[10px] border border-borderStandardLight bg-white">
-              <CardAmigo label="seguidores" />
-              <CardAmigo label="seguidores" />
-              <CardAmigo label="seguidores" />
-              <CardAmigo label="seguidores" />
-              <CardAmigo label="seguidores" />
-              <HoverColorComponent className="flex flex-row gap-2 w-full justify-center my-4" colorHover={colors.accentStandardDark.hover}
-                colorPressIn={colors.accentStandardDark.pressIn}>
-                <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
-                  Carregar Mais
-                </Text>
+              {renderUserCardsSuggested()}
 
-                <CustomIcons name="mais"
-                  color='#01B198'
-                  size={20} />
-              </HoverColorComponent>
+              {hasMoreSuggestedFriends && (
+                <HoverColorComponent
+                  className="flex flex-row gap-2 w-full justify-center my-4"
+                  colorHover={colors.accentStandardDark.hover}
+                  colorPressIn={colors.accentStandardDark.pressIn}
+                  onPress={() => fetchMoreUsers('suggested')}
+                >
+                  <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
+                    Carregar Mais
+                  </Text>
+
+                  <CustomIcons
+                    name="mais"
+                    color='#01B198'
+                    size={20}
+                  />
+                </HoverColorComponent>
+              )}
             </View>
           </View>
         </View>

@@ -7,7 +7,7 @@ import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getUserPosts } from "@/lib/appwriteConfig";
+import { getFollowerCount, getFollowingCount, getUserPosts } from "@/lib/appwriteConfig";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 
@@ -24,6 +24,9 @@ const PersonalProfile = () => {
   const [hasMore, setHasMore] = useState(true); // Indica se há mais postagens para carregar
   const POSTS_PER_PAGE = 3; // Número de postagens por página
 
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+
   // Função para buscar posts iniciais
   const fetchPosts = async (refresh = false) => {
     if (refresh && user) { // Só faz a requisição se o usuário estiver carregado
@@ -33,6 +36,16 @@ const PersonalProfile = () => {
         const { documents, pages } = await getUserPosts(user.$id, 1, POSTS_PER_PAGE); // Obtém posts do usuário
         setPosts(documents); // Armazena os posts
         setHasMore(pages > 1); // Define se há mais postagens
+
+        // 1. Obter o número de seguidores
+        const followersCount = await getFollowerCount(user.$id);
+  
+        // 2. Obter o número de "seguindo"
+        const followingCount = await getFollowingCount(user.$id);
+
+        // Definir os dados no estado
+        setFollowersCount(followersCount);
+        setFollowingCount(followingCount);
       } catch (error) {
         console.error('Erro ao buscar posts:', error);
       } finally {
@@ -166,12 +179,12 @@ const PersonalProfile = () => {
           <Text className="text-base">{user?.biography || "Opa, sou novo por aqui!"}</Text>
           <View className="w-full mt-6 mb-3 gap-4 items-center justify-center flex-row">
             <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
-              <Text className="text-textStandardDark font-semibold text-lg">1000</Text>
+              <Text className="text-textStandardDark font-semibold text-lg">{followersCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguidores</Text>
             </ButtonScale>
 
             <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
-              <Text className="text-textStandardDark font-semibold text-lg">1000</Text>
+              <Text className="text-textStandardDark font-semibold text-lg">{followingCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguindo</Text>
             </ButtonScale>
           </View>

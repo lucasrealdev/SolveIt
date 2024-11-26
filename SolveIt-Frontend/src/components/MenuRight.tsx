@@ -8,7 +8,7 @@ import ButtonScale from "./ButtonScale";
 import HoverColorComponent from "./HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { toggleUserOnlineStatus } from "@/lib/appwriteConfig";
+import { getSuggestedFriends, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
 
 export default function MenuRight() {
@@ -23,13 +23,33 @@ export default function MenuRight() {
   const isMobile = width > 1250;
   const isTablet = height <= 835 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 368 : 320;
+  const [suggestedFriends, setSuggestedFriends] = useState([]);
 
+  // Supondo que `getSuggestedFriends` é uma função que retorna usuários sugeridos
   useEffect(() => {
+    const fetchSuggestedFriends = async () => {
+      try {
+        // Chama a função getSuggestedFriends passando o userId, página 1 e limitando a 5 resultados
+        const suggestedFriendsData = await getSuggestedFriends(user?.$id, 1, 5);
+
+        // Atualiza o estado com os 5 primeiros amigos sugeridos
+        setSuggestedFriends(suggestedFriendsData.documents);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+
+    // Verifica o status do usuário
     if (user?.isOnline !== undefined) {
       // Define o status diretamente como booleano
       setCurrentStatus(user.isOnline);
     }
-  }, [user]);
+
+    // Chama a função para buscar os amigos sugeridos
+    if (user?.$id) {
+      fetchSuggestedFriends();
+    }
+  }, [user]); // O efeito será reexecutado sempre que o `user` mudar
 
   const handleStatusToggle = async () => {
     if (!user) return;
@@ -66,6 +86,16 @@ export default function MenuRight() {
       <CustomIcons name="notificacao" color="#94A3B8" size={20} />
     </View>
   );
+
+  const renderUserCardsSuggested = () => {
+    return suggestedFriends.map((user, index) => (
+      <CardAmigo
+        label="menu"
+        key={`${user.$id}-${index}`}
+        idUser={user.$id}
+      />
+    ));
+  };
 
   return (
     <View aria-label="ContainerMenu" className="flex h-[100vh] border-l border-borderStandardLight bg-white" style={{ width: containerWidth }}>
@@ -126,7 +156,7 @@ export default function MenuRight() {
               <CustomIcons name="setaDireita" color="#01B198" size={20} />
             </HoverColorComponent>
           </View>
-          {[...Array(5)].map((_, index) => <CardAmigo key={index} label="menu" />)}
+          {renderUserCardsSuggested()}
         </View>
 
         <View aria-label="ContainerEventos" className={isTablet}>

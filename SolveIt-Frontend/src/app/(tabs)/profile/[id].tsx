@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
-import { followUser, getFollowers, getFollowing, getUserPosts, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
+import { checkIfFollowing, followUser, getFollowerCount, getFollowers, getFollowing, getFollowingCount, getUserPosts, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 import { useGlobalContext } from "@/context/GlobalProvider";
@@ -46,15 +46,13 @@ const Profile = () => {
   
       try {
         // 1. Obter o número de seguidores
-        const followers = await getFollowers(id);
-        const followersCount = followers.length;
+        const followersCount = await getFollowerCount(id);
   
         // 2. Obter o número de "seguindo"
-        const following = await getFollowing(id);
-        const followingCount = following.length;
+        const followingCount = await getFollowingCount(id);
   
         // 3. Verificar se o usuário atual está seguindo o perfil
-        const isFollowing = followers.some(follower => follower.followerId === user?.$id);
+        const isFollowing = await checkIfFollowing(user?.$id, id);
   
         // Definir os dados no estado
         setFollowersCount(followersCount);
@@ -192,23 +190,30 @@ const Profile = () => {
   // Função para alternar entre "Seguir" e "Seguindo"
   const toggleFollow = async () => {
     if (loading) return; // Evita chamadas repetidas enquanto a ação está em andamento
+  
+    if (user?.$id === id) {
+      showAlert("Ação inválida", "Você não pode seguir a si mesmo.");
+      return; // Retorna para não permitir a ação de seguir
+    }
 
     setLoadingButton(true);
     try {
       if (isFollowing) {
         await unfollowUser(user?.$id, id); // Remove o "follow" no backend
         setIsFollowing(false); // Atualiza o estado local
+        setFollowersCount((prevCount) => prevCount - 1); // Decrementa o número de seguidores
       } else {
         await followUser(user?.$id, id); // Adiciona o "follow" no backend
         setIsFollowing(true); // Atualiza o estado local
+        setFollowersCount((prevCount) => prevCount + 1); // Incrementa o número de seguidores
       }
     } catch (error) {
       console.error("Erro ao alternar estado de seguir:", error);
-      showAlert("Erro", "Erro ao alternar estado de seguir")
+      showAlert("Erro", "Erro ao alternar estado de seguir");
     } finally {
       setLoadingButton(false);
     }
-  };
+  };  
 
   return (
     <ScrollView

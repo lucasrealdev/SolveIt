@@ -5,6 +5,7 @@ import CustomIcons from '@/assets/icons/CustomIcons';
 import images from '@/constants/images';
 import { getCommentById, getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/appwriteConfig';
 import { useGlobalContext } from '@/context/GlobalProvider';
+import { usePathname, useRouter } from 'expo-router';
 
 const Comment = ({ id, onDelete }) => {
     const [loading, setLoading] = useState(true);
@@ -16,6 +17,8 @@ const Comment = ({ id, onDelete }) => {
     const { user } = useGlobalContext();
 
     const [containerHeight, setContainerHeight] = useState(0); // Estado para armazenar a altura do container
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const fetchCommentData = async () => {
@@ -111,13 +114,23 @@ const Comment = ({ id, onDelete }) => {
 
     const formattedDate = timeAgo();
 
+    const navigateTo = (route: string) => {
+    router[route !== pathname ? 'push' : 'replace'](route);
+    };
+
+    const handleNavigateToProfile = (creatorId) => {
+        navigateTo(`/profile/${creatorId}`);
+    };
+
     return (
         <View className="flex-row items-start gap-2" aria-label='containerComment' onLayout={onLayout}>
-            <Image
-                source={creator?.avatar ? { uri: creator.avatar } : images.person}
-                className="w-10 h-10 rounded-full"
-                alt={`Avatar de ${creator?.username || 'usuário desconhecido'}`}
-            />
+            <ButtonScale scale={1.03} onPress={() => handleNavigateToProfile(creator.$id)}>
+                <Image
+                    source={creator?.avatar ? { uri: creator.avatar } : images.person}
+                    className="w-10 h-10 rounded-full"
+                    alt={`Avatar de ${creator?.username || 'usuário desconhecido'}`}
+                />
+            </ButtonScale>
             <View className="flex-1">
                 <Text className="text-textStandardDark text-sm">{creator?.username}</Text>
                 <Text className="text-textStandardDark text-sm">{content}</Text>

@@ -80,7 +80,7 @@ const databases = new Databases(client);
       const user = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.userCollectionId,
-        [Query.equal('$id', [accountId])]
+        [Query.equal("$id", [accountId])]
       );
 
       // Verifica se o usuário foi encontrado
@@ -451,7 +451,6 @@ export async function getCityAndStateByZipCode(zipCode) {
         {
           followerId,
           followingId,
-          createdAt: new Date().toISOString(),
         }
       );
       return followDocument;
@@ -485,31 +484,163 @@ export async function getCityAndStateByZipCode(zipCode) {
     }
   }
 
-  export async function getFollowers(userId) {
+  export async function getFollowers(userId, page = 1, limit = 10) {
     try {
+      const offset = (page - 1) * limit; // Cálculo para o deslocamento (pular itens anteriores)
+  
+      // Consulta para buscar seguidores
       const followers = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [
+          Query.equal("followingId", userId),
+          Query.orderDesc("$createdAt"), // Ordena por data de criação
+          Query.limit(limit),           // Limita o número de resultados por página
+          Query.offset(offset),         // Define o deslocamento
+        ]
+      );
+  
+      return {
+        documents: followers.documents, // Retorna os seguidores
+        total: followers.total,         // Retorna o total de seguidores
+        pages: Math.ceil(followers.total / limit), // Calcula o número total de páginas
+      };
+    } catch (error) {
+      console.error("Erro ao obter seguidores:", error);
+      throw error;
+    }
+  }
+  
+  export async function getFollowing(userId, page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit; // Cálculo para o deslocamento (pular itens anteriores)
+  
+      // Consulta para buscar quem o usuário está seguindo
+      const following = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [
+          Query.equal("followerId", userId),
+          Query.orderDesc("$createdAt"), // Ordena por data de criação
+          Query.limit(limit),           // Limita o número de resultados por página
+          Query.offset(offset),         // Define o deslocamento
+        ]
+      );
+  
+      return {
+        documents: following.documents, // Retorna os usuários seguidos
+        total: following.total,         // Retorna o total de usuários seguidos
+        pages: Math.ceil(following.total / limit), // Calcula o número total de páginas
+      };
+    } catch (error) {
+      console.error("Erro ao obter seguindo:", error);
+      throw error;
+    }
+  }
+
+  export async function getFollowerCount(userId) {
+    try {
+      // Consulta para contar o número de seguidores de um usuário
+      const result = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.followsCollectionId,
         [Query.equal("followingId", userId)]
       );
-      return followers.documents;
+  
+      return result.total; // Retorna o total de seguidores
     } catch (error) {
-      console.error("Erro ao obter seguidores:", error);
+      console.error("Erro ao obter o número de seguidores:", error);
+      return 0; // Retorna 0 em caso de erro
     }
   }
 
-  export async function getFollowing(userId) {
+  export async function getFollowingCount(userId) {
     try {
-      const following = await databases.listDocuments(
+      // Consulta para contar o número de usuários seguidos por um usuário
+      const result = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.followsCollectionId,
         [Query.equal("followerId", userId)]
       );
-      return following.documents;
+  
+      return result.total; // Retorna o total de usuários seguidos
     } catch (error) {
-      console.error("Erro ao obter lista de seguindo:", error);
+      console.error("Erro ao obter o número de usuários seguidos:", error);
+      return 0; // Retorna 0 em caso de erro
     }
   }
+  
+  export async function checkIfFollowing(followerId, followingId) {
+    try {
+      const follows = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [
+          Query.equal("followerId", followerId),
+          Query.equal("followingId", followingId),
+        ]
+      );
+  
+      return follows.documents.length > 0; // Retorna true se existir um documento
+    } catch (error) {
+      console.error("Erro ao verificar se está seguindo:", error);
+      return false; // Retorna falso em caso de erro
+    }
+  }
+
+  export async function getSuggestedFriends(userId, page = 1, limit = 10) {
+    try {
+      // Validar se o ID do usuário é fornecido
+      if (!userId) {
+        throw new Error("ID do usuário é obrigatório");
+      }
+  
+      // Calcular o deslocamento para a paginação
+      const offset = (page - 1) * limit;
+  
+      // Buscar os IDs dos usuários que o usuário atual segue
+      const followingResponse = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.followsCollectionId,
+        [
+          Query.equal("followerId", userId),
+          Query.select(["followingId"])
+        ]
+      );
+  
+      // Extrair os IDs dos usuários seguidos
+      const followedUserIds = followingResponse.documents.map(doc => doc.followingId);
+  
+      // Preparar as consultas para buscar usuários não seguidos
+      const queries = [
+        Query.notEqual("$id", userId), // Excluir o próprio usuário
+        ...followedUserIds.map(id => Query.notEqual("$id", id)) // Excluir usuários já seguidos
+      ];
+  
+      // Buscar usuários não seguidos com paginação
+      const notFollowingUsers = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        [
+          ...queries,
+          Query.orderDesc("$createdAt"), // Opcional: ordenar por data de criação
+          Query.limit(limit),
+          Query.offset(offset)
+        ]
+      );
+  
+      return {
+        documents: notFollowingUsers.documents, // Usuários não seguidos
+        total: notFollowingUsers.total, // Total de usuários encontrados
+        pages: Math.ceil(notFollowingUsers.total / limit), // Total de páginas
+        currentPage: page // Página atual
+      };
+    } catch (error) {
+      console.error("Erro ao buscar usuários não seguidos:", error);
+      throw error;
+    }
+  }
+  
 //FIM funcoes follow
 
 //INICIO funcoes comentario
@@ -536,7 +667,7 @@ export async function getCityAndStateByZipCode(zipCode) {
       };
     } catch (error) {
       console.error("Erro ao obter comentários do post:", error.message);
-      return { documents: [], total: 0, pages: 0 };  // Retorna dados padrão em caso de erro
+      throw error;
     }
   }
 
