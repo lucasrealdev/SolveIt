@@ -143,7 +143,7 @@ export default function MenuRight() {
           <ButtonScale
             scale={1.07}
             className="flex p-[11px] border border-borderStandard rounded-full">
-            <CustomIcons name="chat" size={24} color="#475569" />
+            <CustomIcons name="upgrade" size={24} color="#475569" />
           </ButtonScale>
         </View>
       </View>

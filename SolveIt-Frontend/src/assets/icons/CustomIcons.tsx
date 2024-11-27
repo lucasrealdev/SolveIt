@@ -757,6 +757,23 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 ></Path>
             </Svg>
         ),
+        upgrade: (
+            <Svg
+                width={size}
+                height={size}
+                fill="none"
+                viewBox="0 0 24 24"
+            >
+                <G fill={color} clipPath="url(#clip0_1437_5149)">
+                    <path d="M15.75 18h-7.5a1.5 1.5 0 0 0-1.5 1.5V21a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-1.5a1.5 1.5 0 0 0-1.5-1.5m0 3h-7.5v-1.5h7.5zM21.53 10.72l-9-9a.75.75 0 0 0-1.06 0l-9 9A.75.75 0 0 0 3 12h3.75v3a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-3H21a.75.75 0 0 0 .53-1.28m-5.78-.22V15h-7.5v-4.5H4.81L12 3.31l7.19 7.19z"></path>
+                </G>
+                <Defs>
+                    <clipPath id="clip0_1437_5149">
+                        <Path fill="#fff" d="M0 0h24v24H0z"></Path>
+                    </clipPath>
+                </Defs>
+            </Svg>
+        )
     };
     return Icons[name] || undefined;
 }
