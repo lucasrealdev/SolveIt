@@ -242,11 +242,6 @@ export default function Friends() {
                     <Text className="text-white text-[14px] font-bold">{followingCount}</Text>
                   </Pressable>
                 </View>
-                <ButtonScale
-                  scale={1.07}
-                  className="flex p-[11px] border border-borderStandard rounded-full">
-                  <CustomIcons name="chat" size={24} color="#475569" />
-                </ButtonScale>
               </View>
             </View>
 

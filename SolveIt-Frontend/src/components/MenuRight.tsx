@@ -140,16 +140,11 @@ export default function MenuRight() {
           }
         </Pressable>
         <View className="flex flex-row gap-2">
-          {['chat', 'notificacao'].map((icon, index) => {
-            return (
-              <ButtonScale
-                key={index}
-                scale={1.07}
-                className="flex p-[11px] border border-borderStandard rounded-full">
-                <CustomIcons name={icon} size={24} color="#475569" />
-              </ButtonScale>
-            );
-          })}
+          <ButtonScale
+            scale={1.07}
+            className="flex p-[11px] border border-borderStandard rounded-full">
+            <CustomIcons name="chat" size={24} color="#475569" />
+          </ButtonScale>
         </View>
       </View>
 

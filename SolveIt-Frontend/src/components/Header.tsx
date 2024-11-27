@@ -1,23 +1,19 @@
 import CustomIcons from "@/assets/icons/CustomIcons";
-import { View, Image, Text, useWindowDimensions } from "react-native";
+import { usePathname, useRouter } from "expo-router";
+import { View, Image, Text, useWindowDimensions, Pressable } from "react-native";
 
-interface HeaderProps {
-  notificacao?: number;
-  conversas?: number;
-}
-
-export default function Header({ notificacao, conversas }: HeaderProps) {
+export default function Header({ }) {
   const { width } = useWindowDimensions();
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   if (width >= 770) return null; // Retorna nulo se não for mobile
 
-  const renderBadge = (count?: number) => (
-    count !== undefined && (
-      <View className="absolute bg-white w-[16px] h-[16px] rounded-full items-center justify-center top-[-5px] right-[-10px]">
-        <Text className="text-[#0172B1] text-[10px] leading-3 font-semibold">{count}</Text>
-      </View>
-    )
-  );
+  const navigateTo = (route: string) => {
+    router[route !== pathname ? 'push' : 'replace'](route);
+  };
+
 
   return (
     <View className="w-full flex flex-row px-4 py-3 bg-destaqueAzul justify-between items-center">
@@ -26,14 +22,12 @@ export default function Header({ notificacao, conversas }: HeaderProps) {
         source={{ uri: 'https://i.ibb.co/wBqcsxM/Logo.png' }}
       />
       <View className="flex flex-row gap-[15px]">
-        <View className="relative">
-          <CustomIcons name="notificacao" size={26} color="#fff" />
-          {renderBadge(notificacao)}
-        </View>
-        <View className="relative">
-          <CustomIcons name="chat" size={26} color="#fff" />
-          {renderBadge(conversas)}
-        </View>
+        <Pressable className="relative" onPress={() => navigateTo("/help")}>
+          <CustomIcons name="ajuda" size={26} color="#fff" />
+        </Pressable>
+        <Pressable className="relative" onPress={() => navigateTo("/settings")}>
+          <CustomIcons name="settings" size={26} color="#fff" />
+        </Pressable>
       </View>
     </View>
   );

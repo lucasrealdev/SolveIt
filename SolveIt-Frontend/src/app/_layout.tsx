@@ -64,7 +64,7 @@ export default function Layout() {
         <SafeAreaView style={{ flex: 1, backgroundColor: "#0172B1" }} edges={["top"]}>
           <View className='flex flex-1' aria-label="containerLayout" style={{ flexDirection: isMobile }}>
             {/* Renderiza o menu apenas se a rota atual estiver na lista de exibição */}
-            {shouldShowMenu && <Menu home={10} friends={2} />}
+            {shouldShowMenu && <Menu friends={2} />}
             
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -74,7 +74,7 @@ export default function Layout() {
             </Stack>
 
             {/* Renderiza o header apenas se a rota atual estiver na lista de exibição */}
-            {shouldShowHeader && <Header notificacao={10} conversas={9} />}
+            {shouldShowHeader && <Header/>}
           </View>
         </SafeAreaView>
       </AlertProvider>

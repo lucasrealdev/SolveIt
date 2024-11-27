@@ -234,7 +234,6 @@ export async function getCityAndStateByZipCode(zipCode) {
   // Função para fazer upload de um arquivo
   export async function uploadFile(file, type, isWeb) {
     if (!file) return;
-    console.log(file, type, isWeb);
     try {
       let uploadedFile;
 

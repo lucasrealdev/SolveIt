@@ -114,7 +114,7 @@ const CardFriend: React.FC<CardFriendProps> = ({ idUser, label }) => {
       <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(idUser)}>
         <Image
           source={{ uri: userData.avatar }}
-          className={`border-white border-[2px] rounded-full ${label === 'menu' ? 'w-[40px] h-[40px]' : 'w-[50px] h-[50px]'}`}
+          className={`border-white border-[2px] rounded-full ${label === 'menu' ? 'w-[45px] h-[45px]' : 'w-[50px] h-[50px]'}`}
         />
       </ButtonScale>
       <View className="flex-1 gap-[1px]">
