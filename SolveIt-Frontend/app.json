@@ -3,6 +3,7 @@
     "scheme": "SolveIt",
     "userInterfaceStyle": "automatic",
     "orientation": "portrait",
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "cover",

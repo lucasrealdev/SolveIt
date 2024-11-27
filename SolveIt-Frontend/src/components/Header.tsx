@@ -1,4 +1,5 @@
 import CustomIcons from "@/assets/icons/CustomIcons";
+import images from "@/constants/images";
 import { usePathname, useRouter } from "expo-router";
 import { View, Image, Text, useWindowDimensions, Pressable } from "react-native";
 
@@ -19,7 +20,7 @@ export default function Header({ }) {
     <View className="w-full flex flex-row px-4 py-3 bg-destaqueAzul justify-between items-center">
       <Image
         style={{ width: 115, height: 32 }}
-        source={{ uri: 'https://i.ibb.co/wBqcsxM/Logo.png' }}
+        source={images.logo}
       />
       <View className="flex flex-row gap-[15px]">
         <Pressable className="relative" onPress={() => navigateTo("/help")}>

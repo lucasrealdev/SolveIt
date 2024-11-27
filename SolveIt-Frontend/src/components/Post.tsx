@@ -156,7 +156,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
   const copySharedPostLink = () => {
     try {
-      const url = `${window.location.origin}/postDetails/${post.$id}?shared=true`; // Melhor uso do origin
+      const url = `https://solveitb.netlify.app/postDetails/${post.$id}?shared=true`; // Melhor uso do origin
       Clipboard.setStringAsync(url);
       showAlert('Link Copiado!', 'O link foi copiado para a área de transferência.');
     } catch (error) {
