@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, ActivityIndicator, ScrollView, Image as RNImage } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 import CustomIcons from '@/assets/icons/CustomIcons';
 import ButtonScale from './ButtonScale';
@@ -48,6 +49,8 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const LIMIT = 10; // Número de comentários por página
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const fetchPostData = async () => {
     try {
@@ -101,21 +104,24 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
   const renderImage = () => {
     if (!post.thumbnail) return null;
-
+  
     const allowedRatios = {
       "1:1": 1,
       "16:9": 16 / 9,
       "4:5": 4 / 5,
     };
-
+  
     const selectedRatio = allowedRatios[post.thumbnailRatio] || allowedRatios["1:1"];
+    
     return (
       <View className="w-full items-center">
         <View style={{ width: "100%", aspectRatio: selectedRatio, maxWidth: 600 }} aria-label="ImagePost">
           <Image
             source={{ uri: post.thumbnail }}
             style={{ width: "100%", height: "100%", borderRadius: 16 }}
-            resizeMode="cover"
+            contentFit="cover"
+            placeholder={{ blurhash }}
+            cachePolicy="memory-disk"  // Usa cache para evitar re-downloads
           />
         </View>
       </View>
@@ -222,12 +228,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
               <CustomIcons name="anterior" color={colors.textStandard.standard} size={24} />
             </ButtonScale>
             <ButtonScale scale={1} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-              <Image source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+              <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]"/>
             </ButtonScale>
           </View>
         ) : (
           <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-            <Image source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+            <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]"/>
           </ButtonScale>
         )}
         <View aria-label="ContainerText">

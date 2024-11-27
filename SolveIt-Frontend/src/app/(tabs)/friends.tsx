@@ -209,7 +209,7 @@ export default function Friends() {
     ));
   };
 
-  if (!user || loading) {
+  if (!user) {
     return (
       <View className="mt-4">
         <ActivityIndicator size="large" color="#3692C5" />
@@ -256,20 +256,21 @@ export default function Friends() {
               {((activeTab === 'followers' && hasMoreFollowers) ||
                 (activeTab === 'following' && hasMoreFollowing)) && (
                   <HoverColorComponent
-                    className="flex flex-row gap-2 w-full justify-center my-4"
-                    colorHover={colors.accentStandardDark.hover}
-                    colorPressIn={colors.accentStandardDark.pressIn}
+                  className="flex flex-row gap-2 w-full justify-center my-4"
+                  colorHover={colors.accentStandardDark.hover}
+                  colorPressIn={colors.accentStandardDark.pressIn}
                     onPress={() => fetchMoreUsers(activeTab)}
                   >
-                    <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
-                      Carregar Mais
-                    </Text>
-
-                    <CustomIcons
-                      name="mais"
-                      color='#01B198'
-                      size={20}
-                    />
+                    {loading ? (
+                      <ActivityIndicator size="small" color="#01B198" />
+                    ) : (
+                      <>
+                        <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
+                          Carregar Mais
+                        </Text>
+                        <CustomIcons name="mais" color="#01B198" size={20} />
+                      </>
+                    )}
                   </HoverColorComponent>
                 )}
             </View>
@@ -287,20 +288,21 @@ export default function Friends() {
 
               {hasMoreSuggestedFriends && (
                 <HoverColorComponent
-                  className="flex flex-row gap-2 w-full justify-center my-4"
-                  colorHover={colors.accentStandardDark.hover}
-                  colorPressIn={colors.accentStandardDark.pressIn}
+                className="flex flex-row gap-2 w-full justify-center my-4"
+                colorHover={colors.accentStandardDark.hover}
+                colorPressIn={colors.accentStandardDark.pressIn}
                   onPress={() => fetchMoreUsers('suggested')}
                 >
-                  <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
-                    Carregar Mais
-                  </Text>
-
-                  <CustomIcons
-                    name="mais"
-                    color='#01B198'
-                    size={20}
-                  />
+                  {loading ? (
+                    <ActivityIndicator size="small" color="#01B198" />
+                  ) : (
+                    <>
+                      <Text className="font-bold text-[15px] justify-center" style={{ color: "#01b297" }}>
+                        Carregar Mais
+                      </Text>
+                      <CustomIcons name="mais" color="#01B198" size={20} />
+                    </>
+                  )}
                 </HoverColorComponent>
               )}
             </View>

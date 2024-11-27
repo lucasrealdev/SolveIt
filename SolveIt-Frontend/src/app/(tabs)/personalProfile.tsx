@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl } from "react-native";
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
@@ -14,6 +14,7 @@ import Post from "@/components/Post";
 const PersonalProfile = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
+  const pathname = usePathname();
   const [buttonWidth, setButtonWidth] = useState(0);
   const { user } = useGlobalContext();
 
@@ -141,6 +142,10 @@ const PersonalProfile = () => {
     );
   };
 
+  const navigateTo = (route: string) => {
+    router[route !== pathname ? 'push' : 'replace'](route);
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -178,12 +183,12 @@ const PersonalProfile = () => {
           <Text className="font-bold text-xl text-textStandardDark">{user?.username || "Nome do Usuário"}</Text>
           <Text className="text-base">{user?.biography || "Opa, sou novo por aqui!"}</Text>
           <View className="w-full mt-6 mb-3 gap-4 items-center justify-center flex-row">
-            <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
+            <ButtonScale className="flex-col justify-center items-center" scale={1.05} onPress={() => navigateTo("/friends")}>
               <Text className="text-textStandardDark font-semibold text-lg">{followersCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguidores</Text>
             </ButtonScale>
 
-            <ButtonScale className="flex-col justify-center items-center" scale={1.05}>
+            <ButtonScale className="flex-col justify-center items-center" scale={1.05} onPress={() => navigateTo("/friends")}>
               <Text className="text-textStandardDark font-semibold text-lg">{followingCount}</Text>
               <Text className="text-textSecondary font-semibold text-lg">Seguindo</Text>
             </ButtonScale>

@@ -38,6 +38,14 @@
     },
     "name": "SolveIt",
     "slug": "SolveIt",
-    "icon": "./src/assets/adaptive-icon.png"
+    "icon": "./src/assets/adaptive-icon.png",
+    "extra": {
+      "router": {
+        "origin": "https://n"
+      },
+      "eas": {
+        "projectId": "86b5d3f9-d1e3-46d3-8220-12f69c611566"
+      }
+    }
   }
 }

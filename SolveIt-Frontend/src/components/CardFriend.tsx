@@ -82,6 +82,10 @@ const CardFriend: React.FC<CardFriendProps> = ({ idUser, label }) => {
     }
   };
 
+  if(label === "menu" && loading){
+    return null;
+  }
+
   if (loading) {
     return (
       <View className="flex flex-row justify-center items-center py-4">
