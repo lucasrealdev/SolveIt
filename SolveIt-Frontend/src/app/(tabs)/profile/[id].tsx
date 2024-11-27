@@ -38,6 +38,8 @@ const Profile = () => {
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
 
+  const [currentStatus, setCurrentStatus] = useState(null);
+
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -58,6 +60,14 @@ const Profile = () => {
         setFollowersCount(followersCount);
         setFollowingCount(followingCount);
         setIsFollowing(isFollowing);
+
+        const profileData = await getUserProfile(id);
+        setUserData(profileData);
+        // Verifica o status do usuário
+        if (user?.isOnline !== undefined) {
+          // Define o status diretamente como booleano
+          setCurrentStatus(profileData.isOnline);
+        }
       } catch (error) {
         console.error("Erro ao buscar informações de amigos:", error);
       } finally {
@@ -70,16 +80,13 @@ const Profile = () => {
     }
   }, [id, user?.$id]);
 
-
   const fetchPosts = useCallback(
     async (refresh = false) => {
       if (refresh) {
         setLoading(true);
         setPage(1);
         try {
-          const profileData = await getUserProfile(id);
           const { documents, pages } = await getUserPosts(id, 1, POSTS_PER_PAGE);
-          setUserData(profileData);
           setPosts(documents);
           setHasMore(pages > 1);
         } catch (error) {
@@ -236,7 +243,30 @@ const Profile = () => {
             </ButtonScale>
           </View>
           <View className="flex flex-row justify-between items-end px-[5px] mt-[-75px]">
-            <Image source={{ uri: userData.avatar }} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
+            <View className="relative">
+              {userData?.avatar ? (
+                <>
+                  <ButtonScale scale={1.01} className="flex-row items-center justify-center">
+                    <Image
+                      source={{ uri: userData.avatar }}
+                      className="border-[3px] rounded-full w-[120px] h-[120px] bg-white"
+                      resizeMode="cover"
+                    />
+
+                    {currentStatus !== null && (
+                      <View
+                        className={`w-5 h-5 border-white border-[2px] rounded-full absolute bottom-1 right-1 ${currentStatus
+                            ? "bg-green-500"  // Se o status for verdadeiro, mostra verde
+                            : "bg-red-500"   // Caso contrário, mostra vermelho
+                          }`}
+                      />
+                    )}
+                  </ButtonScale>
+                </>
+              ) : (
+                <ActivityIndicator size="small" color="#01B198" />
+              )}
+            </View>
             <ButtonScale
               className="bg-primaryStandardDark px-[20px] py-[12px] rounded-full"
               scale={1.06}

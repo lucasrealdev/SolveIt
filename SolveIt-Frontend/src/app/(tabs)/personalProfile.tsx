@@ -7,15 +7,16 @@ import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getFollowerCount, getFollowingCount, getUserPosts } from "@/lib/appwriteConfig";
+import { getFollowerCount, getFollowingCount, getUserPosts, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import Post from "@/components/Post";
+import { useAlert } from "@/context/AlertContext";
 
 const PersonalProfile = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const pathname = usePathname();
   const [buttonWidth, setButtonWidth] = useState(0);
-  const { user } = useGlobalContext();
+  const { user, setUser } = useGlobalContext();
 
   const [posts, setPosts] = useState([]); // Armazena todas as postagens
   const [loading, setLoading] = useState(false); // Controla o estado de carregamento inicial
@@ -24,8 +25,13 @@ const PersonalProfile = () => {
   const [hasMore, setHasMore] = useState(true); // Indica se há mais postagens para carregar
   const POSTS_PER_PAGE = 3; // Número de postagens por página
 
+  const [currentStatus, setCurrentStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+
+  const { showAlert } = useAlert();
 
   // Função para buscar posts iniciais
   const fetchPosts = async (refresh = false) => {
@@ -46,6 +52,12 @@ const PersonalProfile = () => {
         // Definir os dados no estado
         setFollowersCount(followersCount);
         setFollowingCount(followingCount);
+
+        // Verifica o status do usuário
+        if (user?.isOnline !== undefined) {
+          // Define o status diretamente como booleano
+          setCurrentStatus(user.isOnline);
+        }
       } catch (error) {
         console.error('Erro ao buscar posts:', error);
       } finally {
@@ -73,6 +85,23 @@ const PersonalProfile = () => {
       console.error('Erro ao buscar mais posts:', error);
     } finally {
       setLoadingMore(false);
+    }
+  };
+
+  const handleStatusToggle = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      const newStatus = await toggleUserOnlineStatus();
+      // Atualiza o status no estado local e global
+      setCurrentStatus(newStatus);
+      setUser({ ...user, isOnline: newStatus });
+      const statusMessage = newStatus ? "Estado alterado para online" : "Estado alterado para offline";
+      showAlert("Sucesso!", statusMessage);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +151,26 @@ const PersonalProfile = () => {
     return (
       <View className="relative">
         {user?.avatar ? (
-          <Image source={{ uri: user.avatar }} className="border-[3px] rounded-full w-[140px] h-[140px]" resizeMode="cover" />
+          <>
+            <ButtonScale scale={1.01} onPress={handleStatusToggle} disabled={isLoading} className="flex-row items-center justify-center">
+              <Image
+                source={{ uri: user.avatar }}
+                className="border-[3px] rounded-full w-[120px] h-[120px] bg-white"
+                resizeMode="cover"
+              />
+
+              {currentStatus !== null && (
+                <View
+                  className={`w-5 h-5 border-white border-[2px] rounded-full absolute bottom-1 right-1 ${isLoading
+                    ? "bg-gray-400"  // Se estiver carregando, mostra o status cinza
+                    : currentStatus
+                      ? "bg-green-500"  // Se o status for verdadeiro, mostra verde
+                      : "bg-red-500"   // Caso contrário, mostra vermelho
+                    }`}
+                />
+              )}
+            </ButtonScale>
+          </>
         ) : (
           <ActivityIndicator size="small" color={iconColor} />
         )}
@@ -170,7 +218,7 @@ const PersonalProfile = () => {
               <CustomIcons name="anterior" color="#475569" size={24} />
             </ButtonScale>
           </View>
-          <View className="flex flex-row justify-between items-end px-[20px] mt-[-75px]">
+          <View className="flex flex-row justify-between items-end px-[5px] mt-[-75px]">
             {renderProfileIcon()}
             <HoverColorComponent colorHover={colors.primaryStandardDark.hover} colorPressIn={colors.primaryStandardDark.pressIn}>
               <Text className="underline font-bold" style={{ color: colors.primaryStandardDark.standard }}>Editar Perfil</Text>
