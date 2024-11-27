@@ -1,12 +1,17 @@
 import React from 'react';
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, usePathname } from 'expo-router';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import Loader from '@/components/Loader';
 
 const TabsLayout = () => {
-  const {loading, isLogged} = useGlobalContext();
-  if (!loading && !isLogged) return <Redirect href="/signin" />;
-  
+  const { loading, isLogged } = useGlobalContext();
+  const pathname = usePathname();
+
+  // Verifique se a URL atual contém "postdetails", caso contrário, redirecione
+  if (!loading && !isLogged && !pathname.includes('postdetails')) {
+    return <Redirect href="/signin" />;
+  }
+
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
