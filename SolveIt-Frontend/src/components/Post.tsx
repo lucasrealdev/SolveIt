@@ -156,7 +156,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
   const copySharedPostLink = () => {
     try {
-      const url = `https://solveitb.netlify.app/postDetails/${post.$id}?shared=true`; // Melhor uso do origin
+      const url = `https://solveitb.netlify.app/postdetails/${post.$id}?shared=true`; // Melhor uso do origin
       Clipboard.setStringAsync(url);
       showAlert('Link Copiado!', 'O link foi copiado para a área de transferência.');
     } catch (error) {
@@ -177,7 +177,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       {
         icon: 'comentarios',
         text: commentCount,
-        action: typePost !== "postDetails" ? () => navigateTo(`/postDetails/${post.$id}`) : undefined,
+        action: typePost !== "postDetails" ? () => navigateTo(`/postdetails/${post.$id}`) : undefined,
       },
       {
         icon: 'compartilhar',
@@ -245,7 +245,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         </View>
       </View>
       {typePost !== "postDetails" && (
-        <HoverColorComponent colorHover={colors.primaryStandardDark.standard} className="w-fit" onPress={() => navigateTo(`/postDetails/${post.$id}`)}>
+        <HoverColorComponent colorHover={colors.primaryStandardDark.standard} className="w-fit" onPress={() => navigateTo(`/postdetails/${post.$id}`)}>
           <Text className="text-xs underline" style={{ color: colors.textSecondary.standard }}>Ver Tudo</Text>
         </HoverColorComponent>
       )}

@@ -44,13 +44,13 @@ export default function Layout() {
   if (!fontsLoaded && !error) return null;
 
   const showRoutes = {
-    menu: ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/', '/postDetails/', '/personalProfile'],
-    header: ['/', '/help', '/friends', '/settings', '/games', '/createPost', '/profile/', '/postDetails/', '/personalProfile'],
+    menu: ['/', '/help', '/friends', '/settings', '/games', '/createpost', '/profile/', '/postdetails/', '/personalprofile'],
+    header: ['/', '/help', '/friends', '/settings', '/games', '/createpost', '/profile/', '/postdetails/', '/personalprofile'],
   };
   
   const hideRoutes = {
-    menu: ['/signUp', '/signIn'], // Adicione rotas onde o Menu não deve aparecer
-    header: ['/signUp', '/signIn'], // Adicione rotas onde o Header não deve aparecer
+    menu: ['/signup', '/signin'], // Adicione rotas onde o Menu não deve aparecer
+    header: ['/signup', '/signin'], // Adicione rotas onde o Header não deve aparecer
   };
   
   const shouldShowMenu = showRoutes.menu.some(route => pathname.startsWith(route)) && !hideRoutes.menu.some(route => pathname.startsWith(route));

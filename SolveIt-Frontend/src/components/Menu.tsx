@@ -95,7 +95,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
     setIsLogged(false);
 
     showAlert("Sucesso", "Você saiu da conta com sucesso!");
-    router.replace("/signIn");
+    router.replace("/signin");
   };
 
   const renderDesktopMenu = () => (
@@ -137,7 +137,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
             {
               user && user.avatar ? (
                 // Renderize a imagem quando user.avatar estiver disponível
-                <ButtonScale scale={1.05} onPress={() => router.push("/personalProfile")}>
+                <ButtonScale scale={1.05} onPress={() => router.push("/personalprofile")}>
                   <Image
                   source={{ uri: user.avatar }}
                   className="w-[40px] h-[40px] rounded-full"
@@ -177,9 +177,9 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
       <View className="flex w-full max-w-[400px] flex-row justify-between">
         {renderMenuButtonMobile('/', 'home', home)}
         {renderMenuButtonMobile('/games', 'jogos', games)}
-        {renderMenuButtonMobile('/createPost', 'createPost')}
+        {renderMenuButtonMobile('/createpost', 'createPost')}
         {renderMenuButtonMobile('/friends', 'amigos', friends)}
-        {renderMenuButtonMobile('/personalProfile', 'profile', profile)}
+        {renderMenuButtonMobile('/personalprofile', 'profile', profile)}
       </View> 
     </View>
   );

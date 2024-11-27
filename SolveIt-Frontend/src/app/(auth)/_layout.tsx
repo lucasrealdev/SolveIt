@@ -7,13 +7,13 @@ const AuthLayout = () => {
     <View className="flex-1">
       <Stack>
         <Stack.Screen
-          name="signIn"
+          name="signin"
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name="signUp"
+          name="signup"
           options={{
             headerShown: false,
           }}

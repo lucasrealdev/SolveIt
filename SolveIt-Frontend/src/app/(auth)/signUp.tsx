@@ -149,7 +149,7 @@ export default function SignUp() {
 
               <View className="w-full flex items-center flex-row justify-center">
                 <Text className="text-textStandardDark font-bold">Você já tem uma conta?{' '}</Text>
-                <HoverColorComponent onPress={() => router.push('/signIn')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
+                <HoverColorComponent onPress={() => router.push('/signin')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
                   <Text className="font-bold" style={{color: "#01b297"}}>Entre</Text>
                 </HoverColorComponent>
               </View>

@@ -5,7 +5,7 @@ import Loader from '@/components/Loader';
 
 const TabsLayout = () => {
   const {loading, isLogged} = useGlobalContext();
-  if (!loading && !isLogged) return <Redirect href="/signIn" />;
+  if (!loading && !isLogged) return <Redirect href="/signin" />;
   
   return (
     <>
@@ -14,10 +14,10 @@ const TabsLayout = () => {
         <Stack.Screen name="friends" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="games" options={{ headerShown: false }} />
-        <Stack.Screen name="createPost" options={{ headerShown: false }} />
+        <Stack.Screen name="createpost" options={{ headerShown: false }} />
         <Stack.Screen name="profile/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="personalProfile" options={{ headerShown: false }} />
-        <Stack.Screen name="postDetails/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="personalprofile" options={{ headerShown: false }} />
+        <Stack.Screen name="postdetails/[id]" options={{ headerShown: false }} />
       </Stack>
 
       <Loader isLoading={loading} />

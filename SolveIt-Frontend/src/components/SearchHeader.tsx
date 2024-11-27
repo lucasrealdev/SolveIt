@@ -31,7 +31,7 @@ export default function SearchHeader() {
                 </Pressable>
             </View>
             <Button
-                onPress={() => navigateTo("createPost")}
+                onPress={() => navigateTo("createpost")}
                 className="rounded-full bg-accentStandardDark gap-[10px] px-5 py-3"
             >
                 <TextButton text="Contribuir no mundo" style="text-white font-bold" />
