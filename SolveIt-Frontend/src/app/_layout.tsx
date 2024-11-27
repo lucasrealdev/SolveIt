@@ -58,6 +58,10 @@ export default function Layout() {
 
   const isMobile = width <= 770 ? "column-reverse" : "row";
 
+  if(!width){
+    return;
+  }
+
   return (
     <GlobalProvider>
       <AlertProvider>

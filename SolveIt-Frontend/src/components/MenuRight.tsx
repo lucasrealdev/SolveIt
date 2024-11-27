@@ -30,28 +30,28 @@ export default function MenuRight() {
   // Supondo que `getSuggestedFriends` é uma função que retorna usuários sugeridos
   useEffect(() => {
     if (!isMobile) return;
-  
+
     const fetchSuggestedFriends = async () => {
       try {
         // Chama a função getSuggestedFriends passando o userId, página 1 e limitando a 5 resultados
         const suggestedFriendsData = await getSuggestedFriends(user?.$id, 1, 5);
-  
+
         // Atualiza o estado com os 5 primeiros amigos sugeridos
         setSuggestedFriends(suggestedFriendsData.documents);
-  
+
         const eventsData = await getAllEvents();
         setEvents(eventsData);
       } catch (error) {
         console.error("Error fetching initial data:", error);
       }
     };
-  
+
     // Verifica o status do usuário
     if (user?.isOnline !== undefined) {
       // Define o status diretamente como booleano
       setCurrentStatus(user.isOnline);
     }
-  
+
     // Chama a função para buscar os amigos sugeridos
     if (user?.$id) {
       fetchSuggestedFriends();
@@ -75,14 +75,14 @@ export default function MenuRight() {
     }
   };
 
-  if(!isMobile){
+  if (!isMobile) {
     return null;
   }
 
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
   };
-  
+
   const renderUserCardsSuggested = () => {
     return suggestedFriends.map((user, index) => (
       <CardAmigo
@@ -96,15 +96,15 @@ export default function MenuRight() {
   const renderEventCard = (event) => {
     return (
       <View key={event.$id} aria-label="CardEvento" className="flex flex-row border-t border-borderStandardLight py-[12px] gap-3 items-center">
-      <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
-        <CustomIcons name={event.icon} color="#01B198" size={20} />
+        <View className="w-[40px] h-[40px] flex items-center justify-center bg-[#EEF2FF] rounded-full">
+          <CustomIcons name={event.icon} color="#01B198" size={20} />
+        </View>
+        <View className="flex flex-1">
+          <Text className="text-textSecondary font-bold text-[14px]">{event.title}</Text>
+          <Text className="text-textSecondary font-normal text-[14px]">{event.dateEvent}</Text>
+        </View>
+        <CustomIcons name="notificacao" color="#94A3B8" size={20} />
       </View>
-      <View className="flex flex-1">
-        <Text className="text-textSecondary font-bold text-[14px]">{event.title}</Text>
-        <Text className="text-textSecondary font-normal text-[14px]">{event.dateEvent}</Text>
-      </View>
-      <CustomIcons name="notificacao" color="#94A3B8" size={20} />
-    </View>
     );
   };
 
@@ -165,14 +165,16 @@ export default function MenuRight() {
           {renderUserCardsSuggested()}
         </View>
 
-        <View aria-label="ContainerEventos" className={isTablet}>
-          <View aria-label="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
-            <Text className="font-bold text-[18px]">Próximos eventos</Text>
-          </View>
+        {events.length > 0 && (
+          <View aria-label="ContainerEventos" className={isTablet}>
+            <View aria-label="ContainerTexto" className="flex flex-row justify-between items-center pb-6">
+              <Text className="font-bold text-[18px]">Próximos eventos</Text>
+            </View>
 
-          {/* Mapeia os eventos dinamicamente */}
-          {events.map((event) => renderEventCard(event))}
-        </View>
+            {/* Mapeia os eventos dinamicamente */}
+            {events.map((event) => renderEventCard(event))}
+          </View>
+        )}
       </View>
     </View>
   );

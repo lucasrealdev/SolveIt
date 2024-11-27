@@ -155,7 +155,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
                   <Text className="text-textStandard font-medium text-sm">Membro {user.accountType}</Text>
                 </>
               ) : (
-                <Pressable onPress={() => router.push("/signIn")}>
+                <Pressable onPress={() => router.push("/signin")}>
                   <Text className="text-white font-bold text-base">Faça login.</Text>
                 </Pressable>
               )}
