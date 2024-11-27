@@ -37,23 +37,23 @@ const Profile = () => {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
-  
+
   const { showAlert } = useAlert();
 
   useEffect(() => {
     const fetchPost = async () => {
       setLoading(true);
-  
+
       try {
         // 1. Obter o número de seguidores
         const followersCount = await getFollowerCount(id);
-  
+
         // 2. Obter o número de "seguindo"
         const followingCount = await getFollowingCount(id);
-  
+
         // 3. Verificar se o usuário atual está seguindo o perfil
         const isFollowing = await checkIfFollowing(user?.$id, id);
-  
+
         // Definir os dados no estado
         setFollowersCount(followersCount);
         setFollowingCount(followingCount);
@@ -64,12 +64,12 @@ const Profile = () => {
         setLoading(false);
       }
     };
-  
+
     if (id) {
       fetchPost();
     }
   }, [id, user?.$id]);
-  
+
 
   const fetchPosts = useCallback(
     async (refresh = false) => {
@@ -190,7 +190,7 @@ const Profile = () => {
   // Função para alternar entre "Seguir" e "Seguindo"
   const toggleFollow = async () => {
     if (loading) return; // Evita chamadas repetidas enquanto a ação está em andamento
-  
+
     if (user?.$id === id) {
       showAlert("Ação inválida", "Você não pode seguir a si mesmo.");
       return; // Retorna para não permitir a ação de seguir
@@ -213,7 +213,7 @@ const Profile = () => {
     } finally {
       setLoadingButton(false);
     }
-  };  
+  };
 
   return (
     <ScrollView
@@ -276,9 +276,12 @@ const Profile = () => {
           <View className="gap-3">
             {loading ? (
               Array.from({ length: 3 }).map((_, index) => <PostSkeleton key={`skeleton-${index}`} />)
-            ) : (
+            ) : posts.length > 0 ? (
               posts.map((post) => <Post key={post.$id} postId={post.$id} />)
+            ) : (
+              <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
             )}
+
             {renderFooter()}
           </View>
         </View>

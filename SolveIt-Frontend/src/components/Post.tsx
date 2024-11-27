@@ -7,7 +7,7 @@ import CustomIcons from '@/assets/icons/CustomIcons';
 import ButtonScale from './ButtonScale';
 import HoverColorComponent from './HoverColorComponent';
 import colors from '@/constants/colors';
-import { addComment, deleteCommentById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, getPostById, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
+import { addComment, deleteCommentById, deletePostById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, getPostById, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
 import PostSkeleton from './PostSkeleton';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import * as Clipboard from 'expo-clipboard';
@@ -47,15 +47,17 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [postDeleted, setPostDeleted] = useState(false);
 
   const LIMIT = 10; // Número de comentários por página
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const fetchPostData = async () => {
     try {
       setLoading(true);
-  
+
       // Realiza todas as requisições ao mesmo tempo
       const [fetchedPost, likes, comments, favoriteCount] = await Promise.all([
         getPostById(postId),
@@ -63,19 +65,19 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         getCommentsForPost(postId, page, LIMIT),
         getFavoriteCount(postId)
       ]);
-  
+
       setPost(fetchedPost);
       setLikeCount(likes);
       setCommentCount(comments.total);
       setComments(comments.documents);
       setFavoriteCount(favoriteCount);
-  
+
       // Se houver zipCode, buscar a localização
       if (fetchedPost?.zipCode && typePost === "postDetails") {
         const location = await getCityAndStateByZipCode(fetchedPost.zipCode);
         setLocation(location);
       }
-  
+
       // Verificar se o usuário já curtiu ou favoritou o post
       if (user) {
         const [userLikedState, userFavoritedState] = await Promise.all([
@@ -91,28 +93,28 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (postId) {
       fetchPostData();
     }
   }, [postId, user]);
-  
+
   if (loading) {
     return <PostSkeleton />;
   }
 
   const renderImage = () => {
     if (!post.thumbnail) return null;
-  
+
     const allowedRatios = {
       "1:1": 1,
       "16:9": 16 / 9,
       "4:5": 4 / 5,
     };
-  
+
     const selectedRatio = allowedRatios[post.thumbnailRatio] || allowedRatios["1:1"];
-    
+
     return (
       <View className="w-full items-center">
         <View style={{ width: "100%", aspectRatio: selectedRatio, maxWidth: 600 }} aria-label="ImagePost">
@@ -182,7 +184,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         action: copySharedPostLink,
       },
     ];
-  
+
     return options.map(({ icon, text, action, isLoading, color }) => (
       <HoverColorComponent
         key={icon}
@@ -210,7 +212,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const handleNavigateToProfile = (creatorId) => {
     navigateTo(`/profile/${creatorId}`);
   };
-  
+
   const handleBackNavigation = () => {
     if (router.canGoBack()) {
       router.back();
@@ -218,7 +220,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       router.push('/');  // Vai para a página inicial se não houver uma página anterior
     }
   };
-  
+
   const renderHeader = () => (
     <View aria-label="HeaderPost" className="flex w-full px-[20px] py-3 gap-[15px] border-b border-borderStandardLight flex-row items-center">
       <View aria-label="ContainerProfile" className="flex flex-1 flex-row gap-[12px] items-center">
@@ -228,12 +230,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
               <CustomIcons name="anterior" color={colors.textStandard.standard} size={24} />
             </ButtonScale>
             <ButtonScale scale={1} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-              <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]"/>
+              <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
             </ButtonScale>
           </View>
         ) : (
           <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-            <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]"/>
+            <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
           </ButtonScale>
         )}
         <View aria-label="ContainerText">
@@ -247,18 +249,18 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         </HoverColorComponent>
       )}
     </View>
-  );  
+  );
 
   const handleCommentSubmit = async () => {
     if (!commentContent.trim() || !user?.$id) {
       return;
     }
-  
+
     try {
       setloadingMessage(true);
       const newComment = await addComment(postId, user.$id, commentContent);
       setCommentContent("");
-  
+
       // Adiciona o novo comentário no início da lista de forma otimizada
       setComments((prevComments) => [newComment, ...prevComments]);
       setCommentCount(prevCount => prevCount + 1);
@@ -268,7 +270,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       setloadingMessage(false);
     }
   };
-  
+
   const handleDeleteComment = async (id: string) => {
     try {
       const confirmDelete = await new Promise((resolve) => {
@@ -282,11 +284,11 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           10000
         );
       });
-  
+
       if (confirmDelete) {
         // Chama a função que exclui o comentário
         await deleteCommentById(id);
-  
+
         // Atualiza o estado de comentários de forma eficiente
         setComments((prevComments) => prevComments.filter(comment => comment.$id !== id));
         setCommentCount((prevCount) => prevCount - 1);
@@ -295,18 +297,18 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       console.log("Erro ao excluir comentário:", error);
     }
   };
-  
+
   const fetchComments = async (isInitial = false) => {
     if (!hasMore && !isInitial) return;  // Previne chamadas desnecessárias
-  
+
     try {
       setLoadingMore(true);
       const currentPage = isInitial ? 1 : page;
-  
+
       const commentsData = await getCommentsForPost(postId, LIMIT, currentPage);
-  
+
       setCommentCount(commentsData.total);
-  
+
       // Atualiza os comentários de forma eficiente, evitando reprocessamento
       setComments((prevComments) => {
         if (isInitial) {
@@ -314,10 +316,10 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         }
         return [...prevComments, ...commentsData.documents];  // Adiciona os novos comentários
       });
-  
+
       // Atualiza o estado de 'hasMore' com base na quantidade de comentários carregados
       setHasMore(commentsData.documents.length === LIMIT);
-  
+
       if (!isInitial) {
         setPage(prev => prev + 1);  // Avança a página se não for a inicial
       }
@@ -326,18 +328,18 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     } finally {
       setLoadingMore(false);
     }
-  };  
+  };
 
   const handleScroll = ({ nativeEvent }) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
-  
+
     // Garante que a requisição não seja feita quando já está carregando ou não há mais dados
     if (isCloseToBottom && !loadingMore && hasMore) {
       fetchComments();  // Carrega mais comentários quando próximo do final
     }
   };
-  
+
   const renderFooter = () => (
     <View aria-label="FooterPost" className="px-5 py-2 w-full flex border-t border-borderStandardLight">
       <View className="gap-3">
@@ -353,7 +355,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           ))
         )}
       </View>
-  
+
       <View className="flex w-full flex-row items-center h-[60px] gap-2">
         <View aria-label="CommentaryPost" className="flex flex-1 flex-row gap-2">
           {loadingMessage ? (
@@ -367,7 +369,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             className="border-borderStandardLight border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-textStandardDark text-sm font-medium outline-none"
           />
         </View>
-  
+
         <View aria-label="ContainerVectors" className="flex-row gap-2">
           <ButtonScale
             className="border-borderStandardLight border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center"
@@ -375,7 +377,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           >
             <CustomIcons name="rostoFeliz" size={24} color="#475569" />
           </ButtonScale>
-  
+
           <ButtonScale
             className="border-accentStandardDark border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center"
             scale={1.08}
@@ -387,7 +389,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       </View>
     </View>
   );
-  
+
   const renderFooterDetails = () => (
     <View aria-label="FooterPost" className="px-5 py-2 w-full flex border-t border-borderStandardLight">
       <View className="flex w-full flex-row items-center h-[60px] gap-2">
@@ -403,7 +405,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             className="border-borderStandardLight border-[1px] h-[40px] flex flex-1 rounded-[28px] px-3 py-2 text-textStandardDark text-sm font-medium outline-none"
           />
         </View>
-  
+
         <View aria-label="ContainerVectors" className="flex-row gap-2">
           <ButtonScale
             className="border-borderStandardLight border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center"
@@ -411,7 +413,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           >
             <CustomIcons name="rostoFeliz" size={24} color="#475569" />
           </ButtonScale>
-  
+
           <ButtonScale
             className="border-accentStandardDark border-[1px] rounded-full w-[42px] h-[42px] items-center justify-center"
             scale={1.08}
@@ -421,7 +423,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           </ButtonScale>
         </View>
       </View>
-  
+
       <ScrollView
         style={{ maxHeight: 250 }}
         onScroll={handleScroll}
@@ -441,13 +443,13 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             ))
           )}
         </View>
-  
+
         {loadingMore && (
           <View className="py-2">
             <ActivityIndicator size="small" color="#01B198" />
           </View>
         )}
-  
+
         {!hasMore && comments.length > 0 && (
           <Text className="text-center py-2 text-textSecondary">
             Não há mais comentários para carregar
@@ -455,20 +457,20 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         )}
       </ScrollView>
     </View>
-  );  
-  
+  );
+
   const handleToggleFavorite = async () => {
     if (!user?.$id) return;  // Verifica se o usuário está autenticado
     if (loadingFavorite) return;  // Evita múltiplos cliques enquanto processa
-  
+
     setLoadingFavorite(true);  // Inicia o carregamento do processo de favoritar
-  
+
     try {
       const favorited = await toggleFavorite(postId, user.$id);
       setIsFavorited(favorited);
       const favoriteCount = await getFavoriteCount(postId);
       setFavoriteCount(favoriteCount);
-      
+
       showAlert(
         "Favorito",
         favorited
@@ -481,12 +483,39 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     } finally {
       setLoadingFavorite(false);  // Finaliza o carregamento
     }
-  };  
+  };
 
   const renderLocation = () => {
     if (!location) return "Localização não disponível";
     return `${location.city}, ${location.state}, ${location.country}`;
   };
+
+  const deletePost = async () => {
+    try {
+      setLoadingDelete(true);
+      const response = await deletePostById(postId);
+      showAlert("Sucesso", "O post foi deletado com sucesso.");
+      setPostDeleted(true);
+    } catch (error) {
+      showAlert("Erro", "Não conseguimos deletar o post");
+    } finally {
+      setLoadingDelete(false);
+    }
+  }
+
+  const confirmDelete = async () => {
+    showAlert(
+      "Deletar Post",
+      "Tem certeza que deseja deletar a sua postagem? ela pode ajudar muita gente!",
+      [
+        { text: 'Deletar', onPress: deletePost },
+        { text: 'Recusar', onPress: () => null },
+      ],
+      10000
+    );
+  }
+
+  if(postDeleted) return null;
 
   return (
     <View aria-label="Post" className="bg-white rounded-[24px] flex w-full border border-borderStandardLight items-center">
@@ -513,7 +542,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       className="flex-row items-center ml-[-3px]"
                       onPress={handleToggleFavorite}>
                       {loadingFavorite ? (
-                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1'/>
+                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1' />
                       ) : (
                         <CustomIcons
                           name="favorito"
@@ -556,8 +585,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                           {favoriteCount}
                         </Text>
                       </HoverColorComponent>
-                      <ButtonScale scale={1.09}>
-                        <CustomIcons name="lixeira" color="#D21F3C" size={24} />
+                      <ButtonScale scale={1.09} onPress={confirmDelete} disabled={loadingDelete}>
+                        {loadingDelete ? (
+                          <ActivityIndicator size="small" color="#D21F3C" />
+                        ) : (
+                          <CustomIcons name="lixeira" color="#D21F3C" size={24} />
+                        )}
                       </ButtonScale>
                     </View>
                   </View>
@@ -609,7 +642,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       onPress={handleToggleFavorite}
                     >
                       {loadingFavorite ? (
-                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1'/>
+                        <ActivityIndicator size="small" color={colors.primaryStandardDark.standard} className='mr-1' />
                       ) : (
                         <CustomIcons
                           name="favorito"

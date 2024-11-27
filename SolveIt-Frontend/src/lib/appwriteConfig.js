@@ -440,6 +440,20 @@ export async function getCityAndStateByZipCode(zipCode) {
     }
   };
 
+  export async function deletePostById(postId) {
+    try {
+      await databases.deleteDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postsCollectionId,
+        postId
+      );
+  
+      return { success: true, message: "Post deletado com sucesso!" };
+    } catch (error) {
+      throw new Error("Erro ao apagar o post: " + error.message);
+    }
+  }
+
 //FIM funcoes post
 
 //INICIO funcoes follow

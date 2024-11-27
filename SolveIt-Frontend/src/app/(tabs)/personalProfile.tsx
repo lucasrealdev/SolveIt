@@ -8,7 +8,6 @@ import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { getFollowerCount, getFollowingCount, getUserPosts } from "@/lib/appwriteConfig";
-import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 
 const PersonalProfile = () => {
@@ -40,7 +39,7 @@ const PersonalProfile = () => {
 
         // 1. Obter o número de seguidores
         const followersCount = await getFollowerCount(user.$id);
-  
+
         // 2. Obter o número de "seguindo"
         const followingCount = await getFollowingCount(user.$id);
 
@@ -205,15 +204,15 @@ const PersonalProfile = () => {
           </View>
 
           <View className="gap-3">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, index) => (
-                <PostSkeleton key={`skeleton-${index}`} />
-              ))
-            ) : (
-              posts.map((post) => (
-                <Post key={post.$id} postId={post.$id} typePost="ownProfile"/>
-              ))
-            )}
+            {
+              loading ? null : posts.length > 0 ? (
+                posts.map((post) => (
+                  <Post key={post.$id} postId={post.$id} typePost="ownProfile" />
+                ))
+              ) : (
+                <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
+              )
+            }
             {renderFooter()}
 
             {!hasMore && posts.length > 0 && (

@@ -10,6 +10,7 @@ import TextInputMask from "@/components/TextInputMask";
 import { createPost } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { usePathname, useRouter } from "expo-router";
 
 const renderSelectItem = (item) => (
   <View className="flex-row">
@@ -36,11 +37,17 @@ const DropdownModel = ({ data, title, placeholder, setSelected }) => (
   </View>
 );
 
-
 export default function CreatePost() {
   const { showAlert } = useAlert();
   const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navigateTo = (route: string) => {
+    router[route !== pathname ? 'push' : 'replace'](route);
+  };
 
   const [form, setForm] = useState({
     title: "",
@@ -118,6 +125,7 @@ export default function CreatePost() {
         await createPost(formWithUserId, isWeb);
 
         showAlert("Sucesso!", "Sua publicação foi criada com sucesso!");
+        navigateTo("/");
       } catch (error) {
         showAlert("Erro!", "Erro ao fazer publicação, tente novamente!");
         console.log(error)
