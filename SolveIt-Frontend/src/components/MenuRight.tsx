@@ -13,6 +13,10 @@ import { useAlert } from "@/context/AlertContext";
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
+  const isMobile = width > 1250;
+  const isTablet = height <= 835 ? "hidden" : "";
+  const containerWidth = width >= 1400 ? 368 : 320;
+
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useGlobalContext();
@@ -20,40 +24,39 @@ export default function MenuRight() {
   const [currentStatus, setCurrentStatus] = useState(null); // Inicializa como null
   const { showAlert } = useAlert();
 
-  const isMobile = width > 1250;
-  const isTablet = height <= 835 ? "hidden" : "";
-  const containerWidth = width >= 1400 ? 368 : 320;
   const [suggestedFriends, setSuggestedFriends] = useState([]);
   const [events, setEvents] = useState([]);
 
   // Supondo que `getSuggestedFriends` é uma função que retorna usuários sugeridos
   useEffect(() => {
+    if (!isMobile) return;
+  
     const fetchSuggestedFriends = async () => {
       try {
         // Chama a função getSuggestedFriends passando o userId, página 1 e limitando a 5 resultados
         const suggestedFriendsData = await getSuggestedFriends(user?.$id, 1, 5);
-
+  
         // Atualiza o estado com os 5 primeiros amigos sugeridos
         setSuggestedFriends(suggestedFriendsData.documents);
-
+  
         const eventsData = await getAllEvents();
         setEvents(eventsData);
       } catch (error) {
         console.error("Error fetching initial data:", error);
       }
     };
-
+  
     // Verifica o status do usuário
     if (user?.isOnline !== undefined) {
       // Define o status diretamente como booleano
       setCurrentStatus(user.isOnline);
     }
-
+  
     // Chama a função para buscar os amigos sugeridos
     if (user?.$id) {
       fetchSuggestedFriends();
     }
-  }, [user]); // O efeito será reexecutado sempre que o `user` mudar
+  }, [user, isMobile]); // Agora o efeito será executado sempre que 'user' ou 'isMobile' mudar
 
   const handleStatusToggle = async () => {
     if (!user) return;
@@ -72,12 +75,14 @@ export default function MenuRight() {
     }
   };
 
-  if (!isMobile) return null;
+  if(!isMobile){
+    return null;
+  }
 
   const navigateTo = (route) => {
     pathname !== route ? router.push(route) : router.replace(route);
   };
-
+  
   const renderUserCardsSuggested = () => {
     return suggestedFriends.map((user, index) => (
       <CardAmigo
