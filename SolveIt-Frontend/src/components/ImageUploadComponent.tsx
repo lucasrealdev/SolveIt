@@ -12,7 +12,7 @@ interface ImageUploadProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 const ASPECT_RATIO_TOLERANCE = 0.1;
 
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({
@@ -56,6 +56,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         [1, 1], // Square
         [16, 9], // Wide
         [4, 5], // Portrait
+        [3, 4],
     ];
 
     const verifyImageAspectRatio = (
@@ -89,7 +90,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
             });
 
             if (!verifyImageAspectRatio(img.width, img.height, ACCEPTED_ASPECT_RATIOS)) {
-                showAlert('Aviso', 'A imagem deve ter uma proporção válida (1:1, 16:9 ou 4:5).');
+                showAlert('Aviso', 'A imagem deve ter uma proporção válida (1:1, 3:4, 16:9 ou 4:5).');
                 return false;
             }
         }
@@ -101,14 +102,16 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         try {
             const isValid = await handleImageValidation(uri, type, size);
             if (!isValid) return; // Não prossiga se a validação falhar
-
+    
+            // Ajusta o nome do arquivo baseado no tipo
+            const extension = type === 'image/jpeg' ? 'jpg' : type?.split('/')[1];
             const processedImage = {
-                name: 'uploaded_image',
+                name: `uploaded_image.${extension}`, // Usa a extensão ajustada
                 type: type || 'image/jpeg',
                 size: size || 0,
                 uri,
             };
-
+    
             setImage({ uri, aspect: [1, 1] });
             onImageUpload(processedImage);
         } catch (error) {
@@ -136,7 +139,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [1, 1], // Default aspect ratio for cropping
+            aspect: [3, 4], // Default aspect ratio for cropping
             quality: 1,
         });
 
@@ -152,37 +155,38 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
             showAlert('Aviso', 'Nenhum arquivo selecionado.');
             return;
         }
-    
+
         // Verifica se o tamanho do arquivo é menor que 10MB
         const MAX_SIZE_MB = 5;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
             showAlert('Aviso', 'O arquivo selecionado é maior que 5MB. Por favor, escolha outro arquivo.');
             return;
         }
-    
+
         // Cria uma URL temporária para analisar as dimensões da imagem
         const imageUrl = URL.createObjectURL(file);
         const img = new Image();
         img.src = imageUrl;
-    
+
         img.onload = () => {
             const width = img.width;
             const height = img.height;
-    
+
             // Calcula o aspect ratio
             const ratio = width / height;
-    
+
             // Mapeia os aspect ratios esperados
             const aspectRatios = [
                 { label: '1:1', ratio: 1 },
                 { label: '16:9', ratio: 16 / 9 },
                 { label: '4:5', ratio: 4 / 5 },
+                { label: '3:4', ratio: 3 / 4 },
             ];
-    
+
             // Encontra o aspecto mais próximo
             let closestAspectRatio = aspectRatios[0]; // Padrão é 1:1
             let minDifference = Math.abs(ratio - aspectRatios[0].ratio);
-    
+
             aspectRatios.forEach((r) => {
                 const diff = Math.abs(ratio - r.ratio);
                 if (diff < minDifference) {
@@ -190,21 +194,21 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
                     minDifference = diff;
                 }
             });
-    
+
             // Verifica se o aspecto encontrado é suficientemente próximo de um dos formatos válidos
             if (minDifference > 0.05) {
-                showAlert('Aviso', 'Formato inválido. Use imagens com proporções 1:1, 16:9 ou 4:5.');
+                showAlert('Aviso', 'Formato inválido. Use imagens com proporções 1:1, 3:4, 16:9 ou 4:5.');
                 return;
             }
-    
+
             // Chama a função de sucesso com a URL da imagem e o aspect ratio correto
             onSuccess(imageUrl, closestAspectRatio.label);
         };
-    
+
         img.onerror = () => {
             showAlert('Aviso', 'Erro ao carregar a imagem. Por favor, tente novamente.');
         };
-    };    
+    };
 
     // Função de seleção de imagem
     const pickImageWeb = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,7 +278,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
                         <input
                             id="fileInput"
                             type="file"
-                            accept="image/png, image/jpeg" // Define os tipos de arquivo permitidos
+                            accept="image/png, image/jpeg, image/jpg" // Define os tipos de arquivo permitidos
                             onChange={pickImageWeb} // Função para lidar com a seleção de arquivos
                             className="hidden" // Oculta o input
                         />
@@ -294,6 +298,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
                             {renderCropButton('1:1', [1, 1])}
                             {renderCropButton('16:9', [16, 9])}
                             {renderCropButton('4:5', [4, 5])}
+                            {renderCropButton('3:4', [3, 4])}
                         </View>
                     )}
                     <View className="rounded-[20px] border-2 border-borderStandard overflow-hidden">

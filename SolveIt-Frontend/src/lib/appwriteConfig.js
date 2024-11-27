@@ -234,6 +234,7 @@ export async function getCityAndStateByZipCode(zipCode) {
   // Função para fazer upload de um arquivo
   export async function uploadFile(file, type, isWeb) {
     if (!file) return;
+    console.log(file, type, isWeb);
     try {
       let uploadedFile;
 
@@ -256,12 +257,11 @@ export async function getCityAndStateByZipCode(zipCode) {
           asset
         );
       }
-
       // Obter o preview do arquivo
       const fileUrl = await getFilePreview(uploadedFile.$id, type);
       return fileUrl;
     } catch (error) {
-      throw new Error('Falha ao enviar o arquivo. Tente novamente.');
+      throw new Error('Falha ao enviar o arquivo. Tente novamente.' + error);
     }
   }
 

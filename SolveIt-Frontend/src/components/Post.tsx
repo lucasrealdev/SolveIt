@@ -111,6 +111,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       "1:1": 1,
       "16:9": 16 / 9,
       "4:5": 4 / 5,
+      "3:4": 3 / 4,
     };
 
     const selectedRatio = allowedRatios[post.thumbnailRatio] || allowedRatios["1:1"];
