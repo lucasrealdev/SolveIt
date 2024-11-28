@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Platform, Linking, Image as RNImage } from 'react-native';
+import { View, Text, Pressable, Platform, Linking, Image as RNImage, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import { useAlert } from '@/context/AlertContext';
+import { Camera } from 'expo-camera';
 
 type AspectRatio = [number, number];
 
@@ -11,7 +12,7 @@ interface ImageUploadProps {
     onAspectRatioCalculated?: (ratio: String) => void; // Nova função opcional
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 const ASPECT_RATIO_TOLERANCE = 0.1;
 
@@ -78,7 +79,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         }
 
         if (fileSize && fileSize > MAX_FILE_SIZE) {
-            showAlert('Aviso', 'O tamanho da imagem deve ser menor que 5MB.');
+            showAlert('Aviso', 'O tamanho da imagem deve ser menor que 10MB.');
             return false;
         }
 
@@ -102,7 +103,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         try {
             const isValid = await handleImageValidation(uri, type, size);
             if (!isValid) return; // Não prossiga se a validação falhar
-    
+
             // Ajusta o nome do arquivo baseado no tipo
             const extension = type === 'image/jpeg' ? 'jpg' : type?.split('/')[1];
             const processedImage = {
@@ -111,7 +112,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
                 size: size || 0,
                 uri,
             };
-    
+
             setImage({ uri, aspect: [1, 1] });
             onImageUpload(processedImage);
         } catch (error) {
@@ -120,33 +121,78 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
     };
 
     const pickImage = async () => {
-        if (!isWeb) {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        // Perguntar se o usuário deseja usar a câmera ou a galeria
+        const choice = await new Promise((resolve) => {
+            showAlert(
+                "Escolha uma Opção",
+                "Deseja tirar uma foto ou escolher da galeria?",
+                [
+                    { text: "Câmera", onPress: () => resolve("camera") },
+                    { text: "Galeria", onPress: () => resolve("gallery") },
+                    { text: "Cancelar", onPress: () => resolve(null) },
+                ]
+            );
+        });
+
+        if (!choice) return; // O usuário cancelou
+
+        if (choice === "camera") {
+            // Verificar permissões da câmera
+            const { status } = await Camera.requestCameraPermissionsAsync();
             if (status !== 'granted') {
                 showAlert(
                     "Permissão Necessária",
-                    "As permissões de câmera são necessárias para selecionar uma imagem. Vá até as configurações do seu dispositivo e clique em permitir tudo em Fotos e Videos.",
+                    "As permissões de câmera são necessárias para tirar uma foto. Vá até as configurações do seu dispositivo e clique em permitir.",
                     [
                         { text: 'Abrir configurações', onPress: () => Linking.openSettings() },
                         { text: 'Recusar', onPress: () => null },
-                    ],
-                    10000
+                    ]
                 );
                 return;
             }
-        }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [3, 4], // Default aspect ratio for cropping
-            quality: 1,
-        });
+            // Abrir a câmera
+            const result = await ImagePicker.launchCameraAsync({
+                allowsEditing: true,
+                aspect: [3, 4],
+                quality: 1,
+            });
 
-        if (!result.canceled && result.assets?.[0]) {
-            const response = await fetch(result.assets[0].uri);
-            const blob = await response.blob();
-            await processImage(result.assets[0].uri, blob.type, blob.size);
+            if (!result.canceled && result.assets?.[0]) {
+                const response = await fetch(result.assets[0].uri);
+                const blob = await response.blob();
+                await processImage(result.assets[0].uri, blob.type, blob.size);
+            }
+        } else if (choice === "gallery") {
+            // Verificar permissões da galeria
+            if (!isWeb) {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    showAlert(
+                        "Permissão Necessária",
+                        "As permissões de galeria são necessárias para selecionar uma imagem. Vá até as configurações do seu dispositivo e clique em permitir.",
+                        [
+                            { text: 'Abrir configurações', onPress: () => Linking.openSettings() },
+                            { text: 'Recusar', onPress: () => null },
+                        ]
+                    );
+                    return;
+                }
+            }
+
+            // Abrir a galeria
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [3, 4], // Default aspect ratio for cropping
+                quality: 1,
+            });
+
+            if (!result.canceled && result.assets?.[0]) {
+                const response = await fetch(result.assets[0].uri);
+                const blob = await response.blob();
+                await processImage(result.assets[0].uri, blob.type, blob.size);
+            }
         }
     };
 
@@ -157,9 +203,9 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         }
 
         // Verifica se o tamanho do arquivo é menor que 10MB
-        const MAX_SIZE_MB = 5;
+        const MAX_SIZE_MB = 10;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            showAlert('Aviso', 'O arquivo selecionado é maior que 5MB. Por favor, escolha outro arquivo.');
+            showAlert('Aviso', 'O arquivo selecionado é maior que 10MB. Por favor, escolha outro arquivo.');
             return;
         }
 
@@ -213,12 +259,14 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
     // Função de seleção de imagem
     const pickImageWeb = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        validateImage(file, (imageUrl, aspectRatio) => {
-            setImageWeb(file);
-            setPreviewUrl(imageUrl);
-            onImageUpload(file)
-            onAspectRatioCalculated(aspectRatio)
-        });
+        if (file) {
+            validateImage(file, (imageUrl, aspectRatio) => {
+                setImageWeb(file);
+                setPreviewUrl(imageUrl);
+                onImageUpload(file);
+                onAspectRatioCalculated(aspectRatio);
+            });
+        }
     };
 
     // Função de drop

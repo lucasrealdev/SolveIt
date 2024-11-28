@@ -29,13 +29,19 @@
       },
       "permissions": [
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA"
       ],
       "package": "com.planob.solveit"
     },
     "ios": {
       "bundleIdentifier": "com.planob.solveit",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "O aplicativo requer acesso à câmera para tirar fotos.",
+        "NSPhotoLibraryUsageDescription": "O aplicativo requer acesso à galeria para selecionar imagens.",
+        "NSPhotoLibraryAddUsageDescription": "O aplicativo requer permissão para salvar imagens na galeria."
+      }
     },
     "name": "SolveIt",
     "slug": "SolveIt",
