@@ -7,7 +7,7 @@ import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getFollowerCount, getFollowingCount, getUserPosts, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
+import { getFollowerCount, getFollowingCount, getUserPosts, signOut, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import Post from "@/components/Post";
 import { useAlert } from "@/context/AlertContext";
 
@@ -27,6 +27,7 @@ const PersonalProfile = () => {
 
   const [currentStatus, setCurrentStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingLogout, setLoadingLogout] = useState(false);
 
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -193,6 +194,16 @@ const PersonalProfile = () => {
     router[route !== pathname ? 'push' : 'replace'](route);
   };
 
+  const logout = async () => {
+    setLoadingLogout(true);
+    await signOut();
+    setUser(null);
+
+    showAlert("Sucesso", "Você saiu da conta com sucesso!");
+    setLoadingLogout(false);
+    router.replace("/signin");
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -227,7 +238,23 @@ const PersonalProfile = () => {
         </View>
 
         <View className="flex w-full max-w-[700px] px-[10px]">
-          <Text className="font-bold text-xl text-textStandardDark">{user?.username || "Nome do Usuário"}</Text>
+          <View className="flex-row gap-1 mt-2 w-full justify-between">
+            <Text className="font-bold text-xl text-textStandardDark">{user?.username || "Nome do Usuário"}</Text>
+            {loadingLogout ? (
+              <ActivityIndicator
+                size="small"
+                color="#8AA2BE"
+              />
+            ) : (
+              <ButtonScale
+                scale={1.04}
+                className="w-fit h-fit p-[3px] border-[2px] border-[#CBD5E1] rounded-full"
+                onPress={logout}
+              >
+                <CustomIcons name="exit" size={24} color="#8AA2BE" />
+              </ButtonScale>
+            )}
+          </View>
           <Text className="text-base">{user?.biography || "Opa, sou novo por aqui!"}</Text>
           <View className="w-full mt-6 mb-3 gap-4 items-center justify-center flex-row">
             <ButtonScale className="flex-col justify-center items-center" scale={1.05} onPress={() => navigateTo("/friends")}>
@@ -264,9 +291,7 @@ const PersonalProfile = () => {
             {renderFooter()}
 
             {!hasMore && posts.length > 0 && (
-              <View className="py-4 items-center">
-                <Text className="text-textSecondary">Não há mais posts para carregar</Text>
-              </View>
+              <ActivityIndicator size="small" color="#94A3B8" />
             )}
           </View>
         </View>
