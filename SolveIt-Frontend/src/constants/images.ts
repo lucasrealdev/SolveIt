@@ -4,5 +4,6 @@ import logoRounded from "@/assets/iconRounded.png";
 import logo from "@/assets/images/Logo.png";
 import banner from "@/assets/images/Banner.png";
 import google from "@/assets/images/google.png";
+import iconVerified from "@/assets/images/iconVerified.png";
 
-export default { person, logoShadow, banner, logoRounded, google, logo };
+export default { person, logoShadow, banner, logoRounded, google, logo, iconVerified };

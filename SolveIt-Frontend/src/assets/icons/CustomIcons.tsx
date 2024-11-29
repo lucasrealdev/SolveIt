@@ -794,6 +794,19 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 ></Path>
             </Svg>
         ),
+        correct: (
+            <Svg
+                width={size}
+                height={size}
+                fill="none"
+                viewBox="0 0 18 18"
+            >
+                <Path
+                    fill={color}
+                    d="M9 .875A8.125 8.125 0 1 0 17.125 9 8.133 8.133 0 0 0 9 .875m3.567 6.692-4.375 4.375a.624.624 0 0 1-.884 0l-1.875-1.875a.625.625 0 0 1 .884-.884l1.433 1.433 3.933-3.933a.626.626 0 0 1 .884.884"
+                ></Path>
+            </Svg>
+        ),
     };
     return Icons[name] || undefined;
 }

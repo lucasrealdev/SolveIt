@@ -7,7 +7,7 @@ import CustomIcons from '@/assets/icons/CustomIcons';
 import ButtonScale from './ButtonScale';
 import HoverColorComponent from './HoverColorComponent';
 import colors from '@/constants/colors';
-import { addComment, deleteCommentById, deletePostById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, getPostById, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
+import { addComment, deleteCommentById, deletePostById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, getPostById, incrementShares, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
 import PostSkeleton from './PostSkeleton';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import * as Clipboard from 'expo-clipboard';
@@ -40,6 +40,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const [shareCount, setShareCount] = useState(0);
   const [location, setLocation] = useState(null);
 
   const [commentContent, setCommentContent] = useState("");
@@ -71,6 +72,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       setCommentCount(comments.total);
       setComments(comments.documents);
       setFavoriteCount(favoriteCount);
+      setShareCount(parseInt(fetchedPost.shares, 10));
 
       // Se houver zipCode, buscar a localização
       if (fetchedPost?.zipCode && typePost === "postDetails") {
@@ -154,11 +156,14 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     }
   };
 
-  const copySharedPostLink = () => {
+  const copySharedPostLink = async () => {
     try {
-      const url = `https://solveitb.netlify.app/postdetails/${post.$id}?shared=true`; // Melhor uso do origin
+      const url = `https://solveitb.netlify.app/postdetails/${post.$id}`; // Melhor uso do origin
       Clipboard.setStringAsync(url);
       showAlert('Link Copiado!', 'O link foi copiado para a área de transferência.');
+
+      await incrementShares(post.$id);
+      setShareCount((prevShareCount) => prevShareCount + 1);
     } catch (error) {
       console.log('Erro ao copiar o link:', error);
       showAlert('Erro', 'Não foi possível copiar o link. Tente novamente.');
@@ -181,7 +186,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       },
       {
         icon: 'compartilhar',
-        text: post?.shares || 0,
+        text: shareCount || 0,
         action: copySharedPostLink,
       },
     ];

@@ -3,11 +3,12 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import MenuRight from "@/components/MenuRight";
 import Post from '@/components/Post';
 import SearchHeader from "@/components/SearchHeader";
-import { getAllPosts } from "@/lib/appwriteConfig";
+import { fetchAllQuizIds, getAllPosts } from "@/lib/appwriteConfig";
 import ButtonScale from "@/components/ButtonScale";
 import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { LinearGradient } from 'expo-linear-gradient';
+import Quiz from "@/components/Quiz";
 
 export default function Index() {
   const [posts, setPosts] = useState([]);
@@ -15,6 +16,7 @@ export default function Index() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [quizes, setQuizes] = useState([]);
   const POSTS_PER_PAGE = 3;
 
   const [isRequesting, setIsRequesting] = useState(false);
@@ -27,6 +29,9 @@ export default function Index() {
       const newPosts = await getAllPosts(1, POSTS_PER_PAGE);
       setPosts(newPosts);
       setHasMore(newPosts.length === POSTS_PER_PAGE);
+
+      const quizIds = await fetchAllQuizIds();
+      setQuizes(quizIds);
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
     } finally {
@@ -93,6 +98,12 @@ export default function Index() {
     ));
   }, [loading, posts]);
 
+  const renderQuiz = useMemo(() => {
+    return quizes.map((quiz) => (
+      <Quiz key={quiz.$id} quizId={quiz.$id} />
+    ));
+  }, [loading, posts]);
+
   return (
     <View className="flex-1 flex-row">
       <ScrollView
@@ -111,6 +122,7 @@ export default function Index() {
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
             <BarStory/>
+            <Quiz quizId="6748e9ee000aa15da23b"/>
             {renderPosts}
             {renderFooter()}
           </View>
@@ -145,7 +157,6 @@ const BarStory: React.FC = () => {
       ))}
       <ButtonScale
         scale={1.1}
-        onPress={() => console.log("Pressionou")}
         className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center absolute justify-center right-3"
       >
         <CustomIcons name="proximo" color="#475569" size={20} />

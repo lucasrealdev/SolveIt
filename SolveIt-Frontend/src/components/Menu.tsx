@@ -127,7 +127,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
             </View>
             <Text className="text-white text-sm">Aproveite os benefícios premiuns do app, exclusivos para você!</Text>
             <View className="flex flex-row gap-4">
-              <Pressable><Text className="text-white font-bold">Recusar</Text></Pressable>
+              <Pressable onPress={() => setIsVisible(false)}><Text className="text-white font-bold">Recusar</Text></Pressable>
               <Pressable><Text className="text-[#C7FEF1] font-bold">Garantir</Text></Pressable>
             </View>
           </View>

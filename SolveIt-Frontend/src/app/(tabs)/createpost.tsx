@@ -128,7 +128,6 @@ export default function CreatePost() {
         navigateTo("/");
       } catch (error) {
         showAlert("Erro!", "Erro ao fazer publicação, tente novamente!");
-        console.log(error)
       }
       finally {
         setUploading(false)
