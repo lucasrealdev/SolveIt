@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl } from "react-native";
+import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl, TouchableOpacity, Linking } from "react-native";
 import { usePathname, useRouter } from 'expo-router';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
@@ -10,6 +10,7 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { getFollowerCount, getFollowingCount, getUserPosts, signOut, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import Post from "@/components/Post";
 import { useAlert } from "@/context/AlertContext";
+import { FontAwesome } from '@expo/vector-icons';
 
 const PersonalProfile = () => {
   const animation = useRef(new Animated.Value(0)).current;
@@ -33,6 +34,10 @@ const PersonalProfile = () => {
   const [followingCount, setFollowingCount] = useState(0);
 
   const { showAlert } = useAlert();
+
+  const [selectedTab, setSelectedTab] = useState("Publicações"); // Variável que guarda qual opção está selecionada
+  const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
+  const [translateX] = useState(new Animated.Value(0));
 
   // Função para buscar posts iniciais
   const fetchPosts = async (refresh = false) => {
@@ -121,18 +126,23 @@ const PersonalProfile = () => {
     }
   }, [user]); // Atualiza quando o usuário é carregado
 
-  const moveTo = (value) => {
-    Animated.timing(animation, {
-      toValue: value,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
+  const moveTo = (index) => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      const newTranslateX = index * buttonWidth; // Calcula a nova posição
 
-  const translateX = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, buttonWidth],
-  });
+      // Inicia a animação
+      Animated.timing(translateX, {
+        toValue: newTranslateX,
+        duration: 300, // duração da animação
+        useNativeDriver: true,
+      }).start(() => {
+        // Após a animação terminar, atualize o estado
+        setSelectedTab(index === 0 ? "Publicações" : "Informações");
+        setIsAnimating(false); // Finaliza a animação
+      });
+    }
+  };
 
   const handleButtonLayout = ({ nativeEvent }) => {
     setButtonWidth(nativeEvent.layout.width);
@@ -203,6 +213,36 @@ const PersonalProfile = () => {
     setLoadingLogout(false);
     router.replace("/signin");
   };
+
+  // Renderização da aba "Publicações"
+  const renderPublicacoes = () => (
+    <View className="gap-3">
+      {loading ? null : posts.length > 0 ? (
+        posts.map((post) => (
+          <Post key={post.$id} postId={post.$id} typePost="ownProfile" />
+        ))
+      ) : (
+        <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
+      )}
+      {renderFooter()}
+      {!hasMore && posts.length > 0 && (
+        <ActivityIndicator size="small" color="#94A3B8" />
+      )}
+    </View>
+  );
+
+  const handlePress = () => {
+    const number = user.numberPhone;
+  
+    // Remover caracteres especiais do número de telefone
+    const cleanedNumber = number.replace(/\D/g, '');  // Remove tudo que não é número
+  
+    // Concatena o número limpo ao link
+    const whatsappURL = `https://wa.me/${cleanedNumber}`;
+  
+    // Abre o link
+    Linking.openURL(whatsappURL).catch(err => console.error("Erro ao tentar abrir o link: ", err));
+  };  
 
   return (
     <ScrollView
@@ -278,22 +318,42 @@ const PersonalProfile = () => {
             </View>
           </View>
 
-          <View className="gap-3">
-            {
-              loading ? null : posts.length > 0 ? (
-                posts.map((post) => (
-                  <Post key={post.$id} postId={post.$id} typePost="ownProfile" />
-                ))
-              ) : (
-                <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
-              )
-            }
-            {renderFooter()}
-
-            {!hasMore && posts.length > 0 && (
-              <ActivityIndicator size="small" color="#94A3B8" />
-            )}
-          </View>
+          {selectedTab === "Publicações" ? renderPublicacoes() : (
+            <View
+              className="bg-white rounded-xl p-4 mt-2 items-start"
+              style={{
+                shadowColor: '#000', // Cor da sombra
+                shadowOffset: { width: 0, height: 2 }, // Deslocamento da sombra
+                shadowOpacity: 0.15, // Opacidade da sombra
+                shadowRadius: 10, // Raio da sombra
+                elevation: 5, // Sombra no Android
+              }}
+            >
+              <View className="flex-row items-center">
+                <Text className="text-lg font-bold text-gray-800">{user.username}</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-base text-gray-600">{user.email}</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-base text-gray-600">{user.numberPhone || "Você ainda não adicionou um número de telefone"}</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-base text-gray-600">{"Membro " + user.accountType}</Text>
+              </View>
+              <TouchableOpacity
+              className="bg-primaryStandardDark py-3 px-6 rounded-xl items-center mt-6 active:opacity-90 w-full"
+              onPress={handlePress}
+            >
+              <View className='flex-row gap-2'>
+                <Text className="text-white text-base font-semibold">
+                  Ir para whatsapp
+                </Text>
+                <FontAwesome name="whatsapp" size={24} color="#ffffff" />
+              </View>
+            </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </ScrollView>

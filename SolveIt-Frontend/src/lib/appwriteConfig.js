@@ -98,7 +98,9 @@ const databases = new Databases(client);
         email: userDoc.email,
         avatar: userDoc.avatar,
         biography: userDoc.biography || "", // Definindo como string vazia caso não haja biografia
-        isOnline: userDoc.isOnline
+        isOnline: userDoc.isOnline,
+        numberPhone: userDoc.numberPhone,
+        accountType: userDoc.accountType,
       };
     } catch (error) {
       console.error("Erro ao obter perfil:", error.message);

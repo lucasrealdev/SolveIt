@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator } from "react-native";
+import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
@@ -9,16 +9,18 @@ import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { useAlert } from "@/context/AlertContext";
+import { FontAwesome } from '@expo/vector-icons';
 
 interface UserData {
   biography: string;
   username: string;
   email: string;
   avatar: string;
+  accountType: string;
+  numberPhone: string;
 }
 
 const Profile = () => {
-  const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
 
   const [posts, setPosts] = useState([]);
@@ -41,6 +43,11 @@ const Profile = () => {
   const [currentStatus, setCurrentStatus] = useState(null);
 
   const { showAlert } = useAlert();
+
+  const [selectedTab, setSelectedTab] = useState("Publicações"); // Variável que guarda qual opção está selecionada
+  const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
+  const [translateX] = useState(new Animated.Value(0));
+  const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -138,18 +145,23 @@ const Profile = () => {
     }
   }, [id, fetchPosts]);
 
-  const moveTo = (value) => {
-    Animated.timing(animation, {
-      toValue: value,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
+  const moveTo = (index) => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      const newTranslateX = index * buttonWidth; // Calcula a nova posição
 
-  const translateX = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, buttonWidth],
-  });
+      // Inicia a animação
+      Animated.timing(translateX, {
+        toValue: newTranslateX,
+        duration: 300, // duração da animação
+        useNativeDriver: true,
+      }).start(() => {
+        // Após a animação terminar, atualize o estado
+        setSelectedTab(index === 0 ? "Publicações" : "Informações");
+        setIsAnimating(false); // Finaliza a animação
+      });
+    }
+  };
 
   const handleButtonLayout = ({ nativeEvent }) => {
     setButtonWidth(nativeEvent.layout.width);
@@ -222,6 +234,35 @@ const Profile = () => {
     }
   };
 
+  // Renderização da aba "Publicações"
+  const renderPublicacoes = () => (
+    <View className="gap-3">
+      {loading ? (
+        Array.from({ length: 3 }).map((_, index) => <PostSkeleton key={`skeleton-${index}`} />)
+      ) : posts.length > 0 ? (
+        posts.map((post) => <Post key={post.$id} postId={post.$id} />)
+      ) : (
+        <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
+      )}
+
+      {renderFooter()}
+    </View>
+  );
+
+
+  const handlePress = () => {
+    const number = userData.numberPhone;
+
+    // Remover caracteres especiais do número de telefone
+    const cleanedNumber = number.replace(/\D/g, '');  // Remove tudo que não é número
+
+    // Concatena o número limpo ao link
+    const whatsappURL = `https://wa.me/${cleanedNumber}`;
+
+    // Abre o link
+    Linking.openURL(whatsappURL).catch(err => console.error("Erro ao tentar abrir o link: ", err));
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -256,8 +297,8 @@ const Profile = () => {
                     {currentStatus !== null && (
                       <View
                         className={`w-5 h-5 border-white border-[2px] rounded-full absolute bottom-1 right-1 ${currentStatus
-                            ? "bg-green-500"  // Se o status for verdadeiro, mostra verde
-                            : "bg-red-500"   // Caso contrário, mostra vermelho
+                          ? "bg-green-500"  // Se o status for verdadeiro, mostra verde
+                          : "bg-red-500"   // Caso contrário, mostra vermelho
                           }`}
                       />
                     )}
@@ -303,17 +344,58 @@ const Profile = () => {
               ))}
             </View>
           </View>
-          <View className="gap-3">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, index) => <PostSkeleton key={`skeleton-${index}`} />)
-            ) : posts.length > 0 ? (
-              posts.map((post) => <Post key={post.$id} postId={post.$id} />)
+          {selectedTab === "Publicações" ? renderPublicacoes() : (
+            user.accountType === "Premium" ? (
+              <View
+                className="bg-white rounded-xl p-4 mt-2 items-start"
+                style={{
+                  shadowColor: '#000', // Cor da sombra
+                  shadowOffset: { width: 0, height: 2 }, // Deslocamento da sombra
+                  shadowOpacity: 0.15, // Opacidade da sombra
+                  shadowRadius: 10, // Raio da sombra
+                  elevation: 5, // Sombra no Android
+                }}
+              >
+                <View className="flex-row items-center">
+                  <Text className="text-lg font-bold text-gray-800">{userData.username}</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-base text-gray-600">{userData.email}</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-base text-gray-600">{userData.numberPhone || "Usuário não adicionou um número de telefone"}</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-base text-gray-600">{"Membro " + userData.accountType}</Text>
+                </View>
+                <TouchableOpacity
+                  className="bg-primaryStandardDark py-3 px-6 rounded-xl items-center mt-6 active:opacity-90 w-full"
+                  onPress={handlePress}
+                >
+                  <View className='flex-row gap-2'>
+                    <Text className="text-white text-base font-semibold">
+                      Ir para whatsapp
+                    </Text>
+                    <FontAwesome name="whatsapp" size={24} color="#ffffff" />
+                  </View>
+                </TouchableOpacity>
+              </View>
             ) : (
-              <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
-            )}
-
-            {renderFooter()}
-          </View>
+              <View className="items-center">
+                <View aria-label="CardPremium" className={`flex gap-[16px] p-[16px] bg-secondaryStandardDark rounded-[24px] w-full max-w-[420px]`}>
+                  <View className="flex flex-row justify-between">
+                    <View className="w-[40px] h-[40px] flex bg-secondaryStandard rounded-full items-center justify-center">
+                      <CustomIcons name="perigo" size={20} color="#FFF" />
+                    </View>
+                  </View>
+                  <Text className="text-white text-sm">Para acessar as informações, torne-se um membro Premium. Aproveite os benefícios premiuns do app, exclusivos para você!</Text>
+                  <View className="flex flex-row gap-4">
+                    <Pressable><Text className="text-[#C7FEF1] font-bold">Garantir</Text></Pressable>
+                  </View>
+                </View>
+              </View>
+            )
+          )}
         </View>
       </View>
     </ScrollView>
