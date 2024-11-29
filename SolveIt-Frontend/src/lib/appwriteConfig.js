@@ -124,7 +124,7 @@ export async function getSession() {
     const session = await account.getSession("current");
     return session;
   } catch (error) {
-    throw new Error("Erro ao verificar a sessão do usuário: " + error.message); // Mensagem personalizada
+    return null; // Retorna null se o usuário não estiver autenticado
   }
 }
 
@@ -140,7 +140,8 @@ export async function getAccount() {
     const currentAccount = await account.get(); // Obtém a conta se autenticado
     return currentAccount;
   } catch (error) {
-    throw new Error("Erro ao obter a conta do usuário: " + error.message); // Mensagem personalizada
+    console.error("Erro ao obter conta do usuário:", error.message);
+    return null;
   }
 }
 
@@ -159,7 +160,8 @@ export async function getCurrentUser() {
 
     return currentUser?.documents?.[0] || null;
   } catch (error) {
-    throw new Error("Erro ao obter os dados do usuário: " + error.message); // Mensagem personalizada
+    console.error("Erro ao obter dados do usuário:", error.message);
+    return null;
   }
 }
 
