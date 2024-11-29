@@ -102,8 +102,8 @@ const databases = new Databases(client);
       };
     } catch (error) {
       console.error("Erro ao obter perfil:", error.message);
-      throw new Error(error.message || "Erro desconhecido");
-    }
+      throw { message: error.message || "Erro desconhecido", code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para fazer login de usuário
@@ -114,8 +114,8 @@ const databases = new Databases(client);
       return session;
     } catch (error) {
       console.error("Erro ao fazer login:", error.message);
-      throw new Error("Falha ao autenticar o usuário.");
-    }
+      throw { message: "Falha ao autenticar o usuário.", code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para verificar e obter a sessão do usuário
@@ -127,7 +127,6 @@ const databases = new Databases(client);
       return null; // Retorna null se o usuário não estiver autenticado
     }
   }
-
   
   // Função para obter a conta do usuário atual, se autenticado
   export async function getAccount() {
@@ -186,8 +185,8 @@ const databases = new Databases(client);
       return updatedStatus;
     } catch (error) {
       console.error("Erro ao alternar isOnline:", error.message);
-      throw new Error("Erro ao alternar status de online.");
-    }
+      throw { message: `Erro ao alternar isOnline: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
   
   // Função para fazer logout do usuário
@@ -203,7 +202,7 @@ const databases = new Databases(client);
       return deletedSession;
     } catch (error) {
       console.error("Erro ao fazer logout:", error.message);
-      throw new Error("Erro ao fazer logout.");
+      throw { message: "Erro ao fazer logout.", code: error.code || 500 }; // Melhorar o código de erro
     }
   }
 //FIM FUNCOES USUARIO
@@ -263,8 +262,9 @@ export async function getCityAndStateByZipCode(zipCode) {
       const fileUrl = await getFilePreview(uploadedFile.$id, type);
       return fileUrl;
     } catch (error) {
-      throw new Error('Falha ao enviar o arquivo. Tente novamente.' + error);
-    }
+      console.error("Falha ao enviar o arquivo:", error.message);
+      throw { message: `Falha ao enviar o arquivo. Tente novamente. ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para obter a URL de visualização de um arquivo
@@ -289,8 +289,9 @@ export async function getCityAndStateByZipCode(zipCode) {
 
       return fileUrl;
     } catch (error) {
-      throw new Error(error);
-    }
+      console.error("Erro ao pegar link da imagem:", error.message);
+      throw { message: `Erro ao pegar link da imagem: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 //Fim funcoes storage
 
@@ -324,7 +325,8 @@ export async function getCityAndStateByZipCode(zipCode) {
 
       return newPost;
     } catch (error) {
-      throw new Error(error);
+      console.error("Erro ao criar Post:", error.message);
+      throw { message: `Erro ao criar Post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
     }
   }
 
@@ -347,8 +349,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return posts.documents;  // Retorna apenas os documentos com os IDs
     } catch (error) {
       console.error("Erro ao buscar todos os posts:", error.message);
-      throw new Error("Erro ao buscar todos os posts.");
-    }
+      throw { message: `Erro ao buscar todos os posts: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para pegar um post pelo ID
@@ -362,11 +364,12 @@ export async function getCityAndStateByZipCode(zipCode) {
 
       return post;
     } catch (error) {
-      throw new Error('Erro ao buscar o post: ' + error.message);
+      console.error("Erro ao buscar o post:", error.message);
+      throw { message: `Erro ao buscar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
     }
   }
 
-    // Função para pegar postagens de um usuário com paginação
+  // Função para pegar postagens de um usuário com paginação
   export async function getUserPosts(userId, page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
@@ -390,8 +393,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       };
     } catch (error) {
       console.error("Erro ao buscar posts de usuário:", error.message);
-      throw new Error("Erro ao buscar posts de usuário.");
-    }
+      throw { message: `Erro ao buscar posts de usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para pesquisar postagens por uma string de consulta
@@ -410,8 +413,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return posts.documents; // Retorna os documentos encontrados
     } catch (error) {
       console.error("Erro ao pesquisar postagens:", error.message);
-      throw new Error("Erro ao realizar a busca");
-    }
+      throw { message: `Erro ao pesquisar postagens: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para incrementar o número de compartilhamentos
@@ -438,8 +441,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return true; // Indica que a operação foi bem-sucedida
     } catch (error) {
       console.error("Erro ao incrementar compartilhamentos:", error.message);
-      return false; // Retorna false se houver erro
-    }
+      throw { message: `Erro ao incrementar compartilhamentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   };
 
   export async function deletePostById(postId) {
@@ -452,8 +455,9 @@ export async function getCityAndStateByZipCode(zipCode) {
   
       return { success: true, message: "Post deletado com sucesso!" };
     } catch (error) {
-      throw new Error("Erro ao apagar o post: " + error.message);
-    }
+      console.error("Erro ao apagar o post:", error.message);
+      throw { message: `Erro ao apagar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
 //FIM funcoes post
@@ -472,8 +476,9 @@ export async function getCityAndStateByZipCode(zipCode) {
       );
       return followDocument;
     } catch (error) {
-      console.error("Erro ao seguir usuário:", error);
-    }
+      console.error("Erro ao seguir usuário:", error.message);
+      throw { message: `Erro ao seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   export async function unfollowUser(followerId, followingId) {
@@ -497,8 +502,9 @@ export async function getCityAndStateByZipCode(zipCode) {
         );
       }
     } catch (error) {
-      console.error("Erro ao deixar de seguir usuário:", error);
-    }
+      console.error("Erro ao deixar de seguir usuário:", error.message);
+      throw { message: `Erro ao deixar de seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   export async function getFollowers(userId, page = 1, limit = 10) {
@@ -523,9 +529,9 @@ export async function getCityAndStateByZipCode(zipCode) {
         pages: Math.ceil(followers.total / limit), // Calcula o número total de páginas
       };
     } catch (error) {
-      console.error("Erro ao obter seguidores:", error);
-      throw error;
-    }
+      console.error("Erro ao obter seguidores:", error.message);
+      throw { message: `Erro ao obter seguidores: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
   
   export async function getFollowing(userId, page = 1, limit = 10) {
@@ -550,9 +556,9 @@ export async function getCityAndStateByZipCode(zipCode) {
         pages: Math.ceil(following.total / limit), // Calcula o número total de páginas
       };
     } catch (error) {
-      console.error("Erro ao obter seguindo:", error);
-      throw error;
-    }
+      console.error("Erro ao obter seguindo:", error.message);
+      throw { message: `Erro ao obter seguindo: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   export async function getFollowerCount(userId) {
@@ -566,7 +572,6 @@ export async function getCityAndStateByZipCode(zipCode) {
   
       return result.total; // Retorna o total de seguidores
     } catch (error) {
-      console.error("Erro ao obter o número de seguidores:", error);
       return 0; // Retorna 0 em caso de erro
     }
   }
@@ -582,7 +587,6 @@ export async function getCityAndStateByZipCode(zipCode) {
   
       return result.total; // Retorna o total de usuários seguidos
     } catch (error) {
-      console.error("Erro ao obter o número de usuários seguidos:", error);
       return 0; // Retorna 0 em caso de erro
     }
   }
@@ -600,7 +604,6 @@ export async function getCityAndStateByZipCode(zipCode) {
   
       return follows.documents.length > 0; // Retorna true se existir um documento
     } catch (error) {
-      console.error("Erro ao verificar se está seguindo:", error);
       return false; // Retorna falso em caso de erro
     }
   }
@@ -653,9 +656,9 @@ export async function getCityAndStateByZipCode(zipCode) {
         currentPage: page // Página atual
       };
     } catch (error) {
-      console.error("Erro ao buscar usuários não seguidos:", error);
-      throw error;
-    }
+      console.error("Erro ao buscar usuários não seguidos:", error.message);
+      throw { message: `Erro ao buscar usuários não seguidos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
   
 //FIM funcoes follow
@@ -684,8 +687,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       };
     } catch (error) {
       console.error("Erro ao obter comentários do post:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao obter comentários do post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para adicionar um comentário a um post
@@ -709,8 +712,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return newComment;
     } catch (error) {
       console.error("Erro ao adicionar comentário:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao adicionar comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
  // Função para pegar o comentário pelo ID
@@ -725,8 +728,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return response;  // Retorna o comentário
     } catch (error) {
       console.error('Erro ao buscar comentário:', error.message);
-      throw error;
-    }
+      throw { message: `Erro ao buscar comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para deletar o comentário por ID
@@ -740,8 +743,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       );
     } catch (error) {
       console.error('Erro ao excluir comentário:', error.message);
-      throw error;
-    }
+      throw { message: `Erro ao excluir comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 //FIM funcoes comentario
 
@@ -761,7 +764,7 @@ export async function getCityAndStateByZipCode(zipCode) {
       return likes.total > 0; // Retorna true se o usuário curtiu o post
     } catch (error) {
       console.error("Erro ao verificar se o usuário curtiu o post:", error.message);
-      throw error;
+      throw { message: `Erro ao verificar se o usuário curtiu o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
     }
   }
   
@@ -775,7 +778,6 @@ export async function getCityAndStateByZipCode(zipCode) {
       );
       return likes.total; // Retorna a quantidade total de likes
     } catch (error) {
-      console.error("Erro ao obter número de likes do post:", error.message);
       return 0; // Retorna 0 em caso de erro
     }
   }
@@ -814,8 +816,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       }
     } catch (error) {
       console.error("Erro ao alternar like no post:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao alternar like no post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }  
 //FIM funcoes like post
 
@@ -850,8 +852,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       }
     } catch (error) {
       console.error("Erro ao alternar favorito:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao alternar favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   export async function getFavoriteCount(postId) {
@@ -867,8 +869,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return favorites.total;
     } catch (error) {
       console.error("Erro ao obter contagem de favoritos:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao obter contagem de favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 
   // Função para verificar se o post está nos favoritos do usuário
@@ -885,8 +887,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       return favorites.total > 0; // Retorna true se há favoritos
     } catch (error) {
       console.error("Erro ao verificar se o post é favorito:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao verificar se o post é favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 //FIM funcoes favoritos 
 
@@ -904,7 +906,7 @@ export async function getCityAndStateByZipCode(zipCode) {
       return likes.total > 0; // Retorna true se o usuário curtiu o comentário
     } catch (error) {
       console.error("Erro ao verificar se o usuário curtiu o comentário:", error.message);
-      throw error;
+      throw { message: `Erro ao verificar se o usuário curtiu o comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
     }
   }
 
@@ -918,7 +920,6 @@ export async function getCityAndStateByZipCode(zipCode) {
       );
       return likes.total;
     } catch (error) {
-      console.error("Erro ao obter número de likes do comentário:", error.message);
       return 0; // Retorna 0 em caso de erro
     }
   }
@@ -957,8 +958,8 @@ export async function getCityAndStateByZipCode(zipCode) {
       }
     } catch (error) {
       console.error("Erro ao alternar like no comentário:", error.message);
-      throw error;
-    }
+      throw { message: `Erro ao alternar like no comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   }
 //FIM curtidas comentario
 
@@ -972,8 +973,9 @@ export async function getCityAndStateByZipCode(zipCode) {
       
       return response.documents; // Retorna todos os documentos da coleção
     } catch (error) {
-      console.error('Erro ao buscar os documentos:', error);
-    }
+      console.error("Erro ao buscar os documentos:", error.message);
+      throw { message: `Erro ao buscar os documentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    }  
   };
 //FIM funcoes eventos
 
@@ -1022,7 +1024,8 @@ export async function updateVote(quizId, userId, optionIndex) {
     return { success: true, message: "Voto registrado com sucesso!"};
 
   } catch (error) {
-    throw new Error("Erro ao atualizar o voto: " + error.message);
+    console.error("Erro ao atualizar o voto:", error.message);
+    throw { message: `Erro ao atualizar o voto: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1040,7 +1043,8 @@ export const checkUserVote = async (quizId, userId) => {
 
     return existingVote.documents.length > 0 ? existingVote.documents[0] : null;
   } catch (error) {
-    throw new Error("Erro ao verificar voto do usuário: " + error.message);
+    console.error("Erro ao verificar voto do usuário:", error.message);
+    throw { message: `Erro ao verificar voto do usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -1069,7 +1073,8 @@ export const getVotesCount = async (quizId) => {
     // Retorna a contagem de votos por índice de opção
     return votesCount;
   } catch (error) {
-    throw new Error("Erro ao obter a contagem de votos: " + error.message);
+    console.error("Erro ao obter a contagem de votos:", error.message);
+    throw { message: `Erro ao obter a contagem de votos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -1083,7 +1088,8 @@ export async function fetchAllQuizIds() {
     const quizIds = response.documents.map((doc) => doc.$id);
     return quizIds;
   } catch (error) {
-    throw new Error("Erro ao buscar IDs dos quizzes: " + error.message);
+    console.error("Erro ao buscar IDs dos quizzes:", error.message);
+    throw { message: `Erro ao buscar IDs dos quizzes: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1103,7 +1109,8 @@ export async function fetchQuizById(quizId) {
 
     return { ...quizData, options: parsedOptions };
   } catch (error) {
-    throw new Error("Erro ao carregar o quiz: " + error.message);
+    console.error("Erro ao carregar o quiz:", error.message);
+    throw { message: `Erro ao carregar o quiz: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM funcoes quiz
