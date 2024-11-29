@@ -12,7 +12,7 @@ interface ImageUploadProps {
     onAspectRatioCalculated?: (ratio: String) => void; // Nova função opcional
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 const ASPECT_RATIO_TOLERANCE = 0.1;
 
@@ -79,7 +79,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         }
 
         if (fileSize && fileSize > MAX_FILE_SIZE) {
-            showAlert('Aviso', 'O tamanho da imagem deve ser menor que 10MB.');
+            showAlert('Aviso', 'O tamanho da imagem deve ser menor que 50MB.');
             return false;
         }
 
@@ -203,9 +203,9 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
         }
 
         // Verifica se o tamanho do arquivo é menor que 10MB
-        const MAX_SIZE_MB = 10;
+        const MAX_SIZE_MB = 50;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            showAlert('Aviso', 'O arquivo selecionado é maior que 10MB. Por favor, escolha outro arquivo.');
+            showAlert('Aviso', 'O arquivo selecionado é maior que 50MB. Por favor, escolha outro arquivo.');
             return;
         }
 
@@ -294,7 +294,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
                     arquivo
                 </Text>
                 <Text className="text-textStandard text-[14px] text-center">
-                    Formatos suportados: JPG, PNG (10mb cada)
+                    Formatos suportados: JPG, PNG (50mb cada)
                 </Text>
             </>
         )

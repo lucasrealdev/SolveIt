@@ -25,6 +25,7 @@ const CardFriend: React.FC<CardFriendProps> = ({ idUser, label }) => {
 
   useEffect(() => {
     const fetchPost = async () => {
+      console.log(idUser)
       setLoading(true);
 
       try {

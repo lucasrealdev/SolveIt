@@ -5,7 +5,6 @@ import CardAmigo from "@/components/CardFriend";
 import SearchHeader from "@/components/SearchHeader";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
-import ButtonScale from "@/components/ButtonScale";
 import { getFollowerCount, getFollowers, getFollowing, getFollowingCount, getSuggestedFriends } from "@/lib/appwriteConfig";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
@@ -18,6 +17,7 @@ export default function Friends() {
   const [activeTab, setActiveTab] = useState<'followers' | 'following'>('followers');
   const { user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
+  const [loadingSuggested, setLoadingSuggested] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
@@ -37,6 +37,7 @@ export default function Friends() {
 
       try {
         setLoading(true);
+        setLoadingSuggested(true);
 
         // Reset pagination
         setPageFollowers(1);
@@ -82,6 +83,7 @@ export default function Friends() {
         console.error("Error fetching initial data:", error);
       } finally {
         setLoading(false);
+        setLoadingSuggested(false);
       }
     };
 
@@ -92,10 +94,9 @@ export default function Friends() {
     if (!user || loading) return;
 
     try {
-      setLoading(true);
-
       switch (type) {
         case 'followers':
+          setLoading(true);
           if (!hasMoreFollowers) return;
           const followersData = await getFollowers(
             user?.$id,
@@ -115,6 +116,7 @@ export default function Friends() {
           break;
 
         case 'following':
+          setLoading(true);
           if (!hasMoreFollowing) return;
           const followingsData = await getFollowing(
             user?.$id,
@@ -134,6 +136,7 @@ export default function Friends() {
           break;
 
         case 'suggested':
+          setLoadingSuggested(true);
           if (!hasMoreSuggestedFriends) return;
           const suggestedFriendsData = await getSuggestedFriends(
             user?.$id,
@@ -156,6 +159,7 @@ export default function Friends() {
       console.log(`Erro ao carregar ${type}:`, error);
     } finally {
       setLoading(false);
+      setLoadingSuggested(false);
     }
   };
 
@@ -190,6 +194,16 @@ export default function Friends() {
   const renderUserCards = () => {
     const currentUsers = activeTab === 'followers' ? followers : following;
 
+    if (currentUsers.length === 0 && !loading) {
+      return (
+        <Text className="font-bold text-textStandardDark text-lg w-full text-center">
+          {activeTab === 'followers'
+            ? 'Você não tem seguidores.'
+            : 'Você não segue ninguém.'}
+        </Text>
+      );
+    }
+
     return currentUsers.map((user, index) => (
       <CardAmigo
         key={`${activeTab}-${user.$id}-${index}`}
@@ -201,9 +215,13 @@ export default function Friends() {
   };
 
   const renderUserCardsSuggested = () => {
+    if (suggestedFriends.length === 0 && !loadingSuggested) {
+      return <Text className="font-bold text-textStandardDark text-lg w-full text-center">Sem sugestão de amigos.</Text>;
+    }
+  
     return suggestedFriends.map((user, index) => (
       <CardAmigo
-        key={`${activeTab}-${user.$id}-${index}`}
+        key={`${user.$id}-${index}`}
         idUser={user.$id}
       />
     ));
@@ -288,7 +306,7 @@ export default function Friends() {
                 colorPressIn={colors.accentStandardDark.pressIn}
                   onPress={() => fetchMoreUsers('suggested')}
                 >
-                  {loading ? (
+                  {loadingSuggested ? (
                     <ActivityIndicator size="small" color="#01B198" />
                   ) : (
                     <>

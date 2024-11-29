@@ -105,7 +105,7 @@ const databases = new Databases(client);
     } catch (error) {
       console.error("Erro ao obter perfil:", error.message);
       throw { message: error.message || "Erro desconhecido", code: error.code || 500 }; // Melhorar o código de erro
-    }  
+    }
   }
 
   // Função para fazer login de usuário
