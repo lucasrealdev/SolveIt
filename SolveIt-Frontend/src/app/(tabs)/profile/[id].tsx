@@ -368,17 +368,21 @@ const Profile = () => {
                 <View className="flex-row items-center">
                   <Text className="text-base text-gray-600">{"Membro " + userData.accountType}</Text>
                 </View>
-                <TouchableOpacity
-                  className="bg-primaryStandardDark py-3 px-6 rounded-xl items-center mt-6 active:opacity-90 w-full"
-                  onPress={handlePress}
-                >
-                  <View className='flex-row gap-2'>
-                    <Text className="text-white text-base font-semibold">
-                      Ir para whatsapp
-                    </Text>
-                    <FontAwesome name="whatsapp" size={24} color="#ffffff" />
-                  </View>
-                </TouchableOpacity>
+                {userData.numberPhone ? (
+                  <TouchableOpacity
+                    className="bg-primaryStandardDark py-3 px-6 rounded-xl items-center mt-6 active:opacity-90 w-full"
+                    onPress={handlePress}
+                  >
+                    <View className='flex-row gap-2'>
+                      <Text className="text-white text-base font-semibold">
+                        Ir para whatsapp
+                      </Text>
+                      <FontAwesome name="whatsapp" size={24} color="#ffffff" />
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  null
+                )}
               </View>
             ) : (
               <View className="items-center">
