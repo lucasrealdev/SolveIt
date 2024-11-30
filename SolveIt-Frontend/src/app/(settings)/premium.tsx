@@ -112,13 +112,6 @@ export default function PremiumScreen() {
               </Text>
             </View>
           </View>
-
-          {/* Botão Premium */}
-          <View className="flex flex-row justify-end max-w-[1000px]">
-            <TouchableOpacity className="bg-accentStandardDark py-[12px] px-[24px] rounded-full flex-row items-center gap-1">
-              <Text className="text-white text-base font-semibold">Garantir Premium</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </ScrollView>

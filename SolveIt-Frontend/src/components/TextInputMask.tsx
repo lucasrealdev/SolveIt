@@ -69,7 +69,7 @@ const TextInputMask = ({
         className={`rounded-2xl bg-white border flex-col`}>
         <TextInput
           placeholder={placeholder}
-          className="outline-none text-base text-textStandardDark pl-2 pt-1"
+          className="outline-none text-base text-textStandardDark pl-2"
           numberOfLines={multiline ? 20 : 1}
           maxLength={maxLength}
           multiline={multiline}
