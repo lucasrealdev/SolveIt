@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { View, Text, ScrollView, Image, Pressable, ActivityIndicator } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
@@ -65,23 +65,23 @@ export default function SignUp() {
   // Função de validação
   const validateForm = (form: { username: string; email: string; password: string }): boolean => {
     const { username, email, password } = form;
-  
+
     if (!username.trim() || !email.trim() || !password.trim()) {
       showAlert("Campos obrigatórios", "Por favor, preencha todos os campos obrigatórios.");
       return false;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showAlert("E-mail inválido", "Por favor, insira um endereço de e-mail válido.");
       return false;
     }
-  
+
     if (password.length < 8) {
       showAlert("Senha muito curta", "Sua senha deve ter pelo menos 8 caracteres.");
       return false;
     }
-  
+
     return true;
   };
 
@@ -97,7 +97,7 @@ export default function SignUp() {
         <View className="flex-1 justify-center items-center w-full p-2">
           <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" aria-label="CardSignUp">
             <View className="gap-2">
-              <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]"/>
+              <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]" />
               <View className="gap-2">
                 <Text className="font-extrabold text-4xl text-textStandardDark">Cadastre-se gratuitamente.</Text>
                 <Text className="text-base text-textStandardDark">Unleash your inner sloth 4.0 right now.</Text>
@@ -140,7 +140,7 @@ export default function SignUp() {
             </View>
 
             <View aria-label="ContainerButtonSignUp" className="gap-6">
-              <Button className="bg-accentStandardDark rounded-full py-3 gap-2"  isLoading={isSubmitting}
+              <Button className="bg-accentStandardDark rounded-full py-3 gap-2" isLoading={isSubmitting}
                 onPress={sendUser}
               >
                 <TextButton text="Cadastrar" />
@@ -150,7 +150,7 @@ export default function SignUp() {
               <View className="w-full flex items-center flex-row justify-center">
                 <Text className="text-textStandardDark font-bold">Você já tem uma conta?{' '}</Text>
                 <HoverColorComponent onPress={() => router.push('/signin')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
-                  <Text className="font-bold" style={{color: "#01b297"}}>Entre</Text>
+                  <Text className="font-bold" style={{ color: "#01b297" }}>Entre</Text>
                 </HoverColorComponent>
               </View>
             </View>
@@ -161,7 +161,9 @@ export default function SignUp() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <Pressable className="w-full border border-textStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3">
+            <Pressable
+              className="w-full border border-textStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3"
+            >
               <Image source={images.google} className="w-6 h-6" />
               <Text className="font-bold text-textStandardDark">Continuar com Google</Text>
             </Pressable>

@@ -311,7 +311,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({
     );
 
     return (
-        <View className="p-[10px] gap-2">
+        <View className="py-[10px] gap-2">
             <Text className="font-bold">Carregar Imagem (Opcional)</Text>
 
             {!imageWeb && !image ? (

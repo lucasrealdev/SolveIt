@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Text, View, ScrollView, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
 import MenuRight from "@/components/MenuRight";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import ImageUploadComponent from "@/components/ImageUploadComponent";
 import ButtonScale from "@/components/ButtonScale";
@@ -13,26 +15,34 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { usePathname, useRouter } from "expo-router";
 
 const renderSelectItem = (item) => (
-  <View className="flex-row">
-    <Icon name={item.icon} size={20} color={item.color} style={styles.icon} />
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <item.icon.library
+      name={item.icon.name}
+      size={18}
+      color={item.color}
+      style={{ marginRight: 8 }}
+    />
     <Text>{item.value}</Text>
   </View>
 );
 
 const DropdownModel = ({ data, title, placeholder, setSelected }) => (
-  <View className="p-[10px] gap-[10px]">
+  <View className=" gap-[10px]">
     <Text className="font-bold">{title}</Text>
     <SelectList
       placeholder={placeholder}
       setSelected={(selectedKey) => {
-        const selectedItem = data.find(item => item.key === selectedKey);
-        setSelected(selectedItem ? selectedItem.value : '');  // Passa apenas o valor
+        const selectedItem = data.find((item) => item.key === selectedKey);
+        setSelected(selectedItem ? selectedItem.value : ''); // Define o valor selecionado
       }}
       dropdownItemStyles={{ top: 0 }}
       boxStyles={styles.dropdownBox}
       inputStyles={styles.dropdownInput}
       search={false}
-      data={data.map(item => ({ key: item.key, value: renderSelectItem(item) }))}
+      data={data.map((item) => ({
+        key: item.key,
+        value: renderSelectItem(item),
+      }))}
     />
   </View>
 );
@@ -70,20 +80,34 @@ export default function CreatePost() {
   };
 
   const categories = [
-    { key: '1', value: 'Saúde', icon: 'heart', color: '#FF6347' },
-    { key: '2', value: 'Culinária', icon: 'cutlery', color: '#FFA500' },
-    { key: '3', value: 'Negócios', icon: 'briefcase', color: '#4682B4' },
-    { key: '4', value: 'Carreira', icon: 'line-chart', color: '#4B0082' },
-    { key: '5', value: 'Entretenimento', icon: 'film', color: '#FF69B4' },
-    { key: '6', value: 'Ciência', icon: 'flask', color: '#8A2BE2' },
+    { key: '1', value: 'Saúde', icon: { name: 'heartbeat', library: FontAwesome5 }, color: '#FF6347' },
+    { key: '2', value: 'Culinária', icon: { name: 'utensils', library: FontAwesome5 }, color: '#FFA500' },
+    { key: '3', value: 'Negócios', icon: { name: 'briefcase', library: FontAwesome }, color: '#4682B4' },
+    { key: '4', value: 'Carreira', icon: { name: 'chart-line', library: FontAwesome5 }, color: '#4B0082' },
+    { key: '5', value: 'Entretenimento', icon: { name: 'film', library: FontAwesome }, color: '#FF69B4' },
+    { key: '6', value: 'Ciência', icon: { name: 'flask', library: FontAwesome }, color: '#8A2BE2' },
+    { key: '7', value: 'Família', icon: { name: 'users', library: FontAwesome }, color: '#FFD700' },
+    { key: '8', value: 'Educação', icon: { name: 'graduation-cap', library: FontAwesome }, color: '#6A5ACD' },
+    { key: '9', value: 'Sustentabilidade', icon: { name: 'leaf', library: FontAwesome }, color: '#228B22' },
+    { key: '10', value: 'Lazer', icon: { name: 'videogame-asset', library: MaterialIcons }, color: '#00CED1' },
+    { key: '11', value: 'Finanças', icon: { name: 'dollar-sign', library: FontAwesome5 }, color: '#2E8B57' },
+    { key: '12', value: 'Transporte', icon: { name: 'car', library: FontAwesome }, color: '#FF4500' },
+    { key: '13', value: 'Pets', icon: { name: 'paw', library: FontAwesome }, color: '#FFB6C1' },
+    { key: '14', value: 'Moda', icon: { name: 'tshirt', library: FontAwesome5 }, color: '#4682B4' },
+    { key: '15', value: 'Segurança', icon: { name: 'shield-alt', library: FontAwesome5 }, color: '#B22222' },
+    { key: '16', value: 'Arte', icon: { name: 'palette', library: FontAwesome5 }, color: '#8B4513' },
+    { key: '17', value: 'Viagens', icon: { name: 'plane', library: FontAwesome }, color: '#4682B4' },
+    { key: '18', value: 'Inclusão', icon: { name: 'universal-access', library: FontAwesome5 }, color: '#2F4F4F' },
+    { key: '19', value: 'Infantil', icon: { name: 'baby', library: FontAwesome5 }, color: '#ADD8E6' },
+    { key: '20', value: 'Comunidade', icon: { name: 'hands-helping', library: FontAwesome5 }, color: '#8FBC8F' },
+    { key: '21', value: 'Digital', icon: { name: 'mobile-alt', library: FontAwesome5 }, color: '#696969' },
   ];
 
   const urgencies = [
-    { key: '1', value: 'Leve', icon: 'check-square', color: '#4CAF50' },
-    { key: '2', value: 'Intermediário', icon: 'exclamation-triangle', color: '#FFC107' },
-    { key: '3', value: 'Grave', icon: 'ban', color: '#F44336' },
+    { key: '1', value: 'Leve', icon: { name: 'check-square', library: FontAwesome }, color: '#4CAF50' },
+    { key: '2', value: 'Intermediário', icon: { name: 'exclamation-triangle', library: FontAwesome }, color: '#FFC107' },
+    { key: '3', value: 'Grave', icon: { name: 'ban', library: FontAwesome }, color: '#F44336' },
   ];
-
 
   const validateForm = () => {
     const { title, description, peopleAffects, category, urgencyProblem, zipCode, tags } = form;
@@ -121,7 +145,7 @@ export default function CreatePost() {
           ...form,
           userId: user.$id,  // Adiciona o userId no form
         };
-        
+
         await createPost(formWithUserId, isWeb);
 
         showAlert("Sucesso!", "Sua publicação foi criada com sucesso!");
@@ -139,7 +163,7 @@ export default function CreatePost() {
     <View className="flex flex-1 flex-row bg-[#F8FAFC]">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="flex-1 flex items-center">
-          <View className="w-full py-[24px] px-[5px] max-w-[1000px]">
+          <View className="w-full py-[24px] px-[5px] max-w-[1000px] gap-[10px]">
             <TextInputMask
               title="Dê um título ao seu problema"
               placeholder="Ex: Dificuldade em encontrar táxis disponíveis"

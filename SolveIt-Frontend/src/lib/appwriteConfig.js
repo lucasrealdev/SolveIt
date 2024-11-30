@@ -4,6 +4,7 @@ import {
   Client,
   Databases,
   ID,
+  OAuthProvider,
   Query,
   Storage,
 } from "react-native-appwrite";
