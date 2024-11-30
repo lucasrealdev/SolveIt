@@ -62,6 +62,7 @@ const TextInputMask = ({
       {title && <Text className="font-bold">{title}</Text>}
       <View
         style={{
+          justifyContent: "center",
           height: multiline ? 124 : 48,
           borderColor: isFocused ? focusColor : blurColor, // Use as props para definir a cor da borda
         }}
