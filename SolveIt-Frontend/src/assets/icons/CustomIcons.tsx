@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { G, Path, ClipPath, Defs, Circle } from 'react-native-svg';
+import Svg, { G, Path, ClipPath, Defs, Circle, Rect } from 'react-native-svg';
 
 interface IconProps {
     name: string; // Nome do ícone que será exibido
@@ -369,14 +369,14 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 fill="none"
                 viewBox="0 0 40 41"
             >
-                <rect
+                <Rect
                     width="39"
                     height="39"
                     x="0.5"
                     y="1"
                     stroke="#CBD5E1"
                     rx="19.5"
-                ></rect>
+                ></Rect>
                 <Path
                     fill="#475569"
                     d="M18.438 17.063a1.25 1.25 0 112.5 0 1.25 1.25 0 01-2.5 0zm10 3.437A8.437 8.437 0 1120 12.062a8.447 8.447 0 018.438 8.438zm-1.875 0A6.562 6.562 0 1020 27.063a6.57 6.57 0 006.563-6.563zm-5.625 2.866v-2.553a1.563 1.563 0 00-1.563-1.563.937.937 0 00-.313 1.822v2.553a1.563 1.563 0 001.563 1.563.938.938 0 00.313-1.822z"
@@ -765,7 +765,7 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 viewBox="0 0 24 24"
             >
                 <G fill={color} clipPath="url(#clip0_1437_5149)">
-                    <path d="M15.75 18h-7.5a1.5 1.5 0 0 0-1.5 1.5V21a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-1.5a1.5 1.5 0 0 0-1.5-1.5m0 3h-7.5v-1.5h7.5zM21.53 10.72l-9-9a.75.75 0 0 0-1.06 0l-9 9A.75.75 0 0 0 3 12h3.75v3a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-3H21a.75.75 0 0 0 .53-1.28m-5.78-.22V15h-7.5v-4.5H4.81L12 3.31l7.19 7.19z"></path>
+                    <Path d="M15.75 18h-7.5a1.5 1.5 0 0 0-1.5 1.5V21a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-1.5a1.5 1.5 0 0 0-1.5-1.5m0 3h-7.5v-1.5h7.5zM21.53 10.72l-9-9a.75.75 0 0 0-1.06 0l-9 9A.75.75 0 0 0 3 12h3.75v3a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-3H21a.75.75 0 0 0 .53-1.28m-5.78-.22V15h-7.5v-4.5H4.81L12 3.31l7.19 7.19z"></Path>
                 </G>
                 <Defs>
                     <clipPath id="clip0_1437_5149">

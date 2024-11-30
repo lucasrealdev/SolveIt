@@ -102,10 +102,6 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     }
   }, [postId, user]);
 
-  if (loading) {
-    return <PostSkeleton />;
-  }
-
   const renderImage = () => {
     if (!post.thumbnail) return null;
 
@@ -226,6 +222,10 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       router.push('/');  // Vai para a página inicial se não houver uma página anterior
     }
   };
+
+  if (loading) {
+    return <PostSkeleton />;
+  }
 
   const renderHeader = () => (
     <View aria-label="HeaderPost" className="flex w-full px-[20px] py-3 gap-[15px] border-b border-borderStandardLight flex-row items-center">

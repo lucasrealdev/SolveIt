@@ -23,7 +23,6 @@
     "expo-linear-gradient": "^13.0.2",
     "expo-router": "~3.5.24",
     "expo-status-bar": "~1.12.1",
-    "expo-web-browser": "^14.0.1",
     "nativewind": "4.0.25",
     "react": "18.2.0",
     "react-dom": "18.2.0",

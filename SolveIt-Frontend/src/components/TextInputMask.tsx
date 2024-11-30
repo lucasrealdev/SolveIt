@@ -38,7 +38,10 @@ const TextInputMask = ({
     switch (maskType) {
       case "number": return text.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       case "cep": return text.replace(/(\d{5})(\d{3})/, "$1-$2");
-      case "phone": return text.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+      case "phone":
+        return text
+          .replace(/^\+55|[^0-9]/g, "") // Remove tudo que não é número, exceto o prefixo +55
+          .replace(/(\d{2})(\d{5})(\d{4})/, "+55 ($1) $2-$3"); // Formata no padrão +55 (XX) XXXXX-XXXX
       case "cpf": return text.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
       case "cnpj": return text.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
       default: return text;
@@ -55,23 +58,18 @@ const TextInputMask = ({
   const remainingChars = maxLength - value.length;
 
   return (
-    <View className="flex-1 pt-0 gap-[10px]">
+    <View className="w-full gap-[5px] h-fit">
       {title && <Text className="font-bold">{title}</Text>}
       <View
         style={{
-          padding: 10,
-          borderRadius: 20,
-          flex: 1,
-          justifyContent: 'flex-start',
-          backgroundColor: 'white',
-          height: multiline ? 144 : 48,
-          borderWidth: 1,
+          height: multiline ? 124 : 48,
           borderColor: isFocused ? focusColor : blurColor, // Use as props para definir a cor da borda
-        }}>
+        }}
+        className={`rounded-2xl bg-white border flex-col`}>
         <TextInput
           placeholder={placeholder}
-          className="outline-none text-[16px] text-textStandardDark"
-          numberOfLines={multiline ? 10 : 1}
+          className="outline-none text-base text-textStandardDark pl-2 pt-1"
+          numberOfLines={multiline ? 20 : 1}
           maxLength={maxLength}
           multiline={multiline}
           inputMode={inputMode}
@@ -79,13 +77,14 @@ const TextInputMask = ({
           onChangeText={handleTextChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          textAlignVertical={`${multiline ? "top" : "center"}`}
         />
-        {showCharCount && (
-          <Text className="text-left text-sm text-gray-500">
-            {remainingChars} characters left
-          </Text>
-        )}
       </View>
+      {showCharCount && (
+        <Text className="text-sm text-textSecondary pl-1">
+          {remainingChars} Letras Restantes
+        </Text>
+      )}
     </View>
   );
 };

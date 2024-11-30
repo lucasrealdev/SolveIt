@@ -85,7 +85,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
     );
   };
 
-  const isMobile = width < 770;
+  const isMobile = width < 771;
   const isTablet = height <= 720 ? "hidden" : "";
   const containerWidth = width >= 1400 ? 312 : 280;
 
@@ -109,7 +109,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
           {renderMenuButton('/', 'Descubra o mundo', 'home', home)}
           {renderMenuButton('/games', 'Jogos', 'jogos', games)}
           {renderMenuButton('/friends', 'Amigos', 'amigos', friends)}
-          {renderMenuButton('/settings', 'Configurações', 'configuracoes')}
+          {renderMenuButton('/information', 'Configurações', 'configuracoes')}
           {renderMenuButton('/help', 'Ajuda e Suporte', 'ajuda', help)}
         </View>
       </View>

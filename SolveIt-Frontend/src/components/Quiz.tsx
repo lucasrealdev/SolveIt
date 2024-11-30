@@ -131,9 +131,9 @@ const Quiz = ({ quizId }) => {
                                     onPress={() => handleVote(index)}
                                     disabled={isLoadingVote}
                                 >
-                                    <View className='flex-row items-center'>
+                                    <View className='flex-row items-center w-fit'>
                                         <Text className='font-bold text-textStandardDark mr-2'>{percentage.toFixed(0)}%</Text>
-                                        <Text className="flex-1 text-base mr-2">{option.text}</Text>
+                                        <Text className="text-base mr-2">{option.text}</Text>
                                         {isSelected && <CustomIcons name="correct" size={20} color="#01B198" />}
                                     </View>
                                     <Text className="text-base font-bold text-textSecondary">{votesForOption}</Text>

@@ -27,7 +27,7 @@ const renderSelectItem = (item) => (
 );
 
 const DropdownModel = ({ data, title, placeholder, setSelected }) => (
-  <View className=" gap-[10px]">
+  <View className=" gap-[5px]">
     <Text className="font-bold">{title}</Text>
     <SelectList
       placeholder={placeholder}
@@ -163,7 +163,7 @@ export default function CreatePost() {
     <View className="flex flex-1 flex-row bg-[#F8FAFC]">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="flex-1 flex items-center">
-          <View className="w-full py-[24px] px-[5px] max-w-[1000px] gap-[10px]">
+          <View className="w-full pb-[24px] pt-3 px-[10px] max-w-[1000px] gap-[10px]">
             <TextInputMask
               title="Dê um título ao seu problema"
               placeholder="Ex: Dificuldade em encontrar táxis disponíveis"
@@ -182,6 +182,7 @@ export default function CreatePost() {
               inputMode="text"
               value={form.description}
               onChangeText={(text) => updateForm("description", text)}
+              showCharCount
             />
             <TextInputMask
               title="Quantas pessoas você acha que este problema afeta?"
@@ -224,6 +225,7 @@ export default function CreatePost() {
               inputMode="text"
               value={form.tags}
               onChangeText={(text) => updateForm("tags", text)}
+              showCharCount
             />
 
             <ImageUploadComponent
@@ -231,9 +233,9 @@ export default function CreatePost() {
               onAspectRatioCalculated={(ratio) => updateForm("thumbnailRatio", ratio)}
             />
 
-            <View className="items-start px-[10px] mt-4">
+            <View className="items-start mt-2">
               <ButtonScale
-                className="border-[1px] h-12 flex flex-row items-center justify-center rounded-full border-accentStandardDark gap-[10px]"
+                className="border-[1px] h-12 flex flex-row items-center justify-center rounded-3xl border-accentStandardDark gap-[10px]"
                 scale={1.02}
                 style={{ width: 130 }}
                 onPress={handleSubmit}>
@@ -259,7 +261,7 @@ const styles = StyleSheet.create({
   icon: { marginRight: 8 },
   dropdownBox: {
     borderStyle: "solid",
-    borderRadius: 20,
+    borderRadius: 16,
     borderColor: '#3692C5',
     borderWidth: 1,
     backgroundColor: '#fff'
