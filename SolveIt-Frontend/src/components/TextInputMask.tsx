@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput } from "react-native";
- 
+
 // Definindo as propriedades do componente
 interface TextInputMaskProps {
   title?: string;
@@ -16,7 +16,7 @@ interface TextInputMaskProps {
   focusColor?: string;
   blurColor?: string;
 }
- 
+
 const TextInputMask = ({
   title,
   placeholder,
@@ -32,7 +32,7 @@ const TextInputMask = ({
   blurColor = "#0174b2",  // Cor padrão de desfoque
 }: TextInputMaskProps) => {
   const [isFocused, setIsFocused] = useState(false);
- 
+
   // Função para aplicar a máscara
   const applyMask = (text: string) => {
     switch (maskType) {
@@ -44,16 +44,16 @@ const TextInputMask = ({
       default: return text;
     }
   };
- 
+
   // Lidar com mudanças no texto
   const handleTextChange = (text: string) => {
     const filteredText = text.replace(inputFilter, "");
     onChangeText(applyMask(filteredText));
   };
- 
+
   // Calcular caracteres restantes
   const remainingChars = maxLength - value.length;
- 
+
   return (
     <View className="flex-1 pt-0 gap-[10px]">
       {title && <Text className="font-bold">{title}</Text>}
@@ -80,14 +80,14 @@ const TextInputMask = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
+        {showCharCount && (
+          <Text className="text-left text-sm text-gray-500">
+            {remainingChars} characters left
+          </Text>
+        )}
       </View>
-      {showCharCount && (
-        <Text className="text-left text-sm text-gray-500">
-          {remainingChars} characters left
-        </Text>
-      )}
     </View>
   );
 };
- 
+
 export default TextInputMask;
