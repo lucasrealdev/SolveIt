@@ -55,11 +55,11 @@ export default function Favoritos() {
     return null;
   }, [loadingMore, hasMore, posts.length]);
 
-  const renderPosts = useMemo(() => {
-    return posts.map((post) => (
-      <Post key={post.$id} postId={post.$id} />
-    ));
-  }, [loading, posts]);
+  // const renderPosts = useMemo(() => {
+  //   return posts.map((post) => (
+  //     <Post key={post.$id} postId={post.$id} />
+  //   ));
+  // }, [loading, posts]);
 
   return (
     <View className="flex-1 flex-row">
@@ -76,7 +76,7 @@ export default function Favoritos() {
         }>
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
-            <Post postId="6749fbe20005b9ec5e8f" />
+            
           </View>
         </View>
       </ScrollView>

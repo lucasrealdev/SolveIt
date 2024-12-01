@@ -19,7 +19,7 @@ export default function Index() {
   const [isRequesting, setIsRequesting] = useState(false);
 
   const [posts, setPosts] = useState([]);
-  const POSTS_PER_PAGE = 3;
+  const POSTS_PER_PAGE = 5;
 
   const { user, isLogged, loading } = useGlobalContext();
 
@@ -67,7 +67,7 @@ export default function Index() {
   // Lógica otimizada para scroll
   const handleScroll = useCallback(({ nativeEvent }) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 100) {
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 400) {
       fetchMorePosts(); // Inicia o carregamento quando próximo ao final
     }
   }, [fetchMorePosts]);
