@@ -78,6 +78,35 @@ export async function createUser(email, password, username) {
   }
 }
 
+export async function updateUser(userId, username, phoneNumber, biography) {
+  try {
+    // Garante que o usuário está logado, utilizando o email e a senha
+    // Aqui você pode omitir o processo de login, pois o foco é atualizar o usuário
+    // No caso do usuário estar logado e a sessão ainda ser válida, pode-se omitir essa parte
+
+    // Gera uma nova URL de avatar, caso o username tenha mudado
+    const avatarUrl = avatars.getInitials(username);
+
+    // Atualiza os dados do usuário no banco de dados
+    const updatedUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId, // ID do usuário para atualização
+      {
+        username: username,       // Atualiza o nome de usuário
+        numberPhone: phoneNumber, // Atualiza o número de telefone
+        biography: biography,     // Atualiza a biografia
+        avatar: avatarUrl,        // Atualiza a URL do avatar
+      }
+    );
+
+    return updatedUser;
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error.message);
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+  }
+}
+
 // Função para obter o perfil do usuário
 export async function getUserProfile(accountId) {
   try {
@@ -362,19 +391,19 @@ export const fetchEntirePosts = async (page = 1, limit = 10, user = null) => {
         // Enriquecer os comentários com likeCount e isLiked
         const enrichedComments = await Promise.all(comments.documents.map(async (comment) => {
           // Obter a contagem de likes para cada comentário, com fallback para 0
-          const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);  
-        
+          const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);
+
           // Verificar se o usuário curtiu o comentário, com fallback para false
-          const isLiked = user?.$id 
-            ? await userLikedComment(user.$id, comment.$id).catch(() => false) 
+          const isLiked = user?.$id
+            ? await userLikedComment(user.$id, comment.$id).catch(() => false)
             : false;
-        
+
           return {
             ...comment,
             likeCount,  // Adiciona a contagem de likes do comentário
             isLiked,    // Adiciona se o usuário curtiu ou não
           };
-        }));        
+        }));
 
         return {
           post: post,
@@ -417,11 +446,11 @@ export const fetchPostById = async (postId, user = null) => {
     // Enriquecer os comentários com likeCount e isLiked
     const enrichedComments = await Promise.all(comments.documents.map(async (comment) => {
       // Obter a contagem de likes para cada comentário, com fallback para 0
-      const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);  
+      const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);
 
       // Verificar se o usuário curtiu o comentário, com fallback para false
-      const isLiked = user?.$id 
-        ? await userLikedComment(user.$id, comment.$id).catch(() => false) 
+      const isLiked = user?.$id
+        ? await userLikedComment(user.$id, comment.$id).catch(() => false)
         : false;
 
       return {
@@ -480,8 +509,8 @@ export async function fetchPostsUser(userId, page = 1, limit = 10, user = null) 
         const enrichedComments = await Promise.all(
           comments.documents.map(async (comment) => {
             const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);
-            const isLiked = user?.$id 
-              ? await userLikedComment(user.$id, comment.$id).catch(() => false) 
+            const isLiked = user?.$id
+              ? await userLikedComment(user.$id, comment.$id).catch(() => false)
               : false;
 
             return {
