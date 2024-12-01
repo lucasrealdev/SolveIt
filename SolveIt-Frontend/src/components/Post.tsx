@@ -7,87 +7,82 @@ import CustomIcons from '@/assets/icons/CustomIcons';
 import ButtonScale from './ButtonScale';
 import HoverColorComponent from './HoverColorComponent';
 import colors from '@/constants/colors';
-import { addComment, deleteCommentById, deletePostById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, getPostById, incrementShares, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
-import PostSkeleton from './PostSkeleton';
+import { addComment, deleteCommentById, deletePostById, getCityAndStateByZipCode, getCommentsForPost, getFavoriteCount, getLikeCount, incrementShares, toggleFavorite, toggleLike, userFavoritedPost, userLikedPost } from '@/lib/appwriteConfig';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import * as Clipboard from 'expo-clipboard';
 import { useAlert } from '@/context/AlertContext';
 import Comment from './Comment';
-
 interface PostProps {
-  postId: string;
-  typePost?: 'normal' | 'ownProfile' | 'postDetails';
+  propPost: any; // Objeto do post
+  propLikeCount: number; // Número inicial de likes
+  propCommentCount: number; // Número inicial de comentários
+  propComments: Array<any>; // Comentários do post
+  propFavoriteCount: number; // Número de favoritos
+  propShareCount: number; // Número de compartilhamentos
+  propLiked?: boolean; // Se o usuário curtiu
+  propIsFavorited?: boolean; // Se o usuário favoritou
+  
+  typePost?: 'normal' | 'ownProfile' | 'postDetails'; // Tipo do post
 }
 
-const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
+const Post: React.FC<PostProps> = ({
+  propPost,
+  propLikeCount,
+  propCommentCount,
+  propComments,
+  propFavoriteCount,
+  propShareCount,
+  propLiked = false,
+  propIsFavorited = false,
+  typePost = 'normal',
+}) => {
   const [containerWidth, setContainerWidth] = useState(0);
-  const [post, setPost] = useState<any>(true);
-  const [loading, setLoading] = useState(true);
-  const [loadingFavorite, setLoadingFavorite] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useGlobalContext();
   const { showAlert } = useAlert();
 
   const shouldHideText = containerWidth < 536;
   const iconSize = shouldHideText ? 25 : 20;
 
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [commentCount, setCommentCount] = useState(0);
-  const [comments, setComments] = useState([]);
-  const [isLiking, setIsLiking] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [favoriteCount, setFavoriteCount] = useState(0);
-  const [shareCount, setShareCount] = useState(0);
-  const [location, setLocation] = useState(null);
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
+  // Estados locais
+  const [postLocal, setPostLocal] = useState(propPost);
+  const [likedLocal, setLikedLocal] = useState(propLiked);
+  const [likeCountLocal, setLikeCountLocal] = useState(propLikeCount);
+  const [commentCountLocal, setCommentCountLocal] = useState(propCommentCount);
+  const [commentsLocal, setCommentsLocal] = useState(propComments);
+  const [isFavoritedLocal, setIsFavoritedLocal] = useState(propIsFavorited);
+  const [favoriteCountLocal, setFavoriteCountLocal] = useState(propFavoriteCount);
+  const [shareCountLocal, setShareCountLocal] = useState(propShareCount);
 
   const [commentContent, setCommentContent] = useState("");
   const [loadingMessage, setloadingMessage] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [postDeleted, setPostDeleted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingFavorite, setLoadingFavorite] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [location, setLocation] = useState(null);
+
+  const { user } = useGlobalContext();
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [postDeleted, setPostDeleted] = useState(false);
 
   const LIMIT = 10; // Número de comentários por página
-  const blurhash =
-    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const fetchPostData = async () => {
     try {
       setLoading(true);
 
-      // Realiza todas as requisições ao mesmo tempo
-      const [fetchedPost, likes, comments, favoriteCount] = await Promise.all([
-        getPostById(postId),
-        getLikeCount(postId),
-        getCommentsForPost(postId, page, LIMIT),
-        getFavoriteCount(postId)
-      ]);
-
-      setPost(fetchedPost);
-      setLikeCount(likes);
-      setCommentCount(comments.total);
-      setComments(comments.documents);
-      setFavoriteCount(favoriteCount);
-      setShareCount(parseInt(fetchedPost.shares, 10));
-
       // Se houver zipCode, buscar a localização
-      if (fetchedPost?.zipCode && typePost === "postDetails") {
-        const location = await getCityAndStateByZipCode(fetchedPost.zipCode);
+      if (postLocal?.zipCode && typePost === "postDetails") {
+        const location = await getCityAndStateByZipCode(postLocal.zipCode);
         setLocation(location);
-      }
-
-      // Verificar se o usuário já curtiu ou favoritou o post
-      if (user) {
-        const [userLikedState, userFavoritedState] = await Promise.all([
-          user?.$id ? userLikedPost(postId, user.$id) : false,
-          userFavoritedPost(postId, user.$id)
-        ]);
-        setLiked(userLikedState);
-        setIsFavorited(userFavoritedState);
       }
     } catch (error) {
       console.log("Error fetching post data:", error);
@@ -97,13 +92,13 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   };
 
   useEffect(() => {
-    if (postId) {
+    if (postLocal) {
       fetchPostData();
     }
-  }, [postId, user]);
+  }, [postLocal, user]);
 
   const renderImage = () => {
-    if (!post.thumbnail) return null;
+    if (!postLocal.thumbnail) return null;
 
     const allowedRatios = {
       "1:1": 1,
@@ -112,13 +107,13 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       "3:4": 3 / 4,
     };
 
-    const selectedRatio = allowedRatios[post.thumbnailRatio] || allowedRatios["1:1"];
+    const selectedRatio = allowedRatios[postLocal.thumbnailRatio] || allowedRatios["1:1"];
 
     return (
       <View className="w-full items-center">
         <View style={{ width: "100%", aspectRatio: selectedRatio, maxWidth: 600 }} aria-label="ImagePost">
           <Image
-            source={{ uri: post.thumbnail }}
+            source={{ uri: postLocal.thumbnail }}
             style={{ width: "100%", height: "100%", borderRadius: 16 }}
             contentFit="cover"
             placeholder={{ blurhash }}
@@ -140,11 +135,11 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
     try {
       setIsLiking(true);
-      const newLikedState = await toggleLike(postId, user.$id);
-      setLiked(newLikedState);
+      const newLikedState = await toggleLike(postLocal?.$id, user.$id);
+      setLikedLocal(newLikedState);
 
-      const updatedLikeCount = await getLikeCount(postId);
-      setLikeCount(updatedLikeCount);
+      const updatedLikeCount = await getLikeCount(postLocal?.$id);
+      setLikeCountLocal(updatedLikeCount);
     } catch (error) {
       console.log("Error toggling like:", error);
     } finally {
@@ -154,12 +149,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
   const copySharedPostLink = async () => {
     try {
-      const url = `https://solveitb.netlify.app/postdetails/${post.$id}`; // Melhor uso do origin
+      const url = `https://solveitb.netlify.app/postdetails/${postLocal?.$id}`; // Melhor uso do origin
       Clipboard.setStringAsync(url);
       showAlert('Link Copiado!', 'O link foi copiado para a área de transferência.');
 
-      await incrementShares(post.$id);
-      setShareCount((prevShareCount) => prevShareCount + 1);
+      await incrementShares(postLocal?.$id);
+      setShareCountLocal((prevShareCount) => prevShareCount + 1);
     } catch (error) {
       console.log('Erro ao copiar o link:', error);
       showAlert('Erro', 'Não foi possível copiar o link. Tente novamente.');
@@ -170,19 +165,19 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     const options = [
       {
         icon: 'curtidas',
-        text: likeCount,
+        text: likeCountLocal,
         action: handleLikeToggle,
         isLoading: isLiking,
-        color: liked ? colors.primaryStandardDark.standard : "#94A3B8",
+        color: likedLocal ? colors.primaryStandardDark.standard : "#94A3B8",
       },
       {
         icon: 'comentarios',
-        text: commentCount,
-        action: typePost !== "postDetails" ? () => navigateTo(`/postdetails/${post.$id}`) : undefined,
+        text: commentCountLocal,
+        action: typePost !== "postDetails" ? () => navigateTo(`/postdetails/${postLocal?.$id}`) : undefined,
       },
       {
         icon: 'compartilhar',
-        text: shareCount || 0,
+        text: shareCountLocal || 0,
         action: copySharedPostLink,
       },
     ];
@@ -224,7 +219,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   };
 
   if (loading) {
-    return <PostSkeleton />;
+    return null;
   }
 
   const renderHeader = () => (
@@ -235,22 +230,22 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
             <ButtonScale scale={1.09} onPress={handleBackNavigation}>
               <CustomIcons name="anterior" color={colors.textStandard.standard} size={24} />
             </ButtonScale>
-            <ButtonScale scale={1} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-              <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+            <ButtonScale scale={1} onPress={() => handleNavigateToProfile(postLocal.creator.$id)}>
+              <RNImage source={{ uri: postLocal.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
             </ButtonScale>
           </View>
         ) : (
-          <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(post.creator.$id)}>
-            <RNImage source={{ uri: post.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+          <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(postLocal.creator.$id)}>
+            <RNImage source={{ uri: postLocal.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
           </ButtonScale>
         )}
         <View aria-label="ContainerText">
-          <Text className="font-bold text-[14px] text-textStandardDark">{post.creator.username}</Text>
-          <Text className="text-[14px] text-textSecondary">{post.category}</Text>
+          <Text className="font-bold text-[14px] text-textStandardDark">{postLocal.creator.username}</Text>
+          <Text className="text-[14px] text-textSecondary">{postLocal.category}</Text>
         </View>
       </View>
       {typePost !== "postDetails" && (
-        <HoverColorComponent colorHover={colors.primaryStandardDark.standard} className="w-fit" onPress={() => navigateTo(`/postdetails/${post.$id}`)}>
+        <HoverColorComponent colorHover={colors.primaryStandardDark.standard} className="w-fit" onPress={() => navigateTo(`/postdetails/${postLocal.$id}`)}>
           <Text className="text-xs underline" style={{ color: colors.textSecondary.standard }}>Ver Tudo</Text>
         </HoverColorComponent>
       )}
@@ -264,12 +259,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
 
     try {
       setloadingMessage(true);
-      const newComment = await addComment(postId, user.$id, commentContent);
+      const newComment = await addComment(postLocal?.$id, user.$id, commentContent);
       setCommentContent("");
 
       // Adiciona o novo comentário no início da lista de forma otimizada
-      setComments((prevComments) => [newComment, ...prevComments]);
-      setCommentCount(prevCount => prevCount + 1);
+      setCommentsLocal((prevComments) => [newComment, ...prevComments]);
+      setCommentCountLocal(prevCount => prevCount + 1);
     } catch (error) {
       console.log("Erro ao enviar comentário:", error);
     } finally {
@@ -296,8 +291,8 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         await deleteCommentById(id);
 
         // Atualiza o estado de comentários de forma eficiente
-        setComments((prevComments) => prevComments.filter(comment => comment.$id !== id));
-        setCommentCount((prevCount) => prevCount - 1);
+        setCommentsLocal((prevComments) => prevComments.filter(commentsLocal => commentsLocal.$id !== id));
+        setCommentCountLocal((prevCount) => prevCount - 1);
       }
     } catch (error) {
       console.log("Erro ao excluir comentário:", error);
@@ -311,12 +306,12 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
       setLoadingMore(true);
       const currentPage = isInitial ? 1 : page;
 
-      const commentsData = await getCommentsForPost(postId, LIMIT, currentPage);
+      const commentsData = await getCommentsForPost(postLocal?.$id, LIMIT, currentPage);
 
-      setCommentCount(commentsData.total);
+      setCommentCountLocal(commentsData.total);
 
       // Atualiza os comentários de forma eficiente, evitando reprocessamento
-      setComments((prevComments) => {
+      setCommentsLocal((prevComments) => {
         if (isInitial) {
           return commentsData.documents;
         }
@@ -349,13 +344,13 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const renderFooter = () => (
     <View aria-label="FooterPost" className="px-5 py-2 w-full flex border-t border-borderStandardLight">
       <View className="gap-3">
-        {comments.length === 0 ? (
+        {commentsLocal.length === 0 ? (
           <Text>Seja o primeiro a comentar!</Text>
         ) : (
-          comments.slice(0, 2).map((comment) => (
+          commentsLocal.slice(0, 2).map((comment) => (
             <Comment
               key={comment.$id}
-              id={comment.$id}
+              propCommentData={comment}
               onDelete={handleDeleteComment}
             />
           ))
@@ -437,13 +432,13 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
         showsVerticalScrollIndicator={false}  // Evita a barra de rolagem para uma experiência visual mais limpa
       >
         <View className="gap-3">
-          {comments.length === 0 ? (
+          {commentsLocal.length === 0 ? (
             <Text>Seja o primeiro a comentar!</Text>
           ) : (
-            comments.map((comment) => (
+            commentsLocal.map((comment) => (
               <Comment
                 key={comment.$id}
-                id={comment.$id}
+                propCommentData={comment}
                 onDelete={handleDeleteComment}
               />
             ))
@@ -456,7 +451,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
           </View>
         )}
 
-        {!hasMore && comments.length > 0 && (
+        {!hasMore && commentsLocal.length > 0 && (
           <Text className="text-center py-2 text-textSecondary">
             Não há mais comentários para carregar
           </Text>
@@ -472,10 +467,10 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
     setLoadingFavorite(true);  // Inicia o carregamento do processo de favoritar
 
     try {
-      const favorited = await toggleFavorite(postId, user.$id);
-      setIsFavorited(favorited);
-      const favoriteCount = await getFavoriteCount(postId);
-      setFavoriteCount(favoriteCount);
+      const favorited = await toggleFavorite(postLocal?.$id, user.$id);
+      setIsFavoritedLocal(favorited);
+      const favoriteCount = await getFavoriteCount(postLocal?.$id);
+      setFavoriteCountLocal(favoriteCount);
 
       showAlert(
         "Favorito",
@@ -499,7 +494,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
   const deletePost = async () => {
     try {
       setLoadingDelete(true);
-      const response = await deletePostById(postId);
+      const response = await deletePostById(postLocal?.$id);
       showAlert("Sucesso", "O post foi deletado com sucesso.");
       setPostDeleted(true);
     } catch (error) {
@@ -532,10 +527,10 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
               <>
                 {renderHeader()}
                 <View aria-label="BodyPost" className="w-full flex px-[20px] py-[16px] gap-[5px]">
-                  <Text className="font-bold text-base">{post.title}</Text>
+                  <Text className="font-bold text-base">{postLocal.title}</Text>
                   <View>
-                    <Text className="text-base">{post.description}</Text>
-                    <Text className="text-base text-accentStandardDark">{post.tags}</Text>
+                    <Text className="text-base">{postLocal.description}</Text>
+                    <Text className="text-base text-accentStandardDark">{postLocal.tags}</Text>
                   </View>
                   {renderImage()}
                   <View aria-label="OptionsPost" className="flex w-full flex-row justify-center mt-2" onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
@@ -552,7 +547,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       ) : (
                         <CustomIcons
                           name="favorito"
-                          color={isFavorited ? "#FFF17D" : "#94A3B8"}
+                          color={isFavoritedLocal ? "#FFF17D" : "#94A3B8"}
                           size={24}
                         />
                       )}
@@ -560,7 +555,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                         className="font-medium text-sm"
                         style={{ color: "#1d283a", marginLeft: loading ? 8 : 0 }}
                       >
-                        {favoriteCount}
+                        {favoriteCountLocal}
                       </Text>
                     </HoverColorComponent>
                   </View>
@@ -573,11 +568,11 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
               <>
                 <View aria-label="BodyPost" className="w-full flex px-[20px] py-[16px] gap-[5px]">
                   <View className='w-full'>
-                    <Text className="font-bold text-base">{post.title}</Text>
+                    <Text className="font-bold text-base">{postLocal.title}</Text>
                   </View>
                   <View>
-                    <Text className="text-base">{post.description}</Text>
-                    <Text className="text-base text-accentStandardDark">{post.tags}</Text>
+                    <Text className="text-base">{postLocal.description}</Text>
+                    <Text className="text-base text-accentStandardDark">{postLocal.tags}</Text>
                   </View>
                   {renderImage()}
                   <View aria-label="OptionsPost" className="flex w-full flex-col mt-2 gap-3" onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}>
@@ -586,9 +581,9 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                     </View>
                     <View className="flex-row w-full justify-between">
                       <HoverColorComponent colorHover={colors.textSecondary.standard} colorPressIn={colors.primaryStandardDark.standard} className="flex-row items-center ml-[-3px]">
-                        <CustomIcons name="favorito" color={isFavorited ? "#FFF17D" : "#94A3B8"} size={24} />
+                        <CustomIcons name="favorito" color={isFavoritedLocal ? "#FFF17D" : "#94A3B8"} size={24} />
                         <Text className="font-medium text-sm" style={{ color: "#1d283a" }}>
-                          {favoriteCount}
+                          {favoriteCountLocal}
                         </Text>
                       </HoverColorComponent>
                       <ButtonScale scale={1.09} onPress={confirmDelete} disabled={loadingDelete}>
@@ -609,23 +604,23 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
               <>
                 {renderHeader()}
                 <View aria-label="BodyPost" className="w-full flex px-[20px] py-[16px] gap-[5px]">
-                  <Text className="font-bold text-base">{post.title}</Text>
+                  <Text className="font-bold text-base">{postLocal.title}</Text>
                   <View>
-                    <Text className="text-base">{post.description}</Text>
-                    <Text className="text-base text-accentStandardDark">{post.tags}</Text>
+                    <Text className="text-base">{postLocal.description}</Text>
+                    <Text className="text-base text-accentStandardDark">{postLocal.tags}</Text>
                   </View>
                   <View className="flex-col gap-1 mb-3">
                     <View className="flex-row gap-1 items-center">
                       <View className="min-w-6">
                         <CustomIcons name="grupoPessoas" color="#94A3B8" size={24} />
                       </View>
-                      <Text className="text-textStandardDark text-base">Número de pessoas que esse problema pode afetar: {post.peopleAffects}</Text>
+                      <Text className="text-textStandardDark text-base">Número de pessoas que esse problema pode afetar: {postLocal.peopleAffects}</Text>
                     </View>
                     <View className="flex-row gap-1 items-center">
                       <View className="min-w-6">
                         <CustomIcons name="atencao" color="#94A3B8" size={24} />
                       </View>
-                      <Text className="text-textStandardDark text-base">Urgência do problema: {post.urgencyProblem}</Text>
+                      <Text className="text-textStandardDark text-base">Urgência do problema: {postLocal.urgencyProblem}</Text>
                     </View>
                     <View className="flex-row gap-1 items-center">
                       <View className="min-w-6">
@@ -652,7 +647,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                       ) : (
                         <CustomIcons
                           name="favorito"
-                          color={isFavorited ? "#FFF17D" : "#94A3B8"}
+                          color={isFavoritedLocal ? "#FFF17D" : "#94A3B8"}
                           size={24}
                         />
                       )}
@@ -660,7 +655,7 @@ const Post: React.FC<PostProps> = ({ postId, typePost = 'normal' }) => {
                         className="font-medium text-sm"
                         style={{ color: "#1d283a", marginLeft: loading ? 8 : 0 }}
                       >
-                        {favoriteCount}
+                        {favoriteCountLocal}
                       </Text>
                     </HoverColorComponent>
                   </View>

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
-import { checkIfFollowing, followUser, getFollowerCount, getFollowers, getFollowing, getFollowingCount, getUserPosts, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
+import { checkIfFollowing, fetchPostsUser, followUser, getFollowerCount, getFollowingCount, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 import { useGlobalContext } from "@/context/GlobalProvider";
@@ -24,7 +24,7 @@ const Profile = () => {
   const router = useRouter();
 
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingInfo, setLoadingInfo] = useState(false);
   const [loadingButton, setLoadingButton] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -32,7 +32,6 @@ const Profile = () => {
   const [hasMore, setHasMore] = useState(true);
   const [buttonWidth, setButtonWidth] = useState(0);
   const { id } = useLocalSearchParams();
-  const { user } = useGlobalContext();
 
   const POSTS_PER_PAGE = 3;
 
@@ -47,11 +46,12 @@ const Profile = () => {
   const [selectedTab, setSelectedTab] = useState("Publicações"); // Variável que guarda qual opção está selecionada
   const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
   const [translateX] = useState(new Animated.Value(0));
-  const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
+
+  const { user, loading, isLogged } = useGlobalContext();
 
   useEffect(() => {
     const fetchPost = async () => {
-      setLoading(true);
+      setLoadingInfo(true);
 
       try {
         // 1. Obter o número de seguidores
@@ -78,7 +78,7 @@ const Profile = () => {
       } catch (error) {
         console.error("Erro ao buscar informações de amigos:", error);
       } finally {
-        setLoading(false);
+        setLoadingInfo(false);
       }
     };
 
@@ -89,21 +89,24 @@ const Profile = () => {
 
   const fetchPosts = useCallback(
     async (refresh = false) => {
+      if(loading){
+        return;
+      }
       if (refresh) {
-        setLoading(true);
+        setLoadingInfo(true);
         setPage(1);
         try {
-          const { documents, pages } = await getUserPosts(id, 1, POSTS_PER_PAGE);
+          const { documents, pages } = await fetchPostsUser(id, 1, POSTS_PER_PAGE, isLogged ? user : null);
           setPosts(documents);
           setHasMore(pages > 1);
         } catch (error) {
           console.error("Erro ao buscar posts:", error);
         } finally {
-          setLoading(false);
+          setLoadingInfo(false);
         }
       }
     },
-    [id]
+    [id, loading]
   );
 
   const fetchMorePosts = useCallback(async () => {
@@ -112,7 +115,7 @@ const Profile = () => {
     setLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const { documents, pages } = await getUserPosts(id, nextPage, POSTS_PER_PAGE);
+      const { documents, pages } = await fetchPostsUser(id, nextPage, POSTS_PER_PAGE, isLogged && !loading ? user : null);
       if (documents.length > 0) {
         setPosts((prevPosts) => [...prevPosts, ...documents]);
         setPage(nextPage);
@@ -238,17 +241,24 @@ const Profile = () => {
   const renderPublicacoes = () => (
     <View className="gap-3">
       {loading ? (
-        Array.from({ length: 3 }).map((_, index) => <PostSkeleton key={`skeleton-${index}`} />)
+        <ActivityIndicator size="large" color="#3692C5" />
       ) : posts.length > 0 ? (
-        posts.map((post) => <Post key={post.$id} postId={post.$id} />)
+        posts.map((post) => <Post
+          key={post.post.$id}
+          propCommentCount={post.commentCount}
+          propComments={post.comments}
+          propFavoriteCount={post.favoriteCount}
+          propLikeCount={post.likeCount}
+          propPost={post.post}
+          propShareCount={post.shareCount}
+          propIsFavorited={post.isFavorited}
+          propLiked={post.liked} />)
       ) : (
         <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
       )}
-
       {renderFooter()}
     </View>
   );
-
 
   const handlePress = () => {
     const number = userData.numberPhone;

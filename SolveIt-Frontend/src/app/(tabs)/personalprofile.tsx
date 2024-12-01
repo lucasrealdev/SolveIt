@@ -7,20 +7,19 @@ import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getFollowerCount, getFollowingCount, getUserPosts, signOut, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
+import { fetchPostsUser, getFollowerCount, getFollowingCount, signOut, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import Post from "@/components/Post";
 import { useAlert } from "@/context/AlertContext";
 import { FontAwesome } from '@expo/vector-icons';
 
 const PersonalProfile = () => {
-  const animation = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const pathname = usePathname();
   const [buttonWidth, setButtonWidth] = useState(0);
-  const { user, setUser } = useGlobalContext();
+  const { user, setUser, isLogged, loading } = useGlobalContext();
 
   const [posts, setPosts] = useState([]); // Armazena todas as postagens
-  const [loading, setLoading] = useState(false); // Controla o estado de carregamento inicial
+  const [loadingPosts, setLoadingPosts] = useState(false); // Controla o estado de carregamento inicial
   const [loadingMore, setLoadingMore] = useState(false); // Controla o estado de carregamento de mais postagens
   const [page, setPage] = useState(1); // Página atual
   const [hasMore, setHasMore] = useState(true); // Indica se há mais postagens para carregar
@@ -39,13 +38,42 @@ const PersonalProfile = () => {
   const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
   const [translateX] = useState(new Animated.Value(0));
 
+  useEffect(() => {
+    if(!user) return;
+    const fetchPost = async () => {
+      try {
+        // 1. Obter o número de seguidores
+        const followersCount = await getFollowerCount(user.$id);
+
+        // 2. Obter o número de "seguindo"
+        const followingCount = await getFollowingCount(user.$id);
+
+        // Definir os dados no estado
+        setFollowersCount(followersCount);
+        setFollowingCount(followingCount);
+
+        // Verifica o status do usuário
+        if (user?.isOnline !== undefined) {
+          // Define o status diretamente como booleano
+          setCurrentStatus(user.isOnline);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar informações de amigos:", error);
+      }
+    };
+
+    if (user?.$id) {
+      fetchPost();
+    }
+  }, [loading, user]);
+
   // Função para buscar posts iniciais
   const fetchPosts = async (refresh = false) => {
     if (refresh && user) { // Só faz a requisição se o usuário estiver carregado
-      setLoading(true);
+      setLoadingPosts(true);
       setPage(1);
       try {
-        const { documents, pages } = await getUserPosts(user.$id, 1, POSTS_PER_PAGE); // Obtém posts do usuário
+        const { documents, pages } = await fetchPostsUser(user.$id, 1, POSTS_PER_PAGE, user); // Obtém posts do usuário
         setPosts(documents); // Armazena os posts
         setHasMore(pages > 1); // Define se há mais postagens
 
@@ -67,32 +95,38 @@ const PersonalProfile = () => {
       } catch (error) {
         console.error('Erro ao buscar posts:', error);
       } finally {
-        setLoading(false);
+        setLoadingPosts(false);
       }
     }
   };
 
+  useEffect(() => {
+    if (user?.$id) {
+      fetchPosts(true);
+    }
+  }, [loading, user]);
+
   // Função para buscar mais posts
-  const fetchMorePosts = async () => {
-    if (loadingMore || !hasMore || !user) return; // Garante que o usuário está carregado e que não está carregando mais postagens
+  const fetchMorePosts = useCallback(async () => {
+    if (loadingMore || !hasMore || !user) return;
 
     setLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const { documents, pages } = await getUserPosts(user.$id, nextPage, POSTS_PER_PAGE); // Obtém mais posts do usuário
+      const { documents, pages } = await fetchPostsUser(user.$id, nextPage, POSTS_PER_PAGE, user);
       if (documents.length > 0) {
-        setPosts(prevPosts => [...prevPosts, ...documents]); // Adiciona os novos posts
-        setPage(nextPage); // Atualiza a página
-        setHasMore(pages > nextPage); // Define se há mais postagens
+        setPosts((prevPosts) => [...prevPosts, ...documents]);
+        setPage(nextPage);
+        setHasMore(pages > nextPage);
       } else {
-        setHasMore(false); // Se não houver mais posts, atualiza o estado
+        setHasMore(false);
       }
     } catch (error) {
-      console.error('Erro ao buscar mais posts:', error);
+      console.error("Erro ao buscar mais posts:", error);
     } finally {
       setLoadingMore(false);
     }
-  };
+  }, [user, page, hasMore, loadingMore]);
 
   const handleStatusToggle = async () => {
     if (!user) return;
@@ -111,20 +145,17 @@ const PersonalProfile = () => {
     }
   };
 
-  // Detecta quando está perto do fim da lista
-  const handleScroll = useCallback(({ nativeEvent }) => {
-    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    const isNearBottom = (layoutMeasurement.height + contentOffset.y) >= (contentSize.height - layoutMeasurement.height);
-    if (isNearBottom && !loadingMore && hasMore) {
-      fetchMorePosts();
-    }
-  }, [loadingMore, hasMore]);
-
-  useEffect(() => {
-    if (user) {
-      fetchPosts(true); // Chama fetchPosts assim que o usuário estiver carregado
-    }
-  }, [user]); // Atualiza quando o usuário é carregado
+  const handleScroll = useCallback(
+    ({ nativeEvent }) => {
+      const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+      const isNearBottom =
+        layoutMeasurement.height + contentOffset.y >= contentSize.height - layoutMeasurement.height * 1.5;
+      if (isNearBottom && !loadingMore && hasMore) {
+        fetchMorePosts();
+      }
+    },
+    [loadingMore, hasMore, fetchMorePosts]
+  );
 
   const moveTo = (index) => {
     if (!isAnimating) {
@@ -161,7 +192,7 @@ const PersonalProfile = () => {
 
     return (
       <View className="relative">
-        {user?.avatar ? (
+        {user ? (
           <>
             <ButtonScale scale={1.01} onPress={handleStatusToggle} disabled={isLoading} className="flex-row items-center justify-center">
               <Image
@@ -190,15 +221,25 @@ const PersonalProfile = () => {
   };
 
   // Renderiza o indicador de carregamento no rodapé
-  const renderFooter = () => {
-    if (!loadingMore) return null;
+  const renderFooter = useCallback(() => {
+    if (loadingMore) {
+      return (
+        <View className="px-5 items-center justify-center">
+          <ActivityIndicator size="large" color="#3692C5" />
+        </View>
+      );
+    }
 
-    return (
-      <View className="px-5 items-center justify-center">
-        <ActivityIndicator size="large" color="#3692C5" />
-      </View>
-    );
-  };
+    if (!hasMore && posts.length > 0) {
+      return (
+        <View className="py-4 items-center">
+          <Text className="text-textSecondary">Não há mais posts para carregar</Text>
+        </View>
+      );
+    }
+
+    return null;
+  }, [loadingMore, hasMore, posts.length]);
 
   const navigateTo = (route: string) => {
     router[route !== pathname ? 'push' : 'replace'](route);
@@ -217,17 +258,24 @@ const PersonalProfile = () => {
   // Renderização da aba "Publicações"
   const renderPublicacoes = () => (
     <View className="gap-3">
-      {loading ? null : posts.length > 0 ? (
-        posts.map((post) => (
-          <Post key={post.$id} postId={post.$id} typePost="ownProfile" />
-        ))
+      {loadingPosts ? (
+        <ActivityIndicator size="large" color="#3692C5" />
+      ) : posts.length > 0 ? (
+        posts.map((post) => <Post
+          key={post.post.$id}
+          propCommentCount={post.commentCount}
+          propComments={post.comments}
+          propFavoriteCount={post.favoriteCount}
+          propLikeCount={post.likeCount}
+          propPost={post.post}
+          propShareCount={post.shareCount}
+          propIsFavorited={post.isFavorited}
+          propLiked={post.liked}
+          typePost="ownProfile"/>)
       ) : (
         <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
       )}
       {renderFooter()}
-      {!hasMore && posts.length > 0 && (
-        <ActivityIndicator size="small" color="#94A3B8" />
-      )}
     </View>
   );
 
@@ -252,7 +300,7 @@ const PersonalProfile = () => {
       scrollEventThrottle={16} // Controla a frequência do evento de rolagem
       refreshControl={
         <RefreshControl
-          refreshing={loading}
+          refreshing={loadingPosts}
           onRefresh={() => fetchPosts(true)}
         />
       }

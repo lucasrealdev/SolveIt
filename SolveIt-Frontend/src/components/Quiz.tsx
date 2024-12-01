@@ -1,87 +1,55 @@
 import CustomIcons from '@/assets/icons/CustomIcons';
 import images from '@/constants/images';
 import { useGlobalContext } from '@/context/GlobalProvider';
-import { checkUserVote, fetchQuizById, getVotesCount, updateVote } from '@/lib/appwriteConfig';
-import React, { useEffect, useState } from 'react';
+import { updateVote } from '@/lib/appwriteConfig';
+import React, { useState } from 'react';
 import { View, Text, Image, ActivityIndicator, Pressable } from 'react-native';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const Quiz = ({ quizId }) => {
-    const [quiz, setQuiz] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedOption, setSelectedOption] = useState(null);
-    const [userVoted, setUserVoted] = useState(false);
+interface QuizProps {
+    quiz: any; // Objeto do post
+  }
+
+const Quiz: React.FC<QuizProps> = ({
+  quiz,
+}) => {
     const [isLoadingVote, setIsLoadingVote] = useState(false);
 
+    const [selectedOptionLocal, setSelectedOptionLocal] = useState(quiz.userVoted);
+    const [userVotedLocal, setUserVotedLocal] = useState(quiz.userVoted != null);
+    const [totalVotesLocal, setTotalVotesLocal] = useState(quiz.totalVotes);
+    const [votesCountLocal, setVotesCountLocal] = useState(quiz.voteCount); // Para armazenar a contagem de votos por opção
+
     const { user, isLogged } = useGlobalContext();
-
-    const [totalVotes, setTotalVotes] = useState(0);
-    const [votesCount, setVotesCount] = useState({}); // Para armazenar a contagem de votos por opção
-
-    useEffect(() => {
-        const fetchQuiz = async () => {
-            if (!quizId || !user?.$id) return; // Garante que quizId e userId estão disponíveis antes de prosseguir
-
-            try {
-                setLoading(true);
-                const quizData = await fetchQuizById(quizId); // Função backend para buscar quiz por ID.
-
-                // Verificar se o usuário já votou
-                const userHasVoted = await checkUserVote(quizId, user?.$id);
-                if (userHasVoted != null) {
-                    setSelectedOption(userHasVoted.voteIndex)
-                    setUserVoted(true);
-                }
-
-                // Atualiza os dados do quiz
-                setQuiz({ ...quizData });
-
-                // Obter a contagem de votos para as opções
-                const votesCount = await getVotesCount(quizId);
-                setVotesCount(votesCount);
-
-                // Calcula o total de votos
-                const totalVotes = Object.values(votesCount).reduce((acc, count) => acc + count, 0);
-                setTotalVotes(totalVotes);
-            } catch (error) {
-                console.error("Erro ao carregar o quiz:", error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchQuiz();
-    }, [quizId, user?.$id]);
-
     const handleVote = async (optionIndex) => {
         try {
             setIsLoadingVote(true);
     
             // Se o usuário não votou, adicione 1 à opção escolhida e incremente o total de votos
-            if (!userVoted) {
-                const updatedVotesCount = { ...votesCount };
+            if (!userVotedLocal) {
+                const updatedVotesCount = { ...votesCountLocal };
                 updatedVotesCount[optionIndex] = (updatedVotesCount[optionIndex] || 0) + 1;
-                setVotesCount(updatedVotesCount);
+                setVotesCountLocal(updatedVotesCount);
                 
-                const newTotalVotes = totalVotes + 1;
-                setTotalVotes(newTotalVotes);
+                const newTotalVotes = totalVotesLocal + 1;
+                setTotalVotesLocal(newTotalVotes);
             } else {
                 // Se o usuário já votou, remova o voto da opção anterior e adicione à nova
-                const updatedVotesCount = { ...votesCount };
-                updatedVotesCount[selectedOption] = updatedVotesCount[selectedOption] - 1;
+                const updatedVotesCount = { ...votesCountLocal };
+                updatedVotesCount[selectedOptionLocal] = updatedVotesCount[selectedOptionLocal] - 1;
                 updatedVotesCount[optionIndex] = (updatedVotesCount[optionIndex] || 0) + 1;
-                setVotesCount(updatedVotesCount);
+                setVotesCountLocal(updatedVotesCount);
             }
     
             // Atualiza a opção selecionada
-            setSelectedOption(optionIndex);
+            setSelectedOptionLocal(optionIndex);
     
             // Marca o usuário como tendo votado
-            setUserVoted(true);
+            setUserVotedLocal(true);
     
             // Chama o backend para registrar o voto
-            await updateVote(quizId, user?.$id, optionIndex);
+            await updateVote(quiz?.$id, user?.$id, optionIndex);
     
         } catch (error) {
             console.error("Erro ao registrar o voto:", error.message);
@@ -90,13 +58,12 @@ const Quiz = ({ quizId }) => {
         }
     };    
 
-    // Se o usuário não estiver logado, exibe mensagem ou redireciona.
     if (!isLogged) {
         return null;
     }
 
-    if (loading || !quiz) {
-        return <ActivityIndicator size="small" color="#8AA2BE" />;
+    if (!quiz) {
+        return null;
     }
 
     const formattedDate = format(new Date(quiz.$createdAt), 'dd MMMM yyyy', { locale: ptBR });
@@ -120,9 +87,9 @@ const Quiz = ({ quizId }) => {
                     <View className='w-full gap-2'>
                         {quiz?.options.map((option, index) => {
                             // Verificar o número de votos para cada opção
-                            const votesForOption = votesCount[index] || 0;
-                            const percentage = totalVotes > 0 ? (votesForOption / totalVotes) * 100 : 0;
-                            const isSelected = selectedOption == index;
+                            const votesForOption = votesCountLocal[index] || 0;
+                            const percentage = totalVotesLocal > 0 ? (votesForOption / totalVotesLocal) * 100 : 0;
+                            const isSelected = selectedOptionLocal == index;
 
                             return (
                                 <Pressable
@@ -143,7 +110,7 @@ const Quiz = ({ quizId }) => {
                     </View>
 
                     <Text className="text-sm text-gray-500 text-center mt-4">
-                        {formattedDate} — {totalVotes} votos no total
+                        {formattedDate} — {totalVotesLocal} votos no total
                     </Text>
                 </View>
             </View>

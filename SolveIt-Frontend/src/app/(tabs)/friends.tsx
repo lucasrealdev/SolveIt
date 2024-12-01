@@ -207,9 +207,8 @@ export default function Friends() {
     return currentUsers.map((user, index) => (
       <CardAmigo
         key={`${activeTab}-${user.$id}-${index}`}
-        idUser={activeTab === 'followers'
-          ? user.followerId
-          : user.followingId}
+        propFriend={user.user}
+        propIsFollowing={activeTab !== 'followers'}
       />
     ));
   };
@@ -222,7 +221,8 @@ export default function Friends() {
     return suggestedFriends.map((user, index) => (
       <CardAmigo
         key={`${user.$id}-${index}`}
-        idUser={user.$id}
+        propFriend={user}
+        propIsFollowing={false}
       />
     ));
   };

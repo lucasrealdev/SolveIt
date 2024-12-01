@@ -1,40 +1,39 @@
 import { ScrollView, View } from "react-native";
 import MenuRight from "@/components/MenuRight";
 import { useEffect, useState } from "react";
-import { getPostById, incrementShares } from "@/lib/appwriteConfig";
+import { fetchPostById } from "@/lib/appwriteConfig";
 import { useLocalSearchParams } from "expo-router";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 export default function PostDetails() {
     const [post, setPost] = useState(null); // Armazena o post específico
-    const [loading, setLoading] = useState(false); // Controla o estado de carregamento
+    const [loadingPost, setLoadingPost] = useState(false); // Controla o estado de carregamento
     const { id } = useLocalSearchParams();
+    const { user, isLogged, loading } = useGlobalContext();
 
-    useEffect(() => { 
+    useEffect(() => {
+        if(loading){
+            return;
+        }
         const fetchPost = async () => {
-            setLoading(true);
+            setLoadingPost(true);
 
             try {
-                const fetchedPost = await getPostById(id);
+                const fetchedPost = await fetchPostById(id, isLogged ? user : null);
                 setPost(fetchedPost);
             } catch (error) {
                 console.error("Erro ao buscar post ou incrementar compartilhamentos:", error);
             } finally {
-                setLoading(false);
+                setLoadingPost(false);
             }
         };
 
         if (id) {
             fetchPost();
         }
-    }, [id]);
-
-    if (loading || !post) {
-        return (
-            <PostSkeleton />
-        );
-    }
+    }, [id, loading]);
 
     return (
         <View className="flex-1 flex-row">
@@ -42,13 +41,28 @@ export default function PostDetails() {
                 showsVerticalScrollIndicator={false}
                 className="flex-1 bg-[#F8FAFC]"
                 contentContainerStyle={{ alignItems: "center" }}
-                aria-label="scroll"
-            >
-                <View className="max-w-[800px] gap-4 w-full my-6 px-3">
-                    <Post postId={post.$id} typePost="postDetails" />
-                </View>
+                aria-label="scroll">
+                {loadingPost || !post ? (
+                    <View className="max-w-[700px] w-full my-6 px-3">
+                        <PostSkeleton />
+                    </View>
+                ) : (
+                    <View className="max-w-[700px] w-full my-6 px-3">
+                        <Post
+                            propCommentCount={post.commentCount}
+                            propComments={post.comments}
+                            propFavoriteCount={post.favoriteCount}
+                            propLikeCount={post.likeCount}
+                            propPost={post.post}
+                            propShareCount={post.shareCount}
+                            propIsFavorited={post.isFavorited}
+                            propLiked={post.liked}
+                            typePost="postDetails" />
+                    </View>
+                )}
             </ScrollView>
             <MenuRight />
         </View>
     );
+
 }

@@ -19,30 +19,32 @@ export default function MenuRight() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { user, setUser } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(null); // Inicializa como null
   const { showAlert } = useAlert();
 
   const [suggestedFriends, setSuggestedFriends] = useState([]);
   const [events, setEvents] = useState([]);
 
-  // Supondo que `getSuggestedFriends` é uma função que retorna usuários sugeridos
+  const { user, loading, isLogged } = useGlobalContext();
+
   useEffect(() => {
-    if (!isMobile) return;
+    setIsLoadingMenu(true);
+    if (!isMobile || !isLogged || loading) return;
 
-    const fetchSuggestedFriends = async () => {
+    const fetchMenuData = async () => {
       try {
-        // Chama a função getSuggestedFriends passando o userId, página 1 e limitando a 5 resultados
-        const suggestedFriendsData = await getSuggestedFriends(user?.$id, 1, 5);
-
-        // Atualiza o estado com os 5 primeiros amigos sugeridos
-        setSuggestedFriends(suggestedFriendsData.documents);
-
-        const eventsData = await getAllEvents();
-        setEvents(eventsData);
+        const [friendsData, eventsData] = await Promise.all([
+          getSuggestedFriends(user?.$id, 1, 5),
+          getAllEvents(),
+        ]);
+        setSuggestedFriends(friendsData.documents || []);
+        setEvents(eventsData || []);
       } catch (error) {
-        console.error("Error fetching initial data:", error);
+        console.error("Error fetching menu data:", error);
+      } finally {
+        setIsLoadingMenu(false);
       }
     };
 
@@ -52,11 +54,8 @@ export default function MenuRight() {
       setCurrentStatus(user.isOnline);
     }
 
-    // Chama a função para buscar os amigos sugeridos
-    if (user?.$id) {
-      fetchSuggestedFriends();
-    }
-  }, [user, isMobile]); // Agora o efeito será executado sempre que 'user' ou 'isMobile' mudar
+    fetchMenuData();
+  }, [user, isMobile, loading, isLogged]);
 
   const handleStatusToggle = async () => {
     if (!user) return;
@@ -64,18 +63,16 @@ export default function MenuRight() {
     setIsLoading(true);
     try {
       const newStatus = await toggleUserOnlineStatus();
-      // Atualiza o status no estado local e global
       setCurrentStatus(newStatus);
-      setUser({ ...user, isOnline: newStatus });
-      const statusMessage = newStatus ? "Estado alterado para online" : "Estado alterado para offline";
-      showAlert("Sucesso!", statusMessage);
+      showAlert("Sucesso!", newStatus ? "Estado alterado para online" : "Estado alterado para offline");
     } catch (error) {
+      console.error("Error toggling status:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isMobile) {
+  if (!isMobile || isLoadingMenu) {
     return null;
   }
 
@@ -83,15 +80,15 @@ export default function MenuRight() {
     pathname !== route ? router.push(route) : router.replace(route);
   };
 
-  const renderUserCardsSuggested = () => {
-    return suggestedFriends.map((user, index) => (
+  const renderUserCardsSuggested = () =>
+    suggestedFriends.map((friend, index) => (
       <CardAmigo
+        key={`${friend.$id}-${index}`}
+        propFriend={friend}
+        propIsFollowing={false}
         label="menu"
-        key={`${user.$id}-${index}`}
-        idUser={user.$id}
       />
     ));
-  };
 
   const renderEventCard = (event) => {
     return (
@@ -113,7 +110,7 @@ export default function MenuRight() {
       <View aria-label="ContainerHeaderMenu" className="flex w-full px-6 py-[19px] flex-row justify-between border-b border-borderStandardLight">
         <Pressable className="flex justify-center">
           {
-            user && user.avatar && currentStatus !== null ? (
+            user ? (
               <ButtonScale
                 onPress={handleStatusToggle}
                 scale={1.05}
@@ -142,7 +139,8 @@ export default function MenuRight() {
         <View className="flex flex-row gap-2">
           <ButtonScale
             scale={1.07}
-            className="flex p-[11px] border border-borderStandard rounded-full">
+            className="flex p-[11px] border border-borderStandard rounded-full"
+            onPress={() => navigateTo("/premium")}>
             <CustomIcons name="upgrade" size={24} color="#475569" />
           </ButtonScale>
         </View>

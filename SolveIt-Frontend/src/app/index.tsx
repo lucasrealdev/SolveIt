@@ -1,64 +1,68 @@
-import { ScrollView, Text, View, ActivityIndicator, RefreshControl, Image, StyleSheet } from "react-native";
+import { ScrollView, Text, View, ActivityIndicator, RefreshControl } from "react-native";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import MenuRight from "@/components/MenuRight";
 import Post from '@/components/Post';
 import SearchHeader from "@/components/SearchHeader";
-import { fetchAllQuizIds, getAllPosts } from "@/lib/appwriteConfig";
-import ButtonScale from "@/components/ButtonScale";
-import images from "@/constants/images";
-import CustomIcons from "@/assets/icons/CustomIcons";
-import { LinearGradient } from 'expo-linear-gradient';
+import { fetchEntirePosts, fetchEntiresQuiz } from "@/lib/appwriteConfig";
 import Quiz from "@/components/Quiz";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import BarStory from "@/components/BarStory";
 
 export default function Index() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [quizes, setQuizes] = useState([]);
+
+  const [loadingPost, setLoadingPost] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [quizes, setQuizes] = useState([]);
-  const POSTS_PER_PAGE = 3;
 
   const [isRequesting, setIsRequesting] = useState(false);
 
+  const [posts, setPosts] = useState([]);
+  const POSTS_PER_PAGE = 3;
+
+  const { user, isLogged, loading } = useGlobalContext();
+
   // Função otimizada para buscar posts iniciais
   const fetchInitialPosts = useCallback(async () => {
-    setLoading(true);
-    setPage(1); // Sempre reinicia a página ao recarregar
-    try {
-      const newPosts = await getAllPosts(1, POSTS_PER_PAGE);
-      setPosts(newPosts);
-      setHasMore(newPosts.length === POSTS_PER_PAGE);
+    if (loading) return;
 
-      const quizIds = await fetchAllQuizIds();
-      setQuizes(quizIds);
+    setLoadingPost(true);
+    setPage(1);
+    try {
+      const enrichedPosts = await fetchEntirePosts(1, POSTS_PER_PAGE, isLogged ? user : null);
+      setPosts(enrichedPosts);
+      setHasMore(enrichedPosts.length === POSTS_PER_PAGE);
+
+      const fetchedQuizes = await fetchEntiresQuiz(user);
+      setQuizes(fetchedQuizes);
     } catch (error) {
-      console.error('Erro ao buscar posts:', error);
+      console.error("Erro ao buscar dados iniciais:", error);
     } finally {
-      setLoading(false);
+      setLoadingPost(false);
     }
-  }, []);
+  }, [isLogged, loading]);
 
   // Função otimizada para buscar mais posts
   const fetchMorePosts = useCallback(async () => {
-    if (loadingMore || !hasMore || isRequesting) return; // Evita requisições duplicadas
+    if (loadingMore || !hasMore || isRequesting || loading) return;
+
     setIsRequesting(true);
     setLoadingMore(true);
 
     try {
       const nextPage = page + 1;
-      const newPosts = await getAllPosts(nextPage, POSTS_PER_PAGE);
-
-      setPosts(prevPosts => [...prevPosts, ...newPosts]);
+      const newPosts = await fetchEntirePosts(nextPage, POSTS_PER_PAGE, isLogged ? user : null);
+      setPosts((prev) => [...prev, ...newPosts]);
       setPage(nextPage);
       setHasMore(newPosts.length === POSTS_PER_PAGE);
     } catch (error) {
-      console.error('Erro ao buscar mais posts:', error);
+      console.error("Erro ao carregar mais posts:", error);
     } finally {
       setLoadingMore(false);
-      setTimeout(() => setIsRequesting(false), 500); // Delay para controle de múltiplas requisições
+      setTimeout(() => setIsRequesting(false), 500);
     }
-  }, [loadingMore, hasMore, page, isRequesting]);
+  }, [page, hasMore, loadingMore, isLogged, isRequesting, loading]);
 
   // Lógica otimizada para scroll
   const handleScroll = useCallback(({ nativeEvent }) => {
@@ -93,16 +97,22 @@ export default function Index() {
   }, [loadingMore, hasMore, posts.length]);
 
   const renderPosts = useMemo(() => {
-    return posts.map((post) => (
-      <Post key={post.$id} postId={post.$id} />
+    if (loadingPost) return <ActivityIndicator size="large" color="#3692C5" />;
+    return posts.map((EntirePost) => (
+      <Post
+        key={EntirePost.post.$id}
+        propCommentCount={EntirePost.commentCount}
+        propComments={EntirePost.comments}
+        propFavoriteCount={EntirePost.favoriteCount}
+        propLikeCount={EntirePost.likeCount}
+        propPost={EntirePost.post}
+        propShareCount={EntirePost.shareCount}
+        propIsFavorited={EntirePost.isFavorited}
+        propLiked={EntirePost.liked}
+        typePost="normal"
+      />
     ));
-  }, [loading, posts]);
-
-  const renderQuiz = useMemo(() => {
-    return quizes.map((quiz) => (
-      <Quiz key={quiz.$id} quizId={quiz.$id} />
-    ));
-  }, [loading, posts]);
+  }, [loadingPost, posts]);
 
   return (
     <View className="flex-1 flex-row">
@@ -113,16 +123,17 @@ export default function Index() {
         scrollEventThrottle={16} // Reduz o intervalo de chamadas do onScroll
         refreshControl={
           <RefreshControl
-            refreshing={loading}
+            refreshing={loadingPost}
             onRefresh={fetchInitialPosts}
           />
-        }
-      >
+        }>
         <SearchHeader />
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
-            <BarStory/>
-            <Quiz quizId="6748e9ee000aa15da23b"/>
+            <BarStory />
+            {quizes.map((quiz) => (
+              <Quiz key={quiz.$id} quiz={quiz} />
+            ))}
             {renderPosts}
             {renderFooter()}
           </View>
@@ -132,43 +143,3 @@ export default function Index() {
     </View>
   );
 }
-
-const BarStory: React.FC = () => {
-  const users = [
-    { name: "x_ae-23b" },
-    { name: "maisenpai" },
-  ];
-
-  return (
-    <View accessibilityLabel="ContainerStory" className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-borderStandardLight">
-      {users.map((user, index) => (
-        <ButtonScale key={index} scale={1.05} className="flex justify-center items-center w-fit">
-          <LinearGradient
-            accessibilityLabel="ContainerImage"
-            colors={['#4F46E5', '#C622FF', '#FF2222', '#FFA439']}
-            style={styles.containerImage}
-            start={{ x: 0.5, y: 0.5 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Image source={images.person} className="border-white border-[2px] rounded-full w-[64px] h-[64px]" />
-          </LinearGradient>
-          <Text className="text-textStandardDark font-semibold">{user.name}</Text>
-        </ButtonScale>
-      ))}
-      <ButtonScale
-        scale={1.1}
-        className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center absolute justify-center right-3"
-      >
-        <CustomIcons name="proximo" color="#475569" size={20} />
-      </ButtonScale>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  containerImage: {
-    alignSelf: 'flex-start',
-    padding: 3,
-    borderRadius: 9999, // full rounded
-  },
-});

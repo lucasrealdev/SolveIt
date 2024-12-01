@@ -1,73 +1,57 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import ButtonScale from './ButtonScale';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import images from '@/constants/images';
-import { getCommentById, getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/appwriteConfig';
+import { getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/appwriteConfig';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { usePathname, useRouter } from 'expo-router';
 
-const Comment = ({ id, onDelete }) => {
-    const [loading, setLoading] = useState(true);
+interface CommentProps {
+    propCommentData: any; // Objeto do post
+    onDelete?: (id: string) => Promise<void>; // Função de deletar comentário
+  }
+
+  const Comment: React.FC<CommentProps> = ({
+    propCommentData,
+    onDelete,
+  }) => {
+    const [containerHeight, setContainerHeight] = useState(0); // Estado para armazenar a altura do container
+
     const [deleting, setDeleting] = useState(false);
-    const [commentData, setCommentData] = useState(null);
-    const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
     const [likeLoading, setLikeLoading] = useState(false); // Estado para controlar o carregamento do like
+
+    const [commentDataLocal, setCommentDataLocal] = useState(propCommentData);
+    const [likedLocal, setLikedLocal] = useState(propCommentData.isLiked);
+    const [likeCountLocal, setLikeCountLocal] = useState(propCommentData.likeCount);
+
     const { user } = useGlobalContext();
 
-    const [containerHeight, setContainerHeight] = useState(0); // Estado para armazenar a altura do container
     const router = useRouter();
     const pathname = usePathname();
-
-    useEffect(() => {
-        const fetchCommentData = async () => {
-            try {
-                setLoading(true);
-                const fetchedComment = await getCommentById(id);
-                setCommentData(fetchedComment);
-
-                // Verificar se o usuário curtiu o comentário e obter a contagem de likes
-                if (user?.$id) {
-                    const userLiked = await userLikedComment(user?.$id, id);
-                    setLiked(userLiked);
-
-                    const likesCount = await getLikeCountComment(id);
-                    setLikeCount(likesCount);
-                } else {
-                    setLiked(false);
-                    setLikeCount(0); // Garantir que, se não estiver logado, o contador de likes é zero
-                }
-            } catch (error) {
-                console.error("Erro ao carregar os dados do comentário:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (id) fetchCommentData();
-    }, [id, user?.$id]);
 
     const handleDelete = async () => {
         if (!user) return; // Impede que o usuário exclua o comentário se não estiver logado
         setDeleting(true);
         try {
-            await onDelete(id);
+          if (onDelete) {
+            await onDelete(commentDataLocal?.$id); // Passando o ID do comentário para a função de deleção
+          }
         } catch (error) {
-            console.error("Erro ao excluir comentário:", error);
+          console.error("Erro ao excluir comentário:", error);
         } finally {
-            setDeleting(false);
+          setDeleting(false);
         }
-    };
+      };
 
     const handleLike = async () => {
         if (!user) return; // Impede que o usuário curta o comentário se não estiver logado
         setLikeLoading(true); // Começa o carregamento do like
         try {
-            const likedStatus = await toggleLikeComment(user?.$id, id);
-            setLiked(likedStatus); // Atualiza o estado de like
-            const updatedLikeCount = await getLikeCountComment(id); // Atualiza a contagem de likes
-            setLikeCount(updatedLikeCount);
+            const likedStatus = await toggleLikeComment(user?.$id, commentDataLocal?.$id);
+            setLikedLocal(likedStatus); // Atualiza o estado de like
+            const updatedLikeCount = await getLikeCountComment(commentDataLocal?.$id); // Atualiza a contagem de likes
+            setLikeCountLocal(updatedLikeCount);
         } catch (error) {
             console.error("Erro ao alternar like no comentário:", error);
         } finally {
@@ -80,11 +64,9 @@ const Comment = ({ id, onDelete }) => {
         setContainerHeight(height); // Armazena a altura do container
     };
 
-    if (loading) return null;
+    if (!commentDataLocal) return <Text className="text-red-500">Comentário não encontrado.</Text>;
 
-    if (!commentData) return <Text className="text-red-500">Comentário não encontrado.</Text>;
-
-    const { content, creator, $createdAt } = commentData;
+    const { content, creator, $createdAt } = commentDataLocal;
 
     const isUserCreator = user?.$id === creator?.$id;
 
@@ -151,8 +133,8 @@ const Comment = ({ id, onDelete }) => {
                             <ActivityIndicator size={20} color="#94A3B8" />
                         ) : (
                             <>
-                                <CustomIcons name="coracao" size={20} color={liked ? "#FF0000" : "#94A3B8"} />
-                                <Text className='text-xs'>{likeCount}</Text>
+                                <CustomIcons name="coracao" size={20} color={likedLocal ? "#FF0000" : "#94A3B8"} />
+                                <Text className='text-xs'>{likeCountLocal}</Text>
                             </>
                         )}
                     </ButtonScale>
