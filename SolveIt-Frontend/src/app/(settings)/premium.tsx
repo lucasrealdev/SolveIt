@@ -3,7 +3,6 @@ import { Text, View, TouchableOpacity, ScrollView, StyleSheet } from "react-nati
 import ButtonScale from "@/components/ButtonScale";
 import Feather from 'react-native-vector-icons/Feather';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import CustomIcons from "@/assets/icons/CustomIcons";
 export default function PremiumScreen() {
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>

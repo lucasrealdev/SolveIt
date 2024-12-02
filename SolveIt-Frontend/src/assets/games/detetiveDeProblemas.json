@@ -1,0 +1,38 @@
+{
+  "rounds": [
+    {
+      "id": 1,
+      "title": "Primeiro Cenário",
+      "image": "https://via.placeholder.com/400x300.png?text=Scenario+1",
+      "image2": null,
+      "image3": null,
+      "description": "Detalhes confidenciais sobre o cenário que orientam a resolução do problema",
+      "optimalSolutions": 3,
+      "viableSolutions": 5,
+      "poorSolutions": 2,
+      "problemStage": {
+        "instruction": "Identifique possíveis problemas neste cenário"
+      },
+      "solutionStage": {
+        "instruction": "Proponha soluções para os problemas identificados"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Segundo Cenário",
+      "image": "https://via.placeholder.com/400x300.png?text=Scenario+1",
+      "image2": null,
+      "image3": null,
+      "description": "Detalhes confidenciais sobre o cenário que orientam a resolução do problema",
+      "optimalSolutions": 3,
+      "viableSolutions": 5,
+      "poorSolutions": 2,
+      "problemStage": {
+        "instruction": "Identifique possíveis problemas neste cenário"
+      },
+      "solutionStage": {
+        "instruction": "Proponha soluções para os problemas identificados"
+      }
+    }
+  ]
+}
