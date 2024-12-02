@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity, ScrollView, useWindowDimensions } from "react-native";
+import { Text, View, TouchableOpacity, ScrollView, useWindowDimensions, ActivityIndicator } from "react-native";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputMask from "@/components/TextInputMask";
 import { usePathname, useRouter } from "expo-router";
@@ -10,8 +10,7 @@ export default function Information() {
   const [username, setUsername] = useState("");
   const [numberPhone, setPhoneNumber] = useState("");
   const [biography, setBiography] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { user, setUser } = useGlobalContext(); // Pega os dados do usuário e o setUser do contexto global
   const { width } = useWindowDimensions();
@@ -39,6 +38,7 @@ export default function Information() {
   // Função para atualizar os dados do usuário no contexto global
   const handleUpdateUser = async () => {
     try {
+      setLoading(true);
       const updatedUser = await updateUser(
         user.$id,        // ID do usuário
         username,        // Novo nome de usuário
@@ -56,6 +56,8 @@ export default function Information() {
       setUser(updatedUser);
     } catch (error) {
       console.error('Erro ao atualizar usuário:', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,7 +181,11 @@ export default function Information() {
             onPress={handleUpdateUser} // Chama a função que atualiza o contexto global
           >
             <Text className="text-white font-semibold text-lg leading-5">Atualizar</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
             <CustomIcons name="correct" size={18} color="#fff" />
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
