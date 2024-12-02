@@ -208,7 +208,7 @@ export default function CreatePost() {
             />
             <TextInputMask
               title="CEP (Opcional)"
-              placeholder="Ex: 130456-03"
+              placeholder="Ex: 123456-78"
               maxLength={9}
               inputMode="numeric"
               maskType="cep"

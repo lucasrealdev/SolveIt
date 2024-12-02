@@ -2,15 +2,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
-import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
 import { checkIfFollowing, fetchPostsUser, followUser, getFollowerCount, getFollowingCount, getUserProfile, unfollowUser } from "@/lib/appwriteConfig";
-import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { useAlert } from "@/context/AlertContext";
 import { FontAwesome } from '@expo/vector-icons';
-
+import { Image as ExpoImage } from 'expo-image';
 interface UserData {
   biography: string;
   username: string;
@@ -18,6 +16,7 @@ interface UserData {
   avatar: string;
   accountType: string;
   numberPhone: string;
+  banner: any;
 }
 
 const Profile = () => {
@@ -49,6 +48,8 @@ const Profile = () => {
   const [translateX] = useState(new Animated.Value(0));
 
   const { user, loading, isLogged } = useGlobalContext();
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -90,7 +91,7 @@ const Profile = () => {
 
   const fetchPosts = useCallback(
     async (refresh = false) => {
-      if(loading){
+      if (loading) {
         return;
       }
       if (refresh) {
@@ -290,7 +291,12 @@ const Profile = () => {
       <View className="flex-1 bg-white pb-[40px] items-center">
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
-            <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover" />
+            <ExpoImage
+              source={user?.banner}
+              style={{ width: "100%", height: 200, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              cachePolicy="memory-disk" />
             <ButtonScale
               className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
               onPress={() => handleBackNavigation()}

@@ -78,22 +78,50 @@ export async function createUser(email, password, username) {
   }
 }
 
-export async function updateUser(userId, username, phoneNumber, biography) {
+export async function updateUser(userId, form, isWeb) {
   try {
-    // Gera uma nova URL de avatar, caso o username tenha mudado
-    const avatarUrl = avatars.getInitials(username);
+    // Inicializa as URLs dos avatares e banners
+    let profileUrl = form.profile;
+    let bannerUrl = form.banner;
+
+    console.log("Valores iniciais:", form);
+    console.log(typeof form.profile, typeof form.banner)
+
+    if (typeof form.profile !== "string") {
+      console.log("Fazendo upload do profile");
+      [profileUrl] = await Promise.all([uploadFile(form.profile, "image", isWeb)]);
+    }
+
+    if (typeof form.banner !== "string") {
+      console.log("Fazendo upload do banner");
+      [bannerUrl] = await Promise.all([uploadFile(form.banner, "image", isWeb)]);
+    }
+
+    // Prepara o objeto de dados a ser atualizado
+    const updateData = {
+      username: form.username,       // Atualiza o nome de usuário
+      numberPhone: form.numberPhone, // Atualiza o número de telefone
+      biography: form.biography,     // Atualiza a biografia
+    };
+
+    // Adiciona o campo avatar somente se necessário
+    if (typeof form.profile !== "string") {
+      updateData.avatar = profileUrl;
+    }
+
+    // Adiciona o campo banner somente se necessário
+    if (typeof form.banner !== "string") {
+      updateData.banner = bannerUrl;
+    }
+
+    console.log("Dados a serem atualizados:", updateData);
 
     // Atualiza os dados do usuário no banco de dados
     const updatedUser = await databases.updateDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
       userId, // ID do usuário para atualização
-      {
-        username: username,       // Atualiza o nome de usuário
-        numberPhone: phoneNumber, // Atualiza o número de telefone
-        biography: biography,     // Atualiza a biografia
-        avatar: avatarUrl,        // Atualiza a URL do avatar
-      }
+      updateData
     );
 
     return updatedUser;
@@ -146,6 +174,7 @@ export async function getUserProfile(accountId) {
       isOnline: userDoc.isOnline,
       numberPhone: userDoc.numberPhone,
       accountType: userDoc.accountType,
+      banner: userDoc.banner,
     };
   } catch (error) {
     console.error("Erro ao obter perfil:", error.message);
@@ -324,8 +353,8 @@ export async function getFilePreview(fileId, type) {
         appwriteConfig.storageId,
         fileId, // ID do arquivo
         2000,   // Largura máxima da imagem
-        2000,   // Altura máxima da imagem
-        "top",  // Posição do corte
+        0,   // Altura máxima da imagem
+        "center",  // Posição do corte
         100     // Qualidade da imagem
       );
     } else {

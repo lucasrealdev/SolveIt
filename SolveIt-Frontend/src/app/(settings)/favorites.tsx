@@ -112,7 +112,7 @@ export default function Favoritos() {
         scrollEventThrottle={16} // Reduz o intervalo de chamadas do onScroll
         refreshControl={
           <RefreshControl
-            refreshing={loading}
+            refreshing={false}
             onRefresh={fetchInitialPosts}
           />
         }>

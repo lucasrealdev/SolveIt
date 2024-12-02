@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl, TouchableOpacity, Linking } from "react-native";
 import { usePathname, useRouter } from 'expo-router';
 import CustomIcons from "@/assets/icons/CustomIcons";
-import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
@@ -11,6 +10,7 @@ import { fetchPostsUser, getFollowerCount, getFollowingCount, signOut, toggleUse
 import Post from "@/components/Post";
 import { useAlert } from "@/context/AlertContext";
 import { FontAwesome } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 
 const PersonalProfile = () => {
   const router = useRouter();
@@ -37,6 +37,8 @@ const PersonalProfile = () => {
   const [selectedTab, setSelectedTab] = useState("Publicações"); // Variável que guarda qual opção está selecionada
   const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
   const [translateX] = useState(new Animated.Value(0));
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
     if(!user) return;
@@ -300,7 +302,7 @@ const PersonalProfile = () => {
       scrollEventThrottle={16} // Controla a frequência do evento de rolagem
       refreshControl={
         <RefreshControl
-          refreshing={loadingPosts}
+          refreshing={false}
           onRefresh={() => fetchPosts(true)}
         />
       }
@@ -308,7 +310,12 @@ const PersonalProfile = () => {
       <View className="flex-1 bg-white pb-[40px] items-center">
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
-            <Image source={images.banner} className="w-full rounded-b-md h-[200px]" resizeMode="cover" />
+            <ExpoImage
+              source={user?.banner}
+              style={{ width: "100%", height: 200, borderBottomRightRadius: 6, borderBottomLeftRadius: 6}}
+              contentFit="cover"
+              placeholder={{blurhash}}
+              cachePolicy="memory-disk"/>
             <ButtonScale
               className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
               onPress={() => handleBackNavigation()}

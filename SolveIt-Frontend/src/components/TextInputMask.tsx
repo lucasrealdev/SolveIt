@@ -41,7 +41,7 @@ const TextInputMask = ({
       case "phone":
         return text
           .replace(/^\+55|[^0-9]/g, "") // Remove tudo que não é número, exceto o prefixo +55
-          .replace(/(\d{2})(\d{5})(\d{4})/, "+55 ($1) $2-$3"); // Formata no padrão +55 (XX) XXXXX-XXXX
+          .replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); // Formata no padrão +55 (XX) XXXXX-XXXX
       case "cpf": return text.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
       case "cnpj": return text.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
       default: return text;

@@ -77,7 +77,7 @@ export default function Index() {
   }, [fetchInitialPosts]);
 
   const renderFooter = useCallback(() => {
-    if (loadingMore) {
+    if (loadingMore && !loadingPost) {
       return (
         <View className="px-5 items-center justify-center">
           <ActivityIndicator size="large" color="#3692C5" />
@@ -85,7 +85,7 @@ export default function Index() {
       );
     }
 
-    if (!hasMore && posts.length > 0) {
+    if (!hasMore && posts.length > 0 && !loadingPost) {
       return (
         <View className="py-4 items-center">
           <Text className="text-textSecondary">Não há mais posts para carregar</Text>
@@ -123,7 +123,7 @@ export default function Index() {
         scrollEventThrottle={16} // Reduz o intervalo de chamadas do onScroll
         refreshControl={
           <RefreshControl
-            refreshing={loadingPost}
+            refreshing={false}
             onRefresh={fetchInitialPosts}
           />
         }>
