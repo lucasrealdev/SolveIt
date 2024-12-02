@@ -1,39 +1,69 @@
 import { ScrollView, Text, View, ActivityIndicator, RefreshControl } from "react-native";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Post from '@/components/Post';
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { fetchFavoritesPosts } from "@/lib/appwriteConfig";
 
 export default function Favoritos() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingPost, setLoadingPost] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [quizes, setQuizes] = useState([]);
-  const POSTS_PER_PAGE = 3;
-
   const [isRequesting, setIsRequesting] = useState(false);
+
+  const POSTS_PER_PAGE = 5;
+  const { user, isLogged, loading } = useGlobalContext();
 
   // Função otimizada para buscar posts iniciais
   const fetchInitialPosts = useCallback(async () => {
+    if (loading) return;
 
-  }, []);
-
-  // Função otimizada para buscar mais posts
-  const fetchMorePosts = useCallback(async () => {
-
-  }, []);
-
-  // Lógica otimizada para scroll
-  const handleScroll = useCallback(({ nativeEvent }) => {
-    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 100) {
-      fetchMorePosts(); // Inicia o carregamento quando próximo ao final
+    setLoadingPost(true);
+    setPage(1);
+    try {
+      const enrichedPosts = await fetchFavoritesPosts(1, POSTS_PER_PAGE, isLogged ? user : null);
+      setPosts(enrichedPosts);
+      setHasMore(enrichedPosts.length === POSTS_PER_PAGE);
+    } catch (error) {
+      console.error("Erro ao buscar dados iniciais:", error);
+    } finally {
+      setLoadingPost(false);
     }
-  }, [fetchMorePosts]);
+  }, [isLogged, loading]);
 
   useEffect(() => {
     fetchInitialPosts(); // Carrega os posts ao iniciar
   }, [fetchInitialPosts]);
+
+  // Função otimizada para buscar mais posts
+  const fetchMorePosts = useCallback(async () => {
+    if (loadingMore || !hasMore || isRequesting || loading) return;
+
+    setIsRequesting(true);
+    setLoadingMore(true);
+
+    try {
+      const nextPage = page + 1;
+      const newPosts = await fetchFavoritesPosts(nextPage, POSTS_PER_PAGE, isLogged ? user : null);
+      setPosts((prev) => [...prev, ...newPosts]);
+      setPage(nextPage);
+      setHasMore(newPosts.length === POSTS_PER_PAGE);
+    } catch (error) {
+      console.error("Erro ao carregar mais posts:", error);
+    } finally {
+      setLoadingMore(false);
+      setTimeout(() => setIsRequesting(false), 500);
+    }
+  }, [page, hasMore, loadingMore, isLogged, isRequesting, loading]);
+
+  // Lógica otimizada para scroll
+  const handleScroll = useCallback(({ nativeEvent }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 400) {
+      fetchMorePosts(); // Inicia o carregamento quando próximo ao final
+    }
+  }, [fetchMorePosts]);
 
   const renderFooter = useCallback(() => {
     if (loadingMore) {
@@ -55,11 +85,23 @@ export default function Favoritos() {
     return null;
   }, [loadingMore, hasMore, posts.length]);
 
-  // const renderPosts = useMemo(() => {
-  //   return posts.map((post) => (
-  //     <Post key={post.$id} postId={post.$id} />
-  //   ));
-  // }, [loading, posts]);
+  const renderPosts = useMemo(() => {
+    if (loadingPost) return <ActivityIndicator size="large" color="#3692C5" />;
+    return posts.map((EntirePost) => (
+      <Post
+        key={EntirePost.post.$id}
+        propCommentCount={EntirePost.commentCount}
+        propComments={EntirePost.comments}
+        propFavoriteCount={EntirePost.favoriteCount}
+        propLikeCount={EntirePost.likeCount}
+        propPost={EntirePost.post}
+        propShareCount={EntirePost.shareCount}
+        propIsFavorited={EntirePost.isFavorited}
+        propLiked={EntirePost.liked}
+        typePost="normal"
+      />
+    ));
+  }, [loadingPost, posts]);
 
   return (
     <View className="flex-1 flex-row">
@@ -76,7 +118,8 @@ export default function Favoritos() {
         }>
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
-            
+            {renderPosts}
+            {renderFooter()}
           </View>
         </View>
       </ScrollView>

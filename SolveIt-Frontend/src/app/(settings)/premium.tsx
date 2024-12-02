@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import ButtonScale from "@/components/ButtonScale";
 import Feather from 'react-native-vector-icons/Feather';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import { updateUserAccountType } from "@/lib/appwriteConfig";
+import { useGlobalContext } from "@/context/GlobalProvider";
 export default function PremiumScreen() {
+  const [loading, setLoading] = useState(false);
+  const { user, setUser } = useGlobalContext(); // Pega os dados do usuário e o setUser do contexto global
+
+  // Função para atualizar os dados do usuário no contexto global
+  const handleUpdateUserAccountType = async () => {
+    try {
+      setLoading(true);
+      const updatedUser = await updateUserAccountType(user.$id, "Premium");
+
+      // Atualiza o contexto global também, se necessário
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View aria-label="Main-Content-Master" className="gap-[24px] bg-white flex flex-1 items-center">
@@ -86,7 +106,7 @@ export default function PremiumScreen() {
                 </Text>
                 <Text className="text-sm font-bold">/mês</Text>
               </View>
-              <TouchableOpacity className="bg-[#E8EDF2] mt-[16px] p-[12px] rounded-[12px]">
+              <TouchableOpacity className="bg-[#E8EDF2] mt-[16px] p-[12px] rounded-[12px]" onPress={handleUpdateUserAccountType} disabled={loading}>
                 <Text className="text-black font-bold text-center text-sm">Comprar Premium</Text>
               </TouchableOpacity>
               <Text className="text-[#64748B] text-[12px] mt-[12px]">
@@ -103,7 +123,7 @@ export default function PremiumScreen() {
                 </Text>
                 <Text className="text-sm font-bold">/mês</Text>
               </View>
-              <TouchableOpacity className="bg-[#E8EDF2] mt-[16px] p-[12px] rounded-[12px]">
+              <TouchableOpacity className="bg-[#E8EDF2] mt-[16px] p-[12px] rounded-[12px]" onPress={handleUpdateUserAccountType} disabled={loading}>
                 <Text className="text-black font-bold text-center text-sm">Comprar Premium</Text>
               </TouchableOpacity>
               <Text className="text-[#64748B] text-[12px] mt-[12px]">

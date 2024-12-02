@@ -80,10 +80,6 @@ export async function createUser(email, password, username) {
 
 export async function updateUser(userId, username, phoneNumber, biography) {
   try {
-    // Garante que o usuário está logado, utilizando o email e a senha
-    // Aqui você pode omitir o processo de login, pois o foco é atualizar o usuário
-    // No caso do usuário estar logado e a sessão ainda ser válida, pode-se omitir essa parte
-
     // Gera uma nova URL de avatar, caso o username tenha mudado
     const avatarUrl = avatars.getInitials(username);
 
@@ -97,6 +93,25 @@ export async function updateUser(userId, username, phoneNumber, biography) {
         numberPhone: phoneNumber, // Atualiza o número de telefone
         biography: biography,     // Atualiza a biografia
         avatar: avatarUrl,        // Atualiza a URL do avatar
+      }
+    );
+
+    return updatedUser;
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error.message);
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+  }
+}
+
+export async function updateUserAccountType(userId, accountType) {
+  try {
+    // Atualiza os dados do usuário no banco de dados
+    const updatedUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId, // ID do usuário para atualização
+      {
+        accountType: accountType,       // Atualiza o nome de usuário
       }
     );
 
@@ -545,6 +560,86 @@ export async function fetchPostsUser(userId, page = 1, limit = 10, user = null) 
     throw { message: `Erro ao buscar posts de usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
+
+export const fetchFavoritesPosts = async (page = 1, limit = 10, user = null) => {
+  try {
+    if (!user) {
+      throw new Error("Usuário não autenticado.");
+    }
+
+    const offset = (page - 1) * limit;
+
+    // Buscar os IDs dos posts favoritados pelo usuário na coleção de favoritos
+    const favoritePosts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.favoritesCollectionId,
+      [
+        Query.equal('userId', user.$id), // Filtrar favoritos pelo usuário
+        Query.limit(limit),
+        Query.offset(offset),
+      ]
+    );
+
+    const favoritePostIds = favoritePosts.documents.map(fav => fav.postId);
+
+    if (favoritePostIds.length === 0) {
+      return []; // Retorna vazio se não houver posts favoritos
+    }
+
+    // Buscar os detalhes dos posts favoritados usando os IDs coletados
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      [
+        Query.equal('$id', favoritePostIds), // Filtrar pelos IDs dos favoritos
+        Query.orderDesc('$createdAt'),       // Ordena pela data de criação
+      ]
+    );
+
+    // Enriquecer os posts com dados adicionais
+    const enrichedPosts = await Promise.all(
+      posts.documents.map(async (post) => {
+        const [likes, comments, favorites, userLikedState, userFavoritedState] = await Promise.all([
+          getLikeCount(post.$id), // Total de likes
+          getCommentsForPost(post.$id, 1, 10), // Comentários da página 1 (exemplo)
+          getFavoriteCount(post.$id), // Total de favoritos
+          user ? userLikedPost(post.$id, user.$id) : false, // Verificar se o usuário curtiu
+          user ? userFavoritedPost(post.$id, user.$id) : false, // Verificar se o usuário favoritou
+        ]);
+
+        // Enriquecer os comentários com likeCount e isLiked
+        const enrichedComments = await Promise.all(comments.documents.map(async (comment) => {
+          const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);
+          const isLiked = user?.$id
+            ? await userLikedComment(user.$id, comment.$id).catch(() => false)
+            : false;
+
+          return {
+            ...comment,
+            likeCount, // Adiciona a contagem de likes do comentário
+            isLiked,   // Adiciona se o usuário curtiu ou não
+          };
+        }));
+
+        return {
+          post: post,
+          liked: userLikedState,
+          likeCount: likes,
+          commentCount: comments.total || 0,
+          comments: enrichedComments, // Substitui os comentários originais pelos enriquecidos
+          isFavorited: userFavoritedState,
+          favoriteCount: favorites,
+          shareCount: parseInt(post.shares || "0", 10),
+        };
+      })
+    );
+
+    return enrichedPosts;
+  } catch (error) {
+    console.error("Erro ao buscar FavoritePosts:", error);
+    throw { message: `Erro ao buscar os posts favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+  }
+};
 
 // Função para pesquisar postagens por uma string de consulta
 export async function searchPosts(query, limit = 10) {

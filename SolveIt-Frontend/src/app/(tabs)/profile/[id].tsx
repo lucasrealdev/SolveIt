@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import ButtonScale from "@/components/ButtonScale";
@@ -22,6 +22,7 @@ interface UserData {
 
 const Profile = () => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [posts, setPosts] = useState([]);
   const [loadingInfo, setLoadingInfo] = useState(false);
@@ -273,6 +274,11 @@ const Profile = () => {
     Linking.openURL(whatsappURL).catch(err => console.error("Erro ao tentar abrir o link: ", err));
   };
 
+  // Função para navegar entre telas
+  const navigateTo = (route) => {
+    router[route !== pathname ? "push" : "replace"](route);
+  };
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -404,7 +410,7 @@ const Profile = () => {
                   </View>
                   <Text className="text-white text-sm">Para acessar as informações, torne-se um membro Premium. Aproveite os benefícios premiuns do app, exclusivos para você!</Text>
                   <View className="flex flex-row gap-4">
-                    <Pressable><Text className="text-[#C7FEF1] font-bold">Garantir</Text></Pressable>
+                    <Pressable onPress={() => navigateTo("/premium")}><Text className="text-[#C7FEF1] font-bold">Garantir</Text></Pressable>
                   </View>
                 </View>
               </View>

@@ -28,7 +28,6 @@ export default function Information() {
   // Carregar dados do usuário
   useEffect(() => {
     if (user) {
-      console.log("Objeto user:", user);
       setUsername(user.username || "");
       setPhoneNumber(user.numberPhone || "");
       setBiography(user.biography || "");
@@ -45,7 +44,6 @@ export default function Information() {
         numberPhone,     // Novo número de telefone
         biography        // Nova biografia
       );
-      console.log('Usuário atualizado com sucesso:', updatedUser);
 
       // Atualiza os estados locais
       setUsername(updatedUser.username || "");
