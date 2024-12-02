@@ -70,7 +70,15 @@ const ResultsScreen = ({ solutions, totalRounds, currentRound, onNextRound, onRe
           </View>
         </Animated.View>
 
-        <View className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+        <View
+          className="bg-white rounded-2xl p-6 mb-6"
+          style={{
+            shadowColor: 'rgba(0, 0, 0, 0.1)', // Cor da sombra similar ao `shadow-lg`
+            shadowOffset: { width: 0, height: 4 }, // Deslocamento para baixo, representando a sombra
+            shadowOpacity: 1, // Opacidade da sombra
+            shadowRadius: 6, // Raio da sombra
+            elevation: 8, // Para Android, equivalente ao `shadow-lg`
+          }}>
           <Text className="text-2xl font-semibold text-center mb-4">Sua Performance</Text>
 
           <View className="flex-row flex-wrap justify-between mb-4">
@@ -104,7 +112,14 @@ const ResultsScreen = ({ solutions, totalRounds, currentRound, onNextRound, onRe
           </View>
         </View>
 
-        <View className="bg-white rounded-2xl p-6 shadow-lg">
+        <View className="bg-white rounded-2xl p-6"
+          style={{
+            shadowColor: 'rgba(0, 0, 0, 0.1)', // Cor da sombra similar ao `shadow-lg`
+            shadowOffset: { width: 0, height: 4 }, // Deslocamento para baixo, representando a sombra
+            shadowOpacity: 1, // Opacidade da sombra
+            shadowRadius: 6, // Raio da sombra
+            elevation: 8, // Para Android, equivalente ao `shadow-lg`
+          }}>
           <Text className="text-2xl font-semibold text-center mb-4">Ranking</Text>
           {leaderboardStats.map((stat, index) => (
             <View

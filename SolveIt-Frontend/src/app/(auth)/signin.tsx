@@ -97,7 +97,15 @@ export default function SignIn() {
       >
         {/* Container principal para centralizar o conteúdo e separar footer */}
         <View className="flex-1 justify-center items-center w-full p-2">
-          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" aria-label="CardSignIn">
+          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard w-full max-w-[480px]"
+          style={{
+            shadowColor: 'rgba(0, 0, 0, 0.1)', // Cor da sombra similar ao `shadow-lg`
+            shadowOffset: { width: 0, height: 4 }, // Deslocamento para baixo, representando a sombra
+            shadowOpacity: 1, // Opacidade da sombra
+            shadowRadius: 6, // Raio da sombra
+            elevation: 8, // Para Android, equivalente ao `shadow-lg`
+          }}
+          aria-label="CardSignIn">
             <View className="gap-2">
               <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]" />
               <View className="gap-2">

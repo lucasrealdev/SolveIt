@@ -16,22 +16,29 @@ interface BarStoryProps {
   onNextPress?: () => void; // Optional callback for next button
 }
 
-const BarStory: React.FC<BarStoryProps> = ({ 
+const BarStory: React.FC<BarStoryProps> = ({
   users = [
     { name: "x_ae-23b" },
     { name: "maisenpai" },
   ],
-  onNextPress = () => console.log("Pressionou") 
+  onNextPress = () => console.log("Pressionou")
 }) => {
   return (
-    <View 
-      aria-label="ContainerStory" 
-      className="flex p-[20px] gap-[16px] bg-white rounded-[24px] shadow-[0px_12px_16px_-4px_rgba(16,_24,_40,_0.09)] flex-row items-center border border-borderStandardLight"
+    <View
+      aria-label="ContainerStory"
+      className="flex p-[20px] gap-[16px] bg-white rounded-[24px] flex-row items-center border border-borderStandardLight"
+      style={{
+        shadowColor: 'rgba(16, 24, 40, 0.09)', // Cor da sombra
+        shadowOffset: { width: 0, height: 3 }, // Deslocamento da sombra
+        shadowOpacity: 1, // Opacidade da sombra
+        shadowRadius: 10, // Raio da sombra
+        elevation: 1, // Para Android, usa a propriedade 'elevation' para simular sombra
+      }}
     >
       {users.map((user, index) => (
-        <ButtonScale 
-          key={index} 
-          scale={1.05} 
+        <ButtonScale
+          key={index}
+          scale={1.05}
           className="flex justify-center items-center w-fit"
         >
           <LinearGradient
@@ -41,15 +48,15 @@ const BarStory: React.FC<BarStoryProps> = ({
             start={{ x: 0.5, y: 0.5 }}
             end={{ x: 1, y: 1 }}
           >
-            <Image 
-              source={user.image || images.person} 
-              className="border-white border-[2px] rounded-full w-[64px] h-[64px]" 
+            <Image
+              source={user.image || images.person}
+              className="border-white border-[2px] rounded-full w-[64px] h-[64px]"
             />
           </LinearGradient>
           <Text className="text-textStandardDark font-semibold">{user.name}</Text>
         </ButtonScale>
       ))}
-      
+
       <ButtonScale
         scale={1.1}
         onPress={onNextPress}

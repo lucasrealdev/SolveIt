@@ -95,7 +95,17 @@ export default function SignUp() {
         end={{ x: 0, y: 1 }}
       >
         <View className="flex-1 justify-center items-center w-full p-2">
-          <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard shadow-lg w-full max-w-[480px]" aria-label="CardSignUp">
+          <View
+            className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard w-full max-w-[480px]"
+            aria-label="CardSignUp"
+            style={{
+              shadowColor: 'rgba(0, 0, 0, 0.1)', // Ajuste para corresponder à sombra padrão do `shadow-lg`
+              shadowOffset: { width: 0, height: 4 }, // Deslocamento padrão do Tailwind `shadow-lg`
+              shadowOpacity: 1, // Opacidade da sombra
+              shadowRadius: 6, // Raio padrão do Tailwind `shadow-lg`
+              elevation: 8, // Para Android, simulando `shadow-lg`
+            }}
+          >
             <View className="gap-2">
               <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]" />
               <View className="gap-2">
