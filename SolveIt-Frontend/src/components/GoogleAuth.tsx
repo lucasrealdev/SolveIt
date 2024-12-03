@@ -5,11 +5,14 @@ import { useAlert } from "@/context/AlertContext";
 import { continueWithGoogle } from "@/lib/appwriteConfig";
 import { Image, Pressable, Text, ActivityIndicator } from 'react-native';
 import images from '@/constants/images';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import { useRouter } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
-
-const GoogleAuth = ({ onSuccess }) => {
+const GoogleAuth = () => {
+  const router = useRouter();
   const { showAlert } = useAlert();
+  const { setUser, setIsLogged } = useGlobalContext();
   
   // Estados para controle de carregamento
   const [isLoading, setIsLoading] = useState(false);
@@ -27,12 +30,24 @@ const GoogleAuth = ({ onSuccess }) => {
   const [request, response, promptAsync] = Google.useAuthRequest(config);
 
   const submitGoogle = async (user) => {
+    console.log("user google auth", user);
     setIsLoading(true); // Ativa o carregamento
 
     try {
       const result = await continueWithGoogle(user.email, user.id, user.email.split('@')[0], user.picture);
-      if (result.status === "logged_in" || result.status === "created_and_logged_in") {
-        onSuccess(result);
+      if (result.status === "logged_in") {
+        setIsLogged(true);
+        setUser(result.user);
+        showAlert("Sucesso", "Usuário logado com sucesso");
+        router.push("/");
+        return;
+      }
+      if(result.status === "created_and_logged_in"){
+        setIsLogged(true);
+        setUser(result.newUser);
+        showAlert("Sucesso", "Usuário logado com sucesso");
+        router.push("/");
+        return;
       }
     } catch (error) {
       console.error("Erro ao continuar com Google:", error.message);

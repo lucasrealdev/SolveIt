@@ -89,8 +89,8 @@ export async function continueWithGoogle(email, password, username, avatar) {
 
     if (existingUsers.documents.length > 0) {
       // Usuário existe, tente fazer login
-      const session = await signIn(email, password);
-      return { status: "logged_in", session };
+      const user = await signIn(email, password);
+      return { status: "logged_in", user };
     } else {
       // Usuário não existe, crie uma nova conta e faça login
       const newUser = await createUser(email, password, username, avatar);
@@ -214,8 +214,9 @@ export async function getUserProfile(accountId) {
 export async function signIn(email, password) {
   try {
     await signOut();
-    const session = await account.createEmailPasswordSession(email, password);
-    return session;
+    await account.createEmailPasswordSession(email, password);
+    const user = await getCurrentUser();
+    return user;
   } catch (error) {
     console.error("Erro ao fazer login:", error.message);
     throw { message: "Falha ao autenticar o usuário.", code: error.code || 500 }; // Melhorar o código de erro

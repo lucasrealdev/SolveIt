@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { View, Text, ScrollView, Image } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
@@ -9,7 +9,7 @@ import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { continueWithGoogle, getCurrentUser, signIn } from "@/lib/appwriteConfig";
+import { signIn } from "@/lib/appwriteConfig";
 import { handleAppwriteInError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
 import HoverColorComponent from "@/components/HoverColorComponent";
@@ -20,9 +20,8 @@ export default function SignIn() {
   const router = useRouter();
   const { showAlert } = useAlert();
 
-  const { setUser, setIsLogged } = useGlobalContext();
+  const { setUser, setIsLogged, user } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
-  const [SubmittingGoogle, setSubmittingGoogle] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -36,11 +35,8 @@ export default function SignIn() {
 
     setSubmitting(true);
 
-    let result = null; // Inicializa a variável result
-
     try {
-      await signIn(formData.email, formData.password);
-      result = await getCurrentUser(); // Atribui o valor a result
+      const result = await signIn(formData.email, formData.password);
 
       if (!result) {
         return;
@@ -168,12 +164,7 @@ export default function SignIn() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <GoogleAuth onSuccess={(result) => {
-                setUser(result.session || result.newUser);
-                setIsLogged(true);
-                showAlert("Sucesso", "Usuário logado com sucesso");
-                router.push("/");
-              }} />
+            <GoogleAuth/>
           </View>
         </View>
 

@@ -172,12 +172,7 @@ export default function SignUp() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <GoogleAuth onSuccess={(result) => {
-                setUser(result.session || result.newUser);
-                setIsLogged(true);
-                showAlert("Sucesso", "Usuário logado com sucesso");
-                router.push("/");
-              }} />
+            <GoogleAuth />
           </View>
         </View>
 
