@@ -13,6 +13,7 @@ import { handleAppwriteUpError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
+import GoogleAuth from "@/components/GoogleAuth";
 
 export default function SignUp() {
   const router = useRouter();
@@ -171,12 +172,12 @@ export default function SignUp() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <Pressable
-              className="w-full border border-textStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3"
-            >
-              <Image source={images.google} className="w-6 h-6" />
-              <Text className="font-bold text-textStandardDark">Continuar com Google</Text>
-            </Pressable>
+            <GoogleAuth onSuccess={(result) => {
+                setUser(result.session || result.newUser);
+                setIsLogged(true);
+                showAlert("Sucesso", "Usuário logado com sucesso");
+                router.push("/");
+              }} />
           </View>
         </View>
 

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Image, TextInput, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextButton } from "@/components/Button";
 import { BlurView } from 'expo-blur';
@@ -9,11 +9,12 @@ import images from "@/constants/images";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import TextInputModel from "@/components/TextInputModel";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getCurrentUser, signIn } from "@/lib/appwriteConfig";
+import { continueWithGoogle, getCurrentUser, signIn } from "@/lib/appwriteConfig";
 import { handleAppwriteInError } from "@/utils/handleErrors";
 import { useAlert } from "@/context/AlertContext";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
+import GoogleAuth from "@/components/GoogleAuth";
 
 export default function SignIn() {
   const router = useRouter();
@@ -21,6 +22,8 @@ export default function SignIn() {
 
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
+  const [SubmittingGoogle, setSubmittingGoogle] = useState(false);
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -54,7 +57,6 @@ export default function SignIn() {
       setSubmitting(false);
     }
   };
-
 
   // Função de validação de formulário
   const validateForm = (form: { email: string; password: string }): boolean => {
@@ -98,14 +100,14 @@ export default function SignIn() {
         {/* Container principal para centralizar o conteúdo e separar footer */}
         <View className="flex-1 justify-center items-center w-full p-2">
           <View className="bg-backgroundStandardLight gap-8 p-6 rounded-[32px] border border-borderStandard w-full max-w-[480px]"
-          style={{
-            shadowColor: 'rgba(0, 0, 0, 0.1)', // Cor da sombra similar ao `shadow-lg`
-            shadowOffset: { width: 0, height: 4 }, // Deslocamento para baixo, representando a sombra
-            shadowOpacity: 1, // Opacidade da sombra
-            shadowRadius: 6, // Raio da sombra
-            elevation: 8, // Para Android, equivalente ao `shadow-lg`
-          }}
-          aria-label="CardSignIn">
+            style={{
+              shadowColor: 'rgba(0, 0, 0, 0.1)', // Cor da sombra similar ao `shadow-lg`
+              shadowOffset: { width: 0, height: 4 }, // Deslocamento para baixo, representando a sombra
+              shadowOpacity: 1, // Opacidade da sombra
+              shadowRadius: 6, // Raio da sombra
+              elevation: 8, // Para Android, equivalente ao `shadow-lg`
+            }}
+            aria-label="CardSignIn">
             <View className="gap-2">
               <Image source={images.logoShadow} className="w-12 h-12 ml-[-7px]" />
               <View className="gap-2">
@@ -150,11 +152,11 @@ export default function SignIn() {
                 <View className="flex-row">
                   <Text className="text-textStandardDark font-bold">Não tem uma conta?{' '}</Text>
                   <HoverColorComponent onPress={() => router.push('/signup')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
-                  <Text className="font-bold" style={{color: "#01b297"}}>Cadastre-se</Text>
-                </HoverColorComponent>
+                    <Text className="font-bold" style={{ color: "#01b297" }}>Cadastre-se</Text>
+                  </HoverColorComponent>
                 </View>
                 <HoverColorComponent onPress={() => router.push('/forgotPassword')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
-                  <Text className="font-bold" style={{color: "#01b297"}}>Esqueci a Senha</Text>
+                  <Text className="font-bold" style={{ color: "#01b297" }}>Esqueci a Senha</Text>
                 </HoverColorComponent>
               </View>
 
@@ -166,10 +168,12 @@ export default function SignIn() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <Pressable className="w-full border border-borderStandard py-[10px] rounded-full flex flex-row justify-center items-center gap-3">
-              <Image source={images.google} className="w-6 h-6" />
-              <Text className="font-bold text-textoPretoCinza">Continuar com Google</Text>
-            </Pressable>
+            <GoogleAuth onSuccess={(result) => {
+                setUser(result.session || result.newUser);
+                setIsLogged(true);
+                showAlert("Sucesso", "Usuário logado com sucesso");
+                router.push("/");
+              }} />
           </View>
         </View>
 

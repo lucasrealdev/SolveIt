@@ -4,15 +4,14 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal",
+    "preview_android": {
       "android": {
         "buildType": "apk"
       }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
     },
     "production": {
       "autoIncrement": true

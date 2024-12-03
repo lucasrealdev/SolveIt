@@ -44,7 +44,7 @@ const databases = new Databases(client);
 
 //INICIO FUNCOES USUARIO
 // Função para criar um novo usuário
-export async function createUser(email, password, username) {
+export async function createUser(email, password, username, avatar = undefined) {
   try {
     await signOut();  // Logout antes de criar o novo usuário
 
@@ -52,8 +52,8 @@ export async function createUser(email, password, username) {
     const newAccount = await account.create(ID.unique(), email, password, username);
     if (!newAccount) throw new Error("Falha ao criar a conta.");
 
-    // Gera uma URL de avatar inicial usando as iniciais do usuário
-    const avatarUrl = avatars.getInitials(username);
+    // Se o avatar for fornecido, use-o, caso contrário, use o avatar gerado com as iniciais
+    const avatarUrl = avatar || avatars.getInitials(username);
 
     // Faz login após criação da conta
     await signIn(email, password);
@@ -75,6 +75,34 @@ export async function createUser(email, password, username) {
   } catch (error) {
     console.error("Erro ao criar usuário:", error.message);
     throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+  }
+}
+
+export async function continueWithGoogle(email, password, username, avatar) {
+  try {
+    // Verificar se o usuário já existe no banco de dados
+    const existingUsers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("email", [email])]
+    );
+
+    if (existingUsers.documents.length > 0) {
+      // Usuário existe, tente fazer login
+      const session = await signIn(email, password);
+      return { status: "logged_in", session };
+    } else {
+      // Usuário não existe, crie uma nova conta e faça login
+      const newUser = await createUser(email, password, username, avatar);
+      return { status: "created_and_logged_in", newUser };
+    }
+  } catch (error) {
+    // Se o erro for relacionado a e-mail já cadastrado, trata esse caso
+    if (error.message.includes('Falha ao autenticar o usuário')) {
+      throw { message: "Já existe uma conta associada a este e-mail. Tente fazer login com a senha.", code: 409 };
+    }
+
+    throw { message: error.message, code: error.code || 500 };
   }
 }
 

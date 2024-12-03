@@ -38,6 +38,16 @@ O **SolveIt** é um aplicativo mobile desenvolvido com React Native, TypeScript 
    npx expo start -c
    ```
 
+## **Deploy**
+1. Deploy para web:
+   ```bash
+   npx expo export --platform web
+   ```
+2. Deploy para android:
+   ```bash
+   eas build -p android --profile preview_android
+   ```
+
 ## **Boas Práticas de Desenvolvimento**
 - **Componentização**: Componentes devem ser pequenos, reutilizáveis e orientados a responsabilidade única.
 - **Tipagem Estrita**: Utilizar a tipagem do TypeScript em todo o projeto para prevenir bugs e melhorar a manutenção.
