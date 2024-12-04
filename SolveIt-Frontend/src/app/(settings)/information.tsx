@@ -70,8 +70,6 @@ export default function Information() {
         ? form.numberPhone
         : `+55 ${form.numberPhone.trim()}`;
 
-      console.log("Número de telefone com prefixo:", numberPhoneWithPrefix); // Verifique o valor aqui
-
       setLoading(true);
 
       const updatedForm = {
