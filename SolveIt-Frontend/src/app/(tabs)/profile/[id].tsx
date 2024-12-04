@@ -293,7 +293,7 @@ const Profile = () => {
         <View className="flex w-full max-w-[700px]">
           <View className="relative">
             <ExpoImage
-              source={user?.banner}
+              source={userData?.banner}
               style={{ width: "100%", height: 200, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
               contentFit="cover"
               placeholder={{ blurhash }}

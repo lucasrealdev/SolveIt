@@ -6,10 +6,9 @@ import colors from '@/constants/colors';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { followUser, unfollowUser } from '@/lib/appwriteConfig';
 import { useAlert } from '@/context/AlertContext';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import ButtonScale from './ButtonScale';
 import { Image as ExpoImage } from 'expo-image';
-
 interface CardFriendProps {
   propFriend: any;
   propIsFollowing: boolean;
@@ -23,7 +22,7 @@ const CardFriend: React.FC<CardFriendProps> = ({ propFriend, propIsFollowing, la
 
   const { showAlert } = useAlert();
   const router = useRouter();
-
+console.log(propFriend)
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 

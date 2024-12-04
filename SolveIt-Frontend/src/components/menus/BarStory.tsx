@@ -22,7 +22,6 @@ const BarStory: React.FC = () => {
 
   const videoPlayer = useVideoPlayer(currentStoryUrl, (player) => {
     player.loop = true;
-    if (isVideoPlayerVisible) player.play();
   });
 
   useEffect(() => {
@@ -103,20 +102,19 @@ const BarStory: React.FC = () => {
       <Modal visible={isVideoPlayerVisible} transparent>
         <View style={styles.videoPlayerContainer}>
           <VideoView
-            style={styles.video}
+            style={styles.video} // Proporção 4:3 aplicada aqui
             player={videoPlayer}
-            allowsFullscreen
-            allowsPictureInPicture
           />
           <ButtonScale
             scale={1.1}
-            onPress={handleVideoPlayerClose}
-            style={styles.closeButton}
+            onPress={handleVideoPlayerClose} // Fecha o vídeo ao pressionar o botão
+            style={styles.closeButton} // Estilos para o botão de fechar
           >
-            <CustomIcons name="close" color="#475569" size={20} />
+            <CustomIcons name="fechar" color="#475569" size={12} />
           </ButtonScale>
         </View>
       </Modal>
+
       <ButtonScale
         scale={1.1}
         className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center justify-center">
@@ -137,18 +135,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20, // Adicionando um pouco de espaço nas bordas
   },
   video: {
-    width: '90%',
-    height: 300,
+    width: '75%', // Proporção ajustada
+    aspectRatio: 4 / 3, // Garantindo 4:3
+    maxHeight: '70%', // Limita a altura máxima do vídeo
   },
   closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 10,
+    marginTop: 10,
   },
 });
 
