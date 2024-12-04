@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import CardAmigo from "@/components/CardFriend";
-import SearchHeader from "@/components/SearchHeader";
+import SearchHeader from "@/components/menus/SearchHeader";
 import HoverColorComponent from "@/components/HoverColorComponent";
 import colors from "@/constants/colors";
 import { getFollowerCount, getFollowers, getFollowing, getFollowingCount, getSuggestedFriends } from "@/lib/appwriteConfig";

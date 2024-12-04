@@ -1,11 +1,11 @@
 import { ScrollView, View } from "react-native";
-import MenuRight from "@/components/MenuRight";
 import { useEffect, useState } from "react";
 import { fetchPostById } from "@/lib/appwriteConfig";
 import { useLocalSearchParams } from "expo-router";
 import PostSkeleton from "@/components/PostSkeleton";
 import Post from "@/components/Post";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import MenuRight from "@/components/menus/MenuRight";
 
 export default function PostDetails() {
     const [post, setPost] = useState(null); // Armazena o post específico

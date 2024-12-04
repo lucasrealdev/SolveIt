@@ -1,12 +1,12 @@
 import { ScrollView, Text, View, ActivityIndicator, RefreshControl } from "react-native";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import MenuRight from "@/components/MenuRight";
+import MenuRight from "@/components/menus/MenuRight";
 import Post from '@/components/Post';
-import SearchHeader from "@/components/SearchHeader";
+import SearchHeader from "@/components/menus/SearchHeader";
 import { fetchEntirePosts, fetchEntiresQuiz } from "@/lib/appwriteConfig";
 import Quiz from "@/components/Quiz";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import BarStory from "@/components/BarStory";
+import BarStory from "@/components/menus/BarStory";
 
 export default function Index() {
   const [quizes, setQuizes] = useState([]);

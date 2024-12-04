@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { useFonts } from 'expo-font';
  
-import Menu from '@/components/Menu';
-import Header from '@/components/Header';
+import Menu from '@/components/menus/Menu';
+import Header from '@/components/menus/Header';
  
 import "../styles/global.css";
 import { useEffect } from 'react';

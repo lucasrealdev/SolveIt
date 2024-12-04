@@ -3,9 +3,9 @@ import { Pressable, Text, View, Image, StyleSheet, useWindowDimensions, Animated
 import { usePathname, useRouter } from "expo-router";
 
 import CustomIcons from "@/assets/icons/CustomIcons";
-import CardAmigo from "./CardFriend";
-import ButtonScale from "./ButtonScale";
-import HoverColorComponent from "./HoverColorComponent";
+import CardAmigo from "../CardFriend";
+import ButtonScale from "../ButtonScale";
+import HoverColorComponent from "../HoverColorComponent";
 import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { getAllEvents, getSuggestedFriends, toggleUserOnlineStatus } from "@/lib/appwriteConfig";

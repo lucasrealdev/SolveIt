@@ -1,4 +1,4 @@
-import MenuConfig from "@/components/MenuConfig";
+import MenuConfig from "@/components/menus/MenuConfig";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { Redirect, Stack } from "expo-router";
 import { View } from "react-native";

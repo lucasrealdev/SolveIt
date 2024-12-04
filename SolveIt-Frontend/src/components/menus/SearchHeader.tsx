@@ -1,6 +1,6 @@
 import { Pressable, TextInput, View, useWindowDimensions } from "react-native";
 import { useRouter, usePathname } from "expo-router";
-import { Button, IconButton, TextButton } from './Button'; // Ajuste o caminho conforme necessário
+import { Button, IconButton, TextButton } from '../Button'; // Ajuste o caminho conforme necessário
 import React, { useState } from "react";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import tinycolor from 'tinycolor2';

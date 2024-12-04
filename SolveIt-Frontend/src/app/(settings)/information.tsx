@@ -5,8 +5,8 @@ import TextInputMask from "@/components/TextInputMask";
 import { usePathname, useRouter } from "expo-router";
 import { useGlobalContext } from "@/context/GlobalProvider"; // Contexto global de exemplo
 import { updateUser } from "@/lib/appwriteConfig";
-import ImageUploadUser from "@/components/ImageUploadUser";
 import { useAlert } from "@/context/AlertContext";
+import ImageUploadUser from "@/components/media/ImageUploadUser";
 
 export default function Information() {
   const [loading, setLoading] = useState(false);

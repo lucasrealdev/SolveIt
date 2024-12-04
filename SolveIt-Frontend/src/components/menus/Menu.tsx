@@ -6,7 +6,7 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { signOut } from "@/lib/appwriteConfig";
 import images from "@/constants/images";
 import { useAlert } from "@/context/AlertContext";
-import ButtonScale from "./ButtonScale";
+import ButtonScale from "../ButtonScale";
 import colors from "@/constants/colors";
 
 interface MenuProps {

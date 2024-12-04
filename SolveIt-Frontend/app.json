@@ -20,6 +20,13 @@
         {
           "origin": "https://n"
         }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
       ]
     ],
     "android": {

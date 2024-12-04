@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { Text, View, ScrollView, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
-import MenuRight from "@/components/MenuRight";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CustomIcons from "@/assets/icons/CustomIcons";
-import ImageUploadComponent from "@/components/ImageUploadComponent";
 import ButtonScale from "@/components/ButtonScale";
 import TextInputMask from "@/components/TextInputMask";
 import { createPost } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { usePathname, useRouter } from "expo-router";
+import ImageUploadComponent from "@/components/media/ImageUploadComponent";
+import MenuRight from "@/components/menus/MenuRight";
 
 const renderSelectItem = (item) => (
   <View style={{ flexDirection: 'row', alignItems: 'center' }}>

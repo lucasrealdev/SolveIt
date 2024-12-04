@@ -86,7 +86,18 @@ export default function Favoritos() {
   }, [loadingMore, hasMore, posts.length]);
 
   const renderPosts = useMemo(() => {
-    if (loadingPost) return <ActivityIndicator size="large" color="#3692C5" />;
+    if (loadingPost) {
+      return <ActivityIndicator size="large" color="#3692C5" />;
+    }
+  
+    if (posts.length === 0) {
+      return (
+        <View className="flex items-center justify-center my-10">
+          <Text className="text-textSecondary text-lg">Você ainda não tem posts favoritos.</Text>
+        </View>
+      );
+    }
+  
     return posts.map((EntirePost) => (
       <Post
         key={EntirePost.post.$id}
@@ -101,7 +112,7 @@ export default function Favoritos() {
         typePost="normal"
       />
     ));
-  }, [loadingPost, posts]);
+  }, [loadingPost, posts]);  
 
   return (
     <View className="flex-1 flex-row">

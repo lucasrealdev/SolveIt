@@ -12,7 +12,7 @@ WebBrowser.maybeCompleteAuthSession();
 const GoogleAuth = () => {
   const router = useRouter();
   const { showAlert } = useAlert();
-  const { setUser, setIsLogged } = useGlobalContext();
+  const { setUser, setIsLogged, user } = useGlobalContext();
   
   // Estados para controle de carregamento
   const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +29,11 @@ const GoogleAuth = () => {
 
   const [request, response, promptAsync] = Google.useAuthRequest(config);
 
-  const submitGoogle = async (user) => {
-    console.log("user google auth", user);
+  const submitGoogle = async (userGoogle) => {
     setIsLoading(true); // Ativa o carregamento
 
     try {
-      const result = await continueWithGoogle(user.email, user.id, user.email.split('@')[0], user.picture);
+      const result = await continueWithGoogle(userGoogle.email, userGoogle.id, userGoogle.email.split('@')[0], userGoogle.picture);
       if (result.status === "logged_in") {
         setIsLogged(true);
         setUser(result.user);

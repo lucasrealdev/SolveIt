@@ -4,7 +4,6 @@ import {
   Client,
   Databases,
   ID,
-  OAuthProvider,
   Query,
   Storage,
 } from "react-native-appwrite";
@@ -25,6 +24,7 @@ export const appwriteConfig = {
   eventsCollectionId: "67465b65000f8d48c88c",
   quizzesCollectionId: "6748bb010033a892b9d1",
   quizVotesCollectionId: "674907a4002af75a48b1",
+  storiesCollectionId: "674fd81e002c8c5de1da",
 };
 
 import axios from "axios";
@@ -1480,3 +1480,33 @@ export async function fetchEntiresQuiz(user = null) {
 }
 
 //FIM funcoes quiz
+
+//INICIO funcoes stories
+export async function getStories() {
+  try {
+    const storiesResponse = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.storiesCollectionId
+    );
+
+    if (!storiesResponse.documents?.length) {
+      return [];
+    }
+
+    const stories = await Promise.all(
+      storiesResponse.documents.map(async (doc) => {
+        const user = await getUserProfile(doc.userId);
+        return {
+          user: user || { username: "user", avatar: `https://ui-avatars.com/api/?name=user` },
+          storyUrl: doc.storyUrl,
+        };
+      })
+    );
+
+    return stories;
+  } catch (error) {
+    console.error("Error fetching stories:", error.message);
+    throw { message: error.message || "Unknown error", code: error.code || 500 };
+  }
+}
+//FIM funcoes stories
