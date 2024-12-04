@@ -50,36 +50,38 @@ export default function Information() {
   // Função para atualizar os dados do usuário no contexto global
   const handleUpdateUser = async () => {
     try {
-      // Validações para username e biography
+      const cleanedNumber = form.numberPhone.replace(/[^\d]/g, ""); // Remove não numéricos
+      if (cleanedNumber.length < 11) {
+        showAlert("Aviso", "O número de telefone deve ter no mínimo 11 dígitos.");
+        return; // Interrompe a execução
+      }
       if (!form.username.trim()) {
         showAlert("Aviso", "Por favor, preencha o nome de usuário.");
         return; // Interrompe a execução
       }
-  
+
       if (!form.biography.trim()) {
         showAlert("Aviso", "Por favor, preencha a biografia.");
         return; // Interrompe a execução
       }
-  
-      setLoading(true);
-  
-      // Adiciona o prefixo +55 ao numberPhone, se ainda não estiver presente
+
+      // Adiciona o prefixo +55 ao numberPhone, se necessário
       const numberPhoneWithPrefix = form.numberPhone.startsWith("+55")
         ? form.numberPhone
         : `+55 ${form.numberPhone.trim()}`;
-  
-      // Atualiza o form com o número ajustado
+
+      console.log("Número de telefone com prefixo:", numberPhoneWithPrefix); // Verifique o valor aqui
+
+      setLoading(true);
+
       const updatedForm = {
         ...form,
         numberPhone: numberPhoneWithPrefix,
       };
-  
-      // Verifica se a plataforma é 'web'
+
       const isWeb = Platform.OS === "web";
-  
-      // Passa o valor baseado na plataforma
       const updatedUser = await updateUser(user.$id, updatedForm, isWeb);
-  
+
       setForm((prev) => ({
         ...prev,
         username: updatedUser.username || "",
@@ -88,8 +90,7 @@ export default function Information() {
         profile: updatedUser.avatar || "valorpadrao",
         banner: updatedUser.banner || "valorpadrao",
       }));
-  
-      // Atualiza o contexto global também, se necessário
+
       setUser(updatedUser);
 
       showAlert("Sucesso", "Dados atualizados com sucesso!");
@@ -98,7 +99,8 @@ export default function Information() {
     } finally {
       setLoading(false);
     }
-  };  
+  };
+
 
   const updateForm = (field, value) => {
     // Verifica se o campo é válido, e se o valor não é null ou undefined
@@ -109,7 +111,7 @@ export default function Information() {
         [field]: newValue,
       }));
     }
-  };  
+  };
 
   if (!form.profile) {
     return;
