@@ -64,31 +64,31 @@ const Help = () => {
           {/* Problems Section */}
           <View className="p-5 bg-white w-full">
             <Text className="text-2xl font-bold text-gray-900 mb-5 text-center">
-              A Inspiração
+              Exemplos
             </Text>
 
             <CardProblem
               icon="car-outline"
-              title="Perda de tempo no trânsito"
-              description="Por que não existe uma forma mais eficiente de organizar caronas entre vizinhos?"
+              title="O tempo perdido no trânsito"
+              description="Imagine poder aproveitar o tempo de deslocamento para conhecer seus vizinhos ou até mesmo compartilhar caronas, economizando dinheiro e contribuindo para o meio ambiente."
             />
 
             <CardProblem
               icon="school-outline"
-              title="Troca de informações confusas na escola"
-              description="Quantas vezes um aplicativo para centralizar comunicados e tarefas escolares já não teria resolvido os desencontros?"
+              title="A correria do dia a dia escolar"
+              description="E se existisse um espaço onde pais, alunos e professores pudessem se comunicar facilmente, evitando desencontros e garantindo mais organização no dia a dia?"
             />
 
             <CardProblem
               icon="construct-outline"
-              title="Serviços confiáveis"
-              description="Quem nunca precisou de um encanador urgente, mas perdeu horas buscando recomendações?"
+              title="A busca por profissionais confiáveis"
+              description="Já pensou em um lugar onde você pudesse encontrar rapidamente aquele encanador ou eletricista de confiança, indicado por pessoas próximas a você?"
             />
 
             <CardProblem
               icon="wallet-outline"
-              title="Despesas familiares"
-              description="E se houvesse uma forma mais simples de organizar gastos conjuntos?"
+              title="Gerenciamento de despesas familiares"
+              description="Como seria poder controlar e dividir as despesas domésticas de forma simples e prática, aliviando o estresse das finanças em grupo?"
             />
           </View>
 
@@ -98,7 +98,38 @@ const Help = () => {
             <Text className="text-2xl font-bold text-white mb-4 text-center">
               Por Que Compartilhar Seu Problema?
             </Text>
+            <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', lineHeight: 24 }}>
+              Estudos de psicologia mostram que falar sobre seus problemas, mesmo de forma anônima, pode
+              reduzir o estresse, melhorar a saúde mental e auxiliar na resolução de questões pessoais.
+            </Text>
+            <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', lineHeight: 24, marginTop: 16 }}>
+              Um exemplo é uma pesquisa publicada no portal
+              <Text
+                style={{ color: '#63B3ED', fontWeight: 'bold' }}
+                onPress={() => Linking.openURL('https://www.otempo.com.br/saude-e-bem-estar/2024/11/25/desabafar-com-chatbots-faz-voce-se-sentir-melhor--diz-pesquisa?utm_source=chatgpt.com')}
+              >
+                {' O Tempo '}
+              </Text>
+              que revela como desabafar, até mesmo com chatbots, proporciona alívio emocional significativo.
+            </Text>
+            <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', lineHeight: 24, marginTop: 16 }}>
+              Além disso, o portal
+              <Text
+                style={{ color: '#63B3ED', fontWeight: 'bold' }}
+                onPress={() => Linking.openURL('https://universoracionalista.org/desabafar-e-benefico-para-a-saude-mental/?utm_source=chatgpt.com')}
+              >
+                {' Universo Racionalista '}
+              </Text>
+              explora como escrever sobre sentimentos, como em diários, ajuda a curar experiências traumáticas e a melhorar a consciência emocional.
+            </Text>
+            <Text className="text-base text-white opacity-90 leading-6 my-4">
+              O SolveIt é o lugar ideal para isso. Você pode usar nossa plataforma para desabafar sobre qualquer coisa, desde pequenas frustrações até situações mais sérias. O mais importante: você está em um ambiente seguro e acolhedor.
+            </Text>
             <Text className="text-base text-white opacity-90 leading-6">
+              E sabe o que é interessante? Ao compartilhar, você pode acabar inspirando soluções que ajudam não só você, mas muitas outras pessoas. Um simples desabafo pode virar o início de algo incrível.
+            </Text>
+
+            <Text className="text-base text-white opacity-90 leading-6 my-4">
               Imagine se Steve Jobs tivesse ignorado a dificuldade das pessoas em usar computadores na época. Ele percebeu que a tecnologia parecia algo complicado e inacessível para o público geral. Foi desse incômodo que nasceu o iPhone, que mudou como nos conectamos, trabalhamos e até nos divertimos.
             </Text>
             <Text className="text-base text-white opacity-90 leading-6 my-4">
@@ -113,6 +144,9 @@ const Help = () => {
             </Text>
             <Text className="text-base text-white opacity-90 leading-6 mt-4">
               Compartilhar o que te incomoda não é só um desabafo, é um ato de colaboração. Ao dividir seu problema, você abre portas para que outras pessoas, com a mesma dificuldade, encontrem uma solução.
+            </Text>
+            <Text className="text-base text-white opacity-90 leading-6 mt-4">
+              Para empreendedores, nossa plataforma é um espaço cheio de oportunidades. Mas para quem só quer desabafar, é um lugar de acolhimento, diversão e alívio. Porque aqui, cada voz importa.
             </Text>
             <TouchableOpacity
               className="bg-white py-3 px-6 rounded-xl items-center mt-6 active:opacity-90"
