@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import ButtonScale from './ButtonScale';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import images from '@/constants/images';
 import { getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/appwriteConfig';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { usePathname, useRouter } from 'expo-router';
+import { Image as ExpoImage } from 'expo-image';
 
 interface CommentProps {
     propCommentData: any; // Objeto do post
     onDelete?: (id: string) => Promise<void>; // Função de deletar comentário
-  }
+}
 
-  const Comment: React.FC<CommentProps> = ({
+const Comment: React.FC<CommentProps> = ({
     propCommentData,
     onDelete,
-  }) => {
+}) => {
     const [containerHeight, setContainerHeight] = useState(0); // Estado para armazenar a altura do container
 
     const [deleting, setDeleting] = useState(false);
@@ -30,19 +31,22 @@ interface CommentProps {
     const router = useRouter();
     const pathname = usePathname();
 
+    const blurhash =
+        '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
     const handleDelete = async () => {
         if (!user) return; // Impede que o usuário exclua o comentário se não estiver logado
         setDeleting(true);
         try {
-          if (onDelete) {
-            await onDelete(commentDataLocal?.$id); // Passando o ID do comentário para a função de deleção
-          }
+            if (onDelete) {
+                await onDelete(commentDataLocal?.$id); // Passando o ID do comentário para a função de deleção
+            }
         } catch (error) {
-          console.error("Erro ao excluir comentário:", error);
+            console.error("Erro ao excluir comentário:", error);
         } finally {
-          setDeleting(false);
+            setDeleting(false);
         }
-      };
+    };
 
     const handleLike = async () => {
         if (!user) return; // Impede que o usuário curta o comentário se não estiver logado
@@ -73,31 +77,31 @@ interface CommentProps {
     const timeAgo = () => {
         const now = new Date();
         const createdAt = new Date($createdAt);
-        
+
         if (isNaN(createdAt.getTime())) {
             console.error('Data de criação inválida:', $createdAt);
             return;
         }
-    
+
         const diffInSeconds = Math.floor((now.getTime() - createdAt.getTime()) / 1000);
         const diffInMinutes = Math.floor(diffInSeconds / 60);
         const diffInHours = Math.floor(diffInMinutes / 60);
         const diffInDays = Math.floor(diffInHours / 24);
         const diffInMonths = Math.floor(diffInDays / 30);
         const diffInYears = Math.floor(diffInMonths / 12);
-    
+
         if (diffInYears > 0) return `há ${diffInYears} ano${diffInYears > 1 ? 's' : ''}`;
         if (diffInMonths > 0) return `há ${diffInMonths} mês${diffInMonths > 1 ? 'es' : ''}`;
         if (diffInDays > 0) return `há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
         if (diffInHours > 0) return `há ${diffInHours}h`;
         if (diffInMinutes > 0) return `há ${diffInMinutes}m`;
         return `há menos de 1 minuto`;
-    };       
+    };
 
     const formattedDate = timeAgo();
 
     const navigateTo = (route: string) => {
-    router[route !== pathname ? 'push' : 'replace'](route);
+        router[route !== pathname ? 'push' : 'replace'](route);
     };
 
     const handleNavigateToProfile = (creatorId) => {
@@ -107,10 +111,17 @@ interface CommentProps {
     return (
         <View className="flex-row items-start gap-2" aria-label='containerComment' onLayout={onLayout}>
             <ButtonScale scale={1.03} onPress={() => handleNavigateToProfile(creator.$id)}>
-                <Image
+                <ExpoImage
                     source={creator?.avatar ? { uri: creator.avatar } : images.person}
-                    className="w-10 h-10 rounded-full"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 9999
+                    }}
                     alt={`Avatar de ${creator?.username || 'usuário desconhecido'}`}
+                    contentFit="cover"
+                    placeholder={{ blurhash }}
+                    cachePolicy="memory-disk"
                 />
             </ButtonScale>
             <View className="flex-1">
@@ -141,7 +152,7 @@ interface CommentProps {
                 )}
             </View>
         </View>
-    );    
+    );
 };
 
 export default Comment;

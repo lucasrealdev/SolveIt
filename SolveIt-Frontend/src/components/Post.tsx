@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, ActivityIndicator, ScrollView, Image as RNImage } from 'react-native';
+import { View, Text, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
-import { Image } from 'expo-image';
+import { Image as ExpoImage } from 'expo-image';
 
 import CustomIcons from '@/assets/icons/CustomIcons';
 import ButtonScale from './ButtonScale';
@@ -21,7 +21,7 @@ interface PostProps {
   propShareCount: number; // Número de compartilhamentos
   propLiked?: boolean; // Se o usuário curtiu
   propIsFavorited?: boolean; // Se o usuário favoritou
-  
+
   typePost?: 'normal' | 'ownProfile' | 'postDetails'; // Tipo do post
 }
 
@@ -46,7 +46,7 @@ const Post: React.FC<PostProps> = ({
   const iconSize = shouldHideText ? 25 : 20;
 
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   // Estados locais
   const [postLocal, setPostLocal] = useState(propPost);
@@ -112,7 +112,7 @@ const Post: React.FC<PostProps> = ({
     return (
       <View className="w-full items-center">
         <View style={{ width: "100%", aspectRatio: selectedRatio, maxWidth: 600 }} aria-label="ImagePost">
-          <Image
+          <ExpoImage
             source={{ uri: postLocal.thumbnail }}
             style={{ width: "100%", height: "100%", borderRadius: 16 }}
             contentFit="cover"
@@ -231,12 +231,36 @@ const Post: React.FC<PostProps> = ({
               <CustomIcons name="anterior" color={colors.textStandard.standard} size={24} />
             </ButtonScale>
             <ButtonScale scale={1} onPress={() => handleNavigateToProfile(postLocal.creator.$id)}>
-              <RNImage source={{ uri: postLocal.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+              <ExpoImage
+                source={{ uri: postLocal.creator.avatar }}
+                style={{
+                  borderWidth: 2,
+                  borderColor: 'white',
+                  borderRadius: 9999,
+                  width: 50,
+                  height: 50
+                }}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                cachePolicy="memory-disk"
+              />
             </ButtonScale>
           </View>
         ) : (
           <ButtonScale scale={1.06} onPress={() => handleNavigateToProfile(postLocal.creator.$id)}>
-            <RNImage source={{ uri: postLocal.creator.avatar }} className="border-white border-[2px] rounded-full w-[50px] h-[50px]" />
+            <ExpoImage
+              source={{ uri: postLocal.creator.avatar }}
+              style={{
+                borderWidth: 2,
+                borderColor: 'white',
+                borderRadius: 9999,
+                width: 50,
+                height: 50
+              }}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              cachePolicy="memory-disk"
+            />
           </ButtonScale>
         )}
         <View aria-label="ContainerText">
@@ -516,7 +540,7 @@ const Post: React.FC<PostProps> = ({
     );
   }
 
-  if(postDeleted) return null;
+  if (postDeleted) return null;
 
   return (
     <View aria-label="Post" className="bg-white rounded-[24px] flex w-full border border-borderStandardLight items-center">

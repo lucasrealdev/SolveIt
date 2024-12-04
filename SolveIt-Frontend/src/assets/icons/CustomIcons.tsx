@@ -409,38 +409,6 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                 ></Path>
             </Svg>
         ),
-        bandeiraBrasil: (
-            <Svg
-                width={size}
-                height={size}
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <g clipPath="url(#clip0_284_3468)">
-                    <Path
-                        fill="#6DA544"
-                        d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12z"
-                    ></Path>
-                    <Path
-                        fill="#FFDA44"
-                        d="M12 4.696L21.913 12 12 19.304 2.087 12 12 4.696z"
-                    ></Path>
-                    <Path
-                        fill="#F0F0F0"
-                        d="M12 16.174a4.174 4.174 0 100-8.348 4.174 4.174 0 000 8.348z"
-                    ></Path>
-                    <Path
-                        fill="#0052B4"
-                        d="M9.913 11.74c-.726 0-1.426.11-2.085.315a4.173 4.173 0 007.59 2.34 7.034 7.034 0 00-5.505-2.656zM16.097 12.8a4.174 4.174 0 00-7.932-2.447 8.607 8.607 0 017.932 2.447z"
-                    ></Path>
-                </g>
-                <defs>
-                    <clipPath id="clip0_284_3468">
-                        <path fill="#fff" d="M0 0H24V24H0z"></path>
-                    </clipPath>
-                </defs>
-            </Svg>
-        ),
         cliqueAbaixo: (
             <Svg
                 width={size}
@@ -452,37 +420,6 @@ const CustomIcons: React.FC<IconProps> = ({ name, color = "#3692C5", size = 24 }
                     fill="#94A3B8"
                     d="M16.913 8.163l-6.25 6.25a.937.937 0 01-1.328 0l-6.25-6.25a.94.94 0 011.328-1.328L10 12.422l5.587-5.588a.94.94 0 111.328 1.329h-.002z"
                 ></Path>
-            </Svg>
-        ),
-        avatar: (
-            <Svg
-                width={size}
-                height={size}
-                fill="none"
-                viewBox="0 0 64 64"
-            >
-                <rect
-                    width="64"
-                    height="64"
-                    fill="url(#pattern0_273_6653)"
-                    rx="32"
-                ></rect>
-                <defs>
-                    <pattern
-                        id="pattern0_273_6653"
-                        width="1"
-                        height="1"
-                        patternContentUnits="objectBoundingBox"
-                    >
-                        <use transform="scale(.00781)" xlinkHref="#image0_273_6653"></use>
-                    </pattern>
-                    <image
-                        id="image0_273_6653"
-                        width="128"
-                        height="128"
-                    // Aqui vinha a imagem em base 64
-                    ></image>
-                </defs>
             </Svg>
         ),
         iconeAddPost: (

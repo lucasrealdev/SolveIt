@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import HoverColorComponent from './HoverColorComponent';
 import colors from '@/constants/colors';
@@ -8,6 +8,7 @@ import { followUser, unfollowUser } from '@/lib/appwriteConfig';
 import { useAlert } from '@/context/AlertContext';
 import { usePathname, useRouter } from 'expo-router';
 import ButtonScale from './ButtonScale';
+import { Image as ExpoImage } from 'expo-image';
 
 interface CardFriendProps {
   propFriend: any;
@@ -22,7 +23,9 @@ const CardFriend: React.FC<CardFriendProps> = ({ propFriend, propIsFollowing, la
 
   const { showAlert } = useAlert();
   const router = useRouter();
-  const pathname = usePathname();
+
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const showFollowAlert = (action: string) => {
     showAlert("Sucesso", `Você agora está ${action} este usuário!`);
@@ -65,9 +68,18 @@ const CardFriend: React.FC<CardFriendProps> = ({ propFriend, propIsFollowing, la
   return (
     <View className={`flex flex-row border-b border-borderStandardLight ${label !== 'menu' ? 'py-4' : 'py-2'} ${label !== 'menu' ? 'px-[15px]' : ''} gap-3 items-center`}>
       <ButtonScale scale={1.06} onPress={navigateToProfile}>
-        <Image
+        <ExpoImage
           source={{ uri: propFriend.avatar }}
-          className={`border-white border-[2px] rounded-full ${label === 'menu' ? 'w-[45px] h-[45px]' : 'w-[50px] h-[50px]'}`}
+          style={{
+            borderWidth: 2,
+            borderColor: 'white',
+            borderRadius: 9999,
+            width: label === 'menu' ? 45 : 50,
+            height: label === 'menu' ? 45 : 50
+          }}
+          contentFit="cover"
+          placeholder={{ blurhash }}
+          cachePolicy="memory-disk"
         />
       </ButtonScale>
       <View className="flex-1 gap-[1px]">

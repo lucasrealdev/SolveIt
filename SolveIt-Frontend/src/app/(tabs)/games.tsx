@@ -2,21 +2,24 @@ import DetetiveDeProblemas from '@/games/DetetiveDeProblemas';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Image } from 'expo-image';
+import { Image as ExpoImage } from 'expo-image';
 
 const GameCard = ({ title, description, imageUrl, onStart }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   return (
     <View className="bg-white rounded-2xl mx-4 my-3 overflow-hidden border border-gray-200 max-w-[600px] w-full" style={styles.sombra}>
-      <Image source={{ uri: imageUrl }}
+      <ExpoImage
+        source={{ uri: imageUrl }}
         style={{ width: "100%", height: 192, borderRadius: 16 }}
         contentFit="cover"
         placeholder={{ blurhash }}
-        cachePolicy="memory-disk"/>
+        cachePolicy="none"
+      />
+
       <View className="p-4">
         <View className="flex-row justify-between items-center">
           <Text className="text-2xl font-bold text-gray-800">{title}</Text>

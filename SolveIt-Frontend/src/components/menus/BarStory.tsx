@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Modal, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Modal, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import ButtonScale from "@/components/ButtonScale";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { getStories } from '@/lib/appwriteConfig';
+import { Image as ExpoImage } from 'expo-image';
 
 interface Story {
   user: any;
@@ -15,6 +16,9 @@ const BarStory: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
   const [currentStoryUrl, setCurrentStoryUrl] = useState('');
+
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const videoPlayer = useVideoPlayer(currentStoryUrl, (player) => {
     player.loop = true;
@@ -77,9 +81,18 @@ const BarStory: React.FC = () => {
               start={{ x: 0.5, y: 0.5 }}
               end={{ x: 1, y: 1 }}
             >
-              <Image
+              <ExpoImage
                 source={{ uri: story.user.avatar }}
-                className="border-white border-[2px] rounded-full w-[64px] h-[64px]"
+                style={{
+                  borderWidth: 2,
+                  borderColor: 'white',
+                  borderRadius: 9999,
+                  width: 64,
+                  height: 64
+                }}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                cachePolicy="memory-disk"
               />
             </LinearGradient>
             <Text className="text-textStandardDark font-semibold">{story.user.username}</Text>

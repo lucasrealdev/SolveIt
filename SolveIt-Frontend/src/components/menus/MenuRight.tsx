@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, Text, View, Image, StyleSheet, useWindowDimensions, Animated, ActivityIndicator } from "react-native";
+import { Pressable, Text, View, useWindowDimensions, ActivityIndicator } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 
 import CustomIcons from "@/assets/icons/CustomIcons";
@@ -10,6 +10,7 @@ import colors from "@/constants/colors";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { getAllEvents, getSuggestedFriends, toggleUserOnlineStatus } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
+import { Image as ExpoImage } from 'expo-image';
 
 export default function MenuRight() {
   const { width, height } = useWindowDimensions();
@@ -28,6 +29,9 @@ export default function MenuRight() {
   const [events, setEvents] = useState([]);
 
   const { user, loading, isLogged } = useGlobalContext();
+
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
     setIsLoadingMenu(true);
@@ -117,9 +121,16 @@ export default function MenuRight() {
                 className="items-end"
                 disabled={isLoading}
               >
-                <Image
+                <ExpoImage
                   source={{ uri: user.avatar }}
-                  className="w-12 h-12 rounded-full"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 9999
+                  }}
+                  contentFit="cover"
+                  placeholder={{ blurhash }}
+                  cachePolicy="memory-disk"
                 />
                 <View
                   className={`w-3 h-3 border-white border-[1.5px] rounded-full mt-[-12px] ${isLoading
