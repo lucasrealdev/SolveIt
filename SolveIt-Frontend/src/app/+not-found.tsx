@@ -1,12 +1,14 @@
 import React from "react";
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useRouter } from 'expo-router';
-
+import { Image as ExpoImage } from 'expo-image';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import images from "@/constants/images";
 import { Button } from "@/components/Button";
 
 const NotFoundScreen = () => {
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   const router = useRouter();
 
   const handleBack = () => {
@@ -38,7 +40,13 @@ const NotFoundScreen = () => {
           </Button>
         </View>
       </View>
-      <Image source={images.logoShadow} className="h-[74px] w-[74px]"/>
+      <ExpoImage
+        source={images.logoShadow}
+        style={{ height: 74, width: 74 }}
+        contentFit="cover"
+        placeholder={{ blurhash }}
+        cachePolicy="none"
+      />
     </View>
   );
 }

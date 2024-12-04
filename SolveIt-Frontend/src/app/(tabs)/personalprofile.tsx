@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl, TouchableOpacity, Linking } from "react-native";
+import { Text, View, StyleSheet, Pressable, ScrollView, Animated, ActivityIndicator, RefreshControl, TouchableOpacity, Linking } from "react-native";
 import { usePathname, useRouter } from 'expo-router';
 import CustomIcons from "@/assets/icons/CustomIcons";
 import ButtonScale from "@/components/ButtonScale";
@@ -38,10 +38,10 @@ const PersonalProfile = () => {
   const [isAnimating, setIsAnimating] = useState(false); // Controle de animação
   const [translateX] = useState(new Animated.Value(0));
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
-    if(!user) return;
+    if (!user) return;
     const fetchPost = async () => {
       try {
         // 1. Obter o número de seguidores
@@ -197,12 +197,13 @@ const PersonalProfile = () => {
         {user ? (
           <>
             <ButtonScale scale={1.01} onPress={handleStatusToggle} disabled={isLoading} className="flex-row items-center justify-center">
-              <Image
+              <ExpoImage
                 source={{ uri: user.avatar }}
-                className="border-[3px] rounded-full w-[120px] h-[120px] bg-white"
-                resizeMode="cover"
+                style={{ borderWidth: 3, borderRadius: 9999, width: 120, height: 120, backgroundColor: 'white' }}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                cachePolicy="memory-disk"
               />
-
               {currentStatus !== null && (
                 <View
                   className={`w-5 h-5 border-white border-[2px] rounded-full absolute bottom-1 right-1 ${isLoading
@@ -273,7 +274,7 @@ const PersonalProfile = () => {
           propShareCount={post.shareCount}
           propIsFavorited={post.isFavorited}
           propLiked={post.liked}
-          typePost="ownProfile"/>)
+          typePost="ownProfile" />)
       ) : (
         <Text className="text-center text-textSecondary mt-4">Não há posts disponíveis no momento.</Text>
       )}
@@ -312,10 +313,11 @@ const PersonalProfile = () => {
           <View className="relative">
             <ExpoImage
               source={user?.banner}
-              style={{ width: "100%", height: 200, borderBottomRightRadius: 6, borderBottomLeftRadius: 6}}
+              style={{ width: "100%", height: 200, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
               contentFit="cover"
-              placeholder={{blurhash}}
-              cachePolicy="memory-disk"/>
+              placeholder={{ blurhash }}
+              cachePolicy="memory-disk"
+            />
             <ButtonScale
               className="absolute w-8 h-8 rounded-full bg-white ml-2 mt-2 border border-borderStandardLight flex items-center justify-center"
               onPress={() => handleBackNavigation()}

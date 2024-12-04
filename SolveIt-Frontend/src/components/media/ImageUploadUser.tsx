@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Platform, Linking, Image as RNImage, Alert } from 'react-native';
+import { View, Text, Pressable, Platform, Linking, Image as RNImage } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import { useAlert } from '@/context/AlertContext';

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View, Image, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
+import { Text, View, StyleSheet, Pressable, ScrollView, Animated, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import ButtonScale from "@/components/ButtonScale";
@@ -9,6 +9,7 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { useAlert } from "@/context/AlertContext";
 import { FontAwesome } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
+
 interface UserData {
   biography: string;
   username: string;
@@ -49,7 +50,7 @@ const Profile = () => {
 
   const { user, loading, isLogged } = useGlobalContext();
   const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -310,12 +311,13 @@ const Profile = () => {
               {userData?.avatar ? (
                 <>
                   <ButtonScale scale={1.01} className="flex-row items-center justify-center">
-                    <Image
+                    <ExpoImage
                       source={{ uri: userData.avatar }}
-                      className="border-[3px] rounded-full w-[120px] h-[120px] bg-white"
-                      resizeMode="cover"
+                      style={{ borderWidth: 3, borderRadius: 9999, width: 120, height: 120, backgroundColor: 'white' }}
+                      contentFit="cover"
+                      placeholder={{ blurhash }}
+                      cachePolicy="memory-disk"
                     />
-
                     {currentStatus !== null && (
                       <View
                         className={`w-5 h-5 border-white border-[2px] rounded-full absolute bottom-1 right-1 ${currentStatus

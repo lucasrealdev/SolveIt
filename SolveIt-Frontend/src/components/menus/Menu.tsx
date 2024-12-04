@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, Text, View, Image, TextInput, useWindowDimensions, ActivityIndicator } from "react-native";
+import { Pressable, Text, View, useWindowDimensions, ActivityIndicator } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { useGlobalContext } from "@/context/GlobalProvider";
@@ -8,6 +8,7 @@ import images from "@/constants/images";
 import { useAlert } from "@/context/AlertContext";
 import ButtonScale from "../ButtonScale";
 import colors from "@/constants/colors";
+import { Image as ExpoImage } from 'expo-image';
 
 interface MenuProps {
   home?: number;
@@ -26,6 +27,8 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
   const { width, height } = useWindowDimensions();
   const [isVisible, setIsVisible] = useState(true); // Estado para controlar visibilidade
   const { setUser, setIsLogged, user } = useGlobalContext();
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   const navigateTo = (route: string) => {
     router[pathname !== route ? 'push' : 'replace'](route);
@@ -69,9 +72,16 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
           {iconName === "profile" ? (
             user && user.avatar ? (
               // Renderize a imagem quando user.avatar estiver disponível
-              <Image
+              <ExpoImage
                 source={{ uri: user.avatar }}
-                className="w-[26px] h-[26px] rounded-full"
+                style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: 9999
+                }}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                cachePolicy="memory-disk"
               />
             ) : (
               // Exibe o ActivityIndicator enquanto user.avatar não estiver disponível
@@ -101,7 +111,10 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
   const renderDesktopMenu = () => (
     <View aria-label="ContainerMenu" className="flex h-[100vh] justify-between items-start bg-primaryStandardDark px-[16px] py-[32px]" style={{ width: containerWidth }}>
       <View className="flex gap-[32px] w-full">
-        <Image style={{ width: 115, height: 32 }} source={images.logo} />
+        <ExpoImage style={{ width: 115, height: 32 }} source={images.logo}
+          contentFit="cover"
+          placeholder={{ blurhash }}
+          cachePolicy="none" />
         <View className="flex rounded-[124px] border border-[#3692C5] items-center justify-center px-[12px] py-[8px]">
           <Text className="text-white font-semibold text-center">"A necessidade é a mãe da invenção"    Platão</Text>
         </View>
@@ -138,9 +151,16 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
               user && user.avatar ? (
                 // Renderize a imagem quando user.avatar estiver disponível
                 <ButtonScale scale={1.05} onPress={() => router.push("/personalprofile")}>
-                  <Image
-                  source={{ uri: user.avatar }}
-                  className="w-[40px] h-[40px] rounded-full"
+                  <ExpoImage
+                    source={{ uri: user.avatar }}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 9999
+                    }}
+                    contentFit="cover"
+                    placeholder={{ blurhash }}
+                    cachePolicy="memory-disk"
                   />
                 </ButtonScale>
               ) : (
@@ -180,7 +200,7 @@ export default function Menu({ home, games, friends, profile, help }: MenuProps)
         {renderMenuButtonMobile('/createpost', 'createPost')}
         {renderMenuButtonMobile('/friends', 'amigos', friends)}
         {renderMenuButtonMobile('/personalprofile', 'profile', profile)}
-      </View> 
+      </View>
     </View>
   );
 
