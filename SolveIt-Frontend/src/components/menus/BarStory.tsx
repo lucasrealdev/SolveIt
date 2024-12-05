@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Modal, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useVideoPlayer, VideoView } from 'expo-video';
+import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
 import ButtonScale from "@/components/ButtonScale";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { getStories } from '@/lib/appwriteConfig';
@@ -16,13 +16,10 @@ const BarStory: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
   const [currentStoryUrl, setCurrentStoryUrl] = useState('');
+  const videoRef = useRef<Video>(null);
 
   const blurhash =
-    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-
-  const videoPlayer = useVideoPlayer(currentStoryUrl, (player) => {
-    player.loop = true;
-  });
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -42,10 +39,21 @@ const BarStory: React.FC = () => {
     setIsVideoPlayerVisible(true);
   };
 
-  const handleVideoPlayerClose = () => {
+  const handleVideoPlayerClose = async () => {
     setIsVideoPlayerVisible(false);
     setCurrentStoryUrl('');
-    videoPlayer.pause(); // Pausa o vídeo ao fechar o modal
+    if (videoRef.current) {
+      await videoRef.current.pauseAsync();
+      await videoRef.current.unloadAsync();
+    }
+  };
+
+  const handleStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      if (status.didJustFinish) {
+        handleVideoPlayerClose();
+      }
+    }
   };
 
   return (
@@ -100,17 +108,34 @@ const BarStory: React.FC = () => {
       </ScrollView>
 
       <Modal visible={isVideoPlayerVisible} transparent>
-        <View style={styles.videoPlayerContainer}>
-          <VideoView
-            style={styles.video} // Proporção 4:3 aplicada aqui
-            player={videoPlayer}
-          />
+        <View className='px-10 flex-1 justify-center items-center flex-row gap-1' style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
           <ButtonScale
             scale={1.1}
-            onPress={handleVideoPlayerClose} // Fecha o vídeo ao pressionar o botão
-            style={styles.closeButton} // Estilos para o botão de fechar
-          >
-            <CustomIcons name="fechar" color="#475569" size={12} />
+            className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center justify-center">
+            <CustomIcons name="anterior" color="#475569" size={20} />
+          </ButtonScale>
+          <View className='flex-col w-fit'>
+            <Video
+              ref={videoRef}
+              source={{ uri: currentStoryUrl }}
+              style={styles.video}
+              resizeMode={ResizeMode.COVER}
+              shouldPlay
+              isLooping
+              onPlaybackStatusUpdate={handleStatusUpdate}
+              onError={(error) => console.log('Video error:', error)}
+            />
+            <ButtonScale
+              scale={1.1}
+              onPress={handleVideoPlayerClose}
+              style={styles.closeButton}>
+              <CustomIcons name="fechar" color="#475569" size={12} />
+            </ButtonScale>
+          </View>
+          <ButtonScale
+            scale={1.1}
+            className="w-8 h-8 rounded-full bg-white border border-borderStandardLight flex items-center justify-center">
+            <CustomIcons name="proximo" color="#475569" size={20} />
           </ButtonScale>
         </View>
       </Modal>
@@ -130,17 +155,11 @@ const styles = StyleSheet.create({
     padding: 3,
     borderRadius: 9999,
   },
-  videoPlayerContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20, // Adicionando um pouco de espaço nas bordas
-  },
   video: {
-    width: '75%', // Proporção ajustada
-    aspectRatio: 4 / 3, // Garantindo 4:3
-    maxHeight: '70%', // Limita a altura máxima do vídeo
+    width: "100%",
+    maxWidth: 400,
+    aspectRatio: 9 / 16,
+    borderRadius: 20,
   },
   closeButton: {
     backgroundColor: 'white',
