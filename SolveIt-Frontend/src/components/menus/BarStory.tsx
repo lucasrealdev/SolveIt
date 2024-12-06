@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
 import ButtonScale from "@/components/ButtonScale";
@@ -43,6 +43,32 @@ const BarStory: React.FC = () => {
   const updateState = (updates: Partial<typeof state>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        ::-webkit-scrollbar {
+          height: 7px;
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: #0172B1;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-track {
+          background-color: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: #555;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        document.head.removeChild(style);
+      };
+    }
+  }, []);
 
   const fetchStories = async () => {
     try {
@@ -234,8 +260,9 @@ const BarStory: React.FC = () => {
 
       <ScrollView
         horizontal
-        contentContainerStyle={{ alignItems: 'center', paddingVertical: 10 }}
-        showsHorizontalScrollIndicator={false}>
+        contentContainerStyle={{ alignItems: 'center', paddingVertical: Platform.OS === 'web' ? 3 : 0 }}
+        showsHorizontalScrollIndicator={Platform.OS === 'web' ? true : false}
+        >
         {state.stories.map((item, index) => (
           <ButtonScale
             key={index}
