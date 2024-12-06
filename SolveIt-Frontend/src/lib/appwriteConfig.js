@@ -1499,28 +1499,60 @@ export async function fetchEntiresQuiz(user = null) {
 //FIM funcoes quiz
 
 //INICIO funcoes stories
-export async function getStories() {
+export async function getStories(limit = 1, offset = 0) {
   try {
-    const storiesResponse = await databases.listDocuments(
+    // Obter todos os usuários únicos da coleção de stories
+    const allStoriesResponse = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.storiesCollectionId
     );
 
-    if (!storiesResponse.documents?.length) {
-      return [];
+    if (!allStoriesResponse.documents?.length) {
+      return { stories: [], totalUsers: 0, hasMore: false };
     }
 
-    const stories = await Promise.all(
-      storiesResponse.documents.map(async (doc) => {
-        const user = await getUserProfile(doc.userId);
-        return {
-          user: user || { username: "user", avatar: `https://ui-avatars.com/api/?name=user` },
-          storyUrl: doc.storyUrl,
+    // Obter IDs únicos de usuários
+    const uniqueUserIds = [
+      ...new Set(allStoriesResponse.documents.map((doc) => doc.userId)),
+    ];
+
+    // Aplicar a paginação aos usuários
+    const paginatedUserIds = uniqueUserIds.slice(offset, offset + limit);
+
+    const userStoriesMap = {};
+
+    // Para cada usuário na página atual, buscar stories e perfis
+    await Promise.all(
+      paginatedUserIds.map(async (userId) => {
+        // Obter informações do usuário
+        const user = await getUserProfile(userId);
+
+        // Filtrar os stories desse usuário
+        const userStories = allStoriesResponse.documents.filter(
+          (doc) => doc.userId === userId
+        );
+
+        userStoriesMap[userId] = {
+          user: user || {
+            username: "user",
+            avatar: `https://ui-avatars.com/api/?name=user`,
+          },
+          stories: userStories.map((story) => ({
+            storyUrl: story.storyUrl,
+          })),
         };
       })
     );
 
-    return stories;
+    // Converter o mapa para um array
+    const groupedStories = Object.values(userStoriesMap);
+
+    // Retornar os dados paginados
+    return {
+      stories: groupedStories,
+      totalUsers: uniqueUserIds.length, // Total de usuários únicos
+      hasMore: offset + limit < uniqueUserIds.length, // Indicador de mais páginas
+    };
   } catch (error) {
     console.error("Error fetching stories:", error.message);
     throw { message: error.message || "Unknown error", code: error.code || 500 };
