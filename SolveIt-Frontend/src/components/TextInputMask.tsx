@@ -7,6 +7,7 @@ interface TextInputMaskProps {
   placeholder: string;
   multiline?: boolean;
   maxLength: number;
+  minLength?: number; // Prop para o número mínimo de caracteres
   inputMode: "text" | "numeric" | "tel" | "email" | "url";
   inputFilter: RegExp;
   value: string;
@@ -22,6 +23,7 @@ const TextInputMask = ({
   placeholder,
   multiline = false,
   maxLength,
+  minLength, // Define 8 como padrão
   inputMode,
   inputFilter,
   value,
@@ -81,6 +83,11 @@ const TextInputMask = ({
           textAlignVertical={`${multiline ? "top" : "center"}`}
         />
       </View>
+      {value.length > 0 && value.length < minLength && (
+        <Text className="text-sm text-red-500 pl-1">
+          O texto deve ter pelo menos {minLength} caracteres.
+        </Text>
+      )}
       {showCharCount && (
         <Text className="text-sm text-textSecondary pl-1">
           {remainingChars} Letras Restantes
