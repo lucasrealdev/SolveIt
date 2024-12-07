@@ -424,6 +424,7 @@ export async function uploadVideoFile(file, isWeb) {
     );
     
     return {
+      storyId: uploadedFile.$id,
       videoUrl: fileUrl
     };
   } catch (error) {
@@ -1623,6 +1624,7 @@ export async function createStory(video, isWeb, idUser) {
       {
         storyUrl: uploadResult.videoUrl,
         userId: idUser,
+        storyId: uploadResult.storyId,
       }
     );
 
