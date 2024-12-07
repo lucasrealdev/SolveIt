@@ -12,7 +12,7 @@ WebBrowser.maybeCompleteAuthSession();
 const GoogleAuth = () => {
   const router = useRouter();
   const { showAlert } = useAlert();
-  const { setUser, setIsLogged, user } = useGlobalContext();
+  const { setUser, setIsLogged } = useGlobalContext();
   
   // Estados para controle de carregamento
   const [isLoading, setIsLoading] = useState(false);

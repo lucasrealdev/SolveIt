@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Modal, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
+import { Video, ResizeMode } from 'expo-av';
 import ButtonScale from "@/components/ButtonScale";
 import CustomIcons from "@/assets/icons/CustomIcons";
 import { getStories } from '@/lib/appwriteConfig';
 import { Image as ExpoImage } from 'expo-image';
 import { FontAwesome } from 'react-native-vector-icons';
+import CreateStory from '../media/CreateStory';
 
 interface Story {
   storyUrl: string;
@@ -20,17 +21,16 @@ interface UserStories {
 }
 
 const BarStory: React.FC = () => {
-  const [state, setState] = useState({
-    stories: [] as UserStories[],
-    currentUserStories: [] as Story[],
-    currentUserIndex: 0,
-    isVideoPlayerVisible: false,
-    currentStoryIndex: 0,
-    isPlaying: true,
-    showControlIcon: false,
-    videoDuration: 0,
-    currentTime: 0,
-  });
+  const [stories, setStories] = useState<UserStories[]>([]);
+  const [currentUserStories, setCurrentUserStories] = useState<Story[]>([]);
+  const [currentUserIndex, setCurrentUserIndex] = useState(0);
+  const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showControlIcon, setShowControlIcon] = useState(false);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
   const videoRef = useRef<Video>(null);
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -38,11 +38,9 @@ const BarStory: React.FC = () => {
   const [hasMore, setHasMore] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
   const [loadingPrevious, setLoadingPrevious] = useState(false);
-  const LIMIT_USERS = 10;
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const updateState = (updates: Partial<typeof state>) => {
-    setState((prevState) => ({ ...prevState, ...updates }));
-  };
+  const LIMIT_USERS = 6;
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -73,7 +71,7 @@ const BarStory: React.FC = () => {
   const fetchStories = async () => {
     try {
       const { stories, hasMore } = await getStories(LIMIT_USERS, page);
-      updateState({ stories });
+      setStories(stories);
       setHasMore(hasMore);
     } catch (error) {
       console.error('Erro ao buscar stories:', error);
@@ -87,91 +85,64 @@ const BarStory: React.FC = () => {
     fetchStories();
   }, [page]);
 
-  const handleUserPress = (userStories: Story[], userIndex: number) => {
-    updateState({
-      currentUserStories: userStories,
-      currentUserIndex: userIndex,
-      currentStoryIndex: 0,
-      isVideoPlayerVisible: true,
-      isPlaying: true,
-    });
+  const handleUserPress = (userStories, userIndex) => {
+    setCurrentUserStories(userStories);
+    setCurrentUserIndex(userIndex);
+    setCurrentStoryIndex(0);
+    setIsVideoPlayerVisible(true);
+    setIsPlaying(true);
+    setCurrentTime(0);
   };
 
   const handleVideoPlayerClose = async () => {
     if (videoRef.current) {
       await videoRef.current.pauseAsync();
-      await videoRef.current.unloadAsync();
     }
 
-    updateState({
-      isVideoPlayerVisible: false,
-      currentUserStories: [],
-      videoDuration: 0,
-      isPlaying: false,
-    });
+    setIsVideoPlayerVisible(false);
+    setCurrentUserStories([]);
+    setVideoDuration(0);
+    setIsPlaying(false);
   };
 
   const togglePlayPause = async () => {
     if (videoRef.current) {
       const status = await videoRef.current.getStatusAsync();
       if (status?.isLoaded) {
-        const isNowPlaying = !state.isPlaying;
+        const isNowPlaying = !isPlaying;
         if (isNowPlaying) {
           await videoRef.current.playAsync();
         } else {
           await videoRef.current.pauseAsync();
         }
-        updateState({ isPlaying: isNowPlaying, showControlIcon: true });
-        setTimeout(() => updateState({ showControlIcon: false }), 1000);
+        setIsPlaying(isNowPlaying);
+        setShowControlIcon(true);
+        setTimeout(() => setShowControlIcon(false), 2000);
       }
     }
   };
 
-  const handleVideoLoad = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      updateState({
-        videoDuration: status.durationMillis ?? 0,
-      });
-    }
-  };
+  useEffect(() => {
+    if (Platform.OS === "android" && videoRef.current && isPlaying) {
+      const intervalId = setInterval(async () => {
+        const status = await videoRef.current?.getStatusAsync();
+        if (status?.isLoaded && isPlaying) {
+          handleStatusUpdate(status);
+        }
+      }, 500); // Intervalo otimizado
 
-  const handleStatusUpdate = (status: AVPlaybackStatus) => {
+      return () => clearInterval(intervalId); // Cleanup para evitar múltiplos intervalos
+    }
+  }, [videoRef.current, isPlaying]);
+
+  const handleStatusUpdate = (status) => {
     try {
-      if (status.isLoaded) {
+      if (status.isLoaded && isPlaying && !isTransitioning) {
         const currentTime = status.positionMillis ?? 0;
         const duration = status.durationMillis ?? 0;
 
-        // Ensure we don't update state too frequently
-        updateState({
-          currentTime,
-          videoDuration: duration
-        });
-
-        // More aggressive end detection
-        if (duration > 0 && currentTime >= duration - 1) {
-          // Immediately stop video
-          if (videoRef.current) {
-            videoRef.current.stopAsync();
-          }
-          // Transition logic
-          if (state.currentStoryIndex < state.currentUserStories.length - 1) {
-            updateState({
-              currentStoryIndex: state.currentStoryIndex + 1,
-              currentTime: 0
-            });
-          } else if (state.currentUserIndex < state.stories.length - 1) {
-            const nextUserIndex = state.currentUserIndex + 1;
-            updateState({
-              currentUserIndex: nextUserIndex,
-              currentUserStories: state.stories[nextUserIndex].stories,
-              currentStoryIndex: 0,
-              currentTime: 0
-            });
-          } else {
-            handleVideoPlayerClose();
-            nextPage();
-          }
-        }
+        setCurrentTime(currentTime);
+        setVideoDuration(duration);
       }
     } catch (error) {
       console.error('Video status update error:', error);
@@ -179,69 +150,62 @@ const BarStory: React.FC = () => {
     }
   };
 
-  const nextPage = () => {
-    if (hasMore) {
+  // Função genérica para alterar a página
+  const changePage = (direction) => {
+    if (direction === "next" && hasMore) {
       setLoadingNext(true);
       setPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const previousPage = () => {
-    if (page > 0) {
+    } else if (direction === "previous" && page > 0) {
       setLoadingPrevious(true);
       setPage((prevPage) => prevPage - 1);
     }
   };
 
-  const goToNextStory = () => {
-    if (state.currentStoryIndex < state.currentUserStories.length - 1) {
-      // Se há mais stories para avançar
-      updateState({ currentStoryIndex: state.currentStoryIndex + 1 });
-    } else {
-      // Se chegou ao último story do usuário atual, mover para o próximo usuário ou carregar próxima página
-      const currentUserIndex = state.stories.findIndex(
-        (userStories) => userStories.stories === state.currentUserStories
-      );
-  
-      if (currentUserIndex < state.stories.length - 1) {
-        // Se há mais usuários, move para o primeiro story do próximo usuário
-        const nextUserStories = state.stories[currentUserIndex + 1].stories;
-        updateState({
-          currentUserStories: nextUserStories,
-          currentStoryIndex: 0,
-          currentUserIndex: currentUserIndex + 1
-        });
+  const nextPage = () => changePage("next");
+  const previousPage = () => changePage("previous");
+
+  const goToStory = (direction) => {
+    setIsTransitioning(true);
+    setCurrentTime(0);
+    const currentUserIndex = stories.findIndex(
+      (userStories) => userStories.stories === currentUserStories
+    );
+
+    if (direction === "next") {
+      if (currentStoryIndex < currentUserStories.length - 1) {
+        // Avança para o próximo story
+        setCurrentStoryIndex((prevStoryIndex) => prevStoryIndex + 1);
+      } else if (currentUserIndex < stories.length - 1) {
+        // Avança para o próximo usuário
+        const nextUserStories = stories[currentUserIndex + 1].stories;
+        setCurrentUserStories(nextUserStories);
+        setCurrentStoryIndex(0);
+        setCurrentUserIndex((prevUserIndex) => prevUserIndex + 1);
       } else {
+        // Carrega a próxima página
         handleVideoPlayerClose();
-        nextPage(); // Chama a função de carregar a próxima página de stories
+        nextPage();
+      }
+    } else if (direction === "previous") {
+      if (currentStoryIndex > 0) {
+        // Retrocede para o story anterior
+        setCurrentStoryIndex((prevStoryIndex) => prevStoryIndex - 1);
+      } else if (currentUserIndex > 0) {
+        // Retrocede para o usuário anterior
+        const previousUserStories = stories[currentUserIndex - 1].stories;
+        setCurrentUserStories(previousUserStories);
+        setCurrentStoryIndex(previousUserStories.length - 1);
+        setCurrentUserIndex((prevUserIndex) => prevUserIndex - 1);
+      } else {
+        // Carrega a página anterior
+        handleVideoPlayerClose();
+        previousPage();
       }
     }
   };
-  
-  const goToPreviousStory = () => {
-    if (state.currentStoryIndex > 0) {
-      // Se há stories anteriores
-      updateState({ currentStoryIndex: state.currentStoryIndex - 1 });
-    } else {
-      // Se estamos no primeiro story do usuário atual, move para o último story do usuário anterior
-      const currentUserIndex = state.stories.findIndex(
-        (userStories) => userStories.stories === state.currentUserStories
-      );
-  
-      if (currentUserIndex > 0) {
-        // Se há usuários anteriores, move para o último story do usuário anterior
-        const previousUserStories = state.stories[currentUserIndex - 1].stories;
-        updateState({
-          currentUserStories: previousUserStories,
-          currentStoryIndex: previousUserStories.length - 1,
-          currentUserIndex: currentUserIndex - 1
-        });
-      } else {
-        handleVideoPlayerClose();
-        previousPage(); // Chama a função de carregar a página anterior
-      }
-    }
-  };  
+
+  const goToNextStory = () => goToStory("next");
+  const goToPreviousStory = () => goToStory("previous");
 
   return (
     <View
@@ -262,8 +226,9 @@ const BarStory: React.FC = () => {
         horizontal
         contentContainerStyle={{ alignItems: 'center', paddingVertical: Platform.OS === 'web' ? 3 : 0 }}
         showsHorizontalScrollIndicator={Platform.OS === 'web' ? true : false}
-        >
-        {state.stories.map((item, index) => (
+      >
+        <CreateStory />
+        {stories.map((item, index) => (
           <ButtonScale
             key={index}
             scale={1.05}
@@ -288,7 +253,7 @@ const BarStory: React.FC = () => {
         ))}
       </ScrollView>
 
-      <Modal visible={state.isVideoPlayerVisible} transparent>
+      <Modal visible={isVideoPlayerVisible} transparent>
         <View className="px-10 flex-1 justify-center items-center flex-row gap-1 bg-[rgba(0,0,0,0.8)]">
           <ButtonScale
             scale={1.1}
@@ -303,35 +268,54 @@ const BarStory: React.FC = () => {
             <View className="bg-textStandardDark w-full h-fit p-2 rounded-t-[20px] flex-col items-center justify-center" aria-label='HeaderStory'>
               <View className='flex-row w-full items-center gap-2'>
                 <ExpoImage
-                  source={{ uri: state.stories[Math.floor(state.currentUserIndex)]?.user.avatar }}
+                  source={{ uri: stories[Math.floor(currentUserIndex)]?.user.avatar }}
                   style={{ borderRadius: 9999, borderWidth: 2, borderColor: "#fff", width: 32, height: 32, backgroundColor: "#fff" }}
                   contentFit="cover"
                   placeholder={{ blurhash }}
                   cachePolicy="memory-disk"
                 />
                 <Text className="font-bold text-lg text-white">
-                  {state.stories[Math.floor(state.currentUserIndex)]?.user.username}
+                  {stories[Math.floor(currentUserIndex)]?.user.username}
                 </Text>
-                <View className="flex-1 bg-gray-200 h-2 rounded-full">
+                <View className="flex-1 bg-gray-200 h-2 rounded-full" aria-label='TimeIndicator'>
                   <View
                     className="bg-green-500 h-full rounded-full"
-                    style={{ width: `${(state.currentTime / state.videoDuration) * 100}%` }}
+                    style={{ width: `${(currentTime / videoDuration) * 100}%` }}
                   />
                 </View>
               </View>
-              <Text className='font-bold text-sm text-white'>{` ${state.currentStoryIndex + 1} de ${state.currentUserStories.length} stories`}</Text>
+              <Text className='font-bold text-sm text-white'>{` ${currentStoryIndex + 1} de ${currentUserStories.length} stories`}</Text>
             </View>
 
-            <Video
-              ref={videoRef}
-              source={{ uri: state.currentUserStories[state.currentStoryIndex]?.storyUrl }}
-              style={{ width: "100%", aspectRatio: 9 / 16, borderEndEndRadius: 20, borderEndStartRadius: 20 }}
-              resizeMode={ResizeMode.COVER}
-              shouldPlay
-              isLooping={false}
-              onPlaybackStatusUpdate={handleStatusUpdate}
-              onLoad={handleVideoLoad}
-            />
+            <View className='w-full'>
+              <Video
+                ref={videoRef}
+                source={{ uri: currentUserStories[currentStoryIndex]?.storyUrl }}
+                style={{ width: "100%", aspectRatio: 9 / 16, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}
+                resizeMode={ResizeMode.COVER}
+                shouldPlay
+                isLooping={false}
+                onPlaybackStatusUpdate={handleStatusUpdate}
+                onLoad={() => setIsTransitioning(false)}
+              />
+              {showControlIcon && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: [{ translateX: -18 }, { translateY: -40 }],
+                    zIndex: 10,
+                  }}
+                >
+                  <FontAwesome
+                    name={isPlaying ? 'pause' : 'play'}
+                    size={48}
+                    color="#FFF"
+                  />
+                </View>
+              )}
+            </View>
 
             <ButtonScale
               scale={1.1}
@@ -339,25 +323,6 @@ const BarStory: React.FC = () => {
               className="bg-white rounded-[20px] p-2 mt-2">
               <CustomIcons name="fechar" color="#475569" size={12} />
             </ButtonScale>
-
-            {state.showControlIcon && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: [{ translateX: -24 }, { translateY: -24 }],
-                  zIndex: 10,
-                }}
-              >
-                <FontAwesome
-                  name={state.isPlaying ? 'pause' : 'play'}
-                  size={48}
-                  color="#FFF"
-                />
-              </View>
-
-            )}
           </Pressable>
 
           <ButtonScale
@@ -381,7 +346,6 @@ const BarStory: React.FC = () => {
       </ButtonScale>
     </View>
   );
-
 };
 
 export default BarStory;

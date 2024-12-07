@@ -17,6 +17,7 @@ export default function Index() {
   const [hasMore, setHasMore] = useState(true);
 
   const [isRequesting, setIsRequesting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [posts, setPosts] = useState([]);
   const POSTS_PER_PAGE = 5;
@@ -42,6 +43,11 @@ export default function Index() {
       setLoadingPost(false);
     }
   }, [isLogged, loading]);
+
+  const handleRefresh = async () => {
+    fetchInitialPosts;
+    setRefreshKey(prevKey => prevKey + 1); // Atualiza a key para forçar a re-renderização
+  }
 
   // Função otimizada para buscar mais posts
   const fetchMorePosts = useCallback(async () => {
@@ -124,13 +130,13 @@ export default function Index() {
         refreshControl={
           <RefreshControl
             refreshing={false}
-            onRefresh={fetchInitialPosts}
+            onRefresh={handleRefresh}
           />
         }>
         <SearchHeader />
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
-            <BarStory />
+            <BarStory key={refreshKey}/>
             {quizes.map((quiz) => (
               <Quiz key={quiz.$id} quiz={quiz} />
             ))}

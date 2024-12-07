@@ -389,6 +389,52 @@ export async function uploadFile(file, type, isWeb) {
   }
 }
 
+export async function uploadVideoFile(file, isWeb) {
+  if (!file) return;
+  try {
+    let uploadedFile;
+
+    // Para web
+    if (isWeb) {
+      uploadedFile = await storage.createFile(
+        appwriteConfig.storageId,
+        ID.unique(),
+        file // Objeto File direto
+      );
+    } else {
+      // Para mobile/dispositivos não-web
+      const { mimeType, uri, ...rest } = file;
+      const asset = { 
+        type: mimeType || 'video/mp4', 
+        uri: uri, 
+        ...rest 
+      };
+
+      uploadedFile = await storage.createFile(
+        appwriteConfig.storageId,
+        ID.unique(),
+        asset
+      );
+    }
+
+    // Obter URL do vídeo
+    const fileUrl = storage.getFileView(
+      appwriteConfig.storageId, 
+      uploadedFile.$id
+    );
+    
+    return {
+      videoUrl: fileUrl
+    };
+  } catch (error) {
+    console.error("Falha ao enviar o vídeo:", error);
+    throw { 
+      message: `Falha ao enviar o vídeo. Tente novamente. ${error.message}`, 
+      code: error.code || 500 
+    };
+  }
+}
+
 // Função para obter a URL de visualização de um arquivo
 export async function getFilePreview(fileId, type) {
   let fileUrl;
@@ -1501,7 +1547,7 @@ export async function fetchEntiresQuiz(user = null) {
 //INICIO funcoes stories
 export async function getStories(limit = 1, offset = 0) {
   try {
-    // Obter todos os usuários únicos da coleção de stories
+    // Obter todos os stories
     const allStoriesResponse = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.storiesCollectionId
@@ -1511,51 +1557,79 @@ export async function getStories(limit = 1, offset = 0) {
       return { stories: [], totalUsers: 0, hasMore: false };
     }
 
-    // Obter IDs únicos de usuários
-    const uniqueUserIds = [
-      ...new Set(allStoriesResponse.documents.map((doc) => doc.userId)),
-    ];
+    // Agrupar stories por usuário
+    const storiesByUser = allStoriesResponse.documents.reduce((acc, story) => {
+      const userId = story.userId;
+      if (!acc[userId]) {
+        acc[userId] = [];
+      }
+      acc[userId].push(story);
+      return acc;
+    }, {});
 
-    // Aplicar a paginação aos usuários
-    const paginatedUserIds = uniqueUserIds.slice(offset, offset + limit);
+    // Ordenar usuários pelo story mais recente (descendente)
+    const sortedUsers = Object.entries(storiesByUser)
+      .map(([userId, stories]) => ({
+        userId,
+        latestStoryTime: Math.max(
+          ...stories.map((story) => new Date(story.$createdAt).getTime())
+        ),
+        stories, // Stories do usuário
+      }))
+      .sort((a, b) => b.latestStoryTime - a.latestStoryTime); // Ordenação decrescente
+
+    // Aplicar paginação
+    const paginatedUsers = sortedUsers.slice(offset, offset + limit);
 
     const userStoriesMap = {};
 
-    // Para cada usuário na página atual, buscar stories e perfis
+    // Buscar informações de perfil e organizar stories por usuário
     await Promise.all(
-      paginatedUserIds.map(async (userId) => {
-        // Obter informações do usuário
+      paginatedUsers.map(async ({ userId, stories }) => {
         const user = await getUserProfile(userId);
-
-        // Filtrar os stories desse usuário
-        const userStories = allStoriesResponse.documents.filter(
-          (doc) => doc.userId === userId
-        );
-
         userStoriesMap[userId] = {
-          user: user || {
-            username: "user",
-            avatar: `https://ui-avatars.com/api/?name=user`,
-          },
-          stories: userStories.map((story) => ({
+          user,
+          stories: stories.map((story) => ({
             storyUrl: story.storyUrl,
+            createdAt: story.$createdAt,
           })),
         };
       })
     );
 
-    // Converter o mapa para um array
-    const groupedStories = Object.values(userStoriesMap);
+    // Formatar resposta final
+    const groupedStories = paginatedUsers.map(({ userId }) => userStoriesMap[userId]);
 
-    // Retornar os dados paginados
     return {
       stories: groupedStories,
-      totalUsers: uniqueUserIds.length, // Total de usuários únicos
-      hasMore: offset + limit < uniqueUserIds.length, // Indicador de mais páginas
+      totalUsers: Object.keys(storiesByUser).length, // Total de usuários únicos
+      hasMore: offset + limit < Object.keys(storiesByUser).length, // Indicador de mais páginas
     };
   } catch (error) {
     console.error("Error fetching stories:", error.message);
     throw { message: error.message || "Unknown error", code: error.code || 500 };
+  }
+}
+
+export async function createStory(video, isWeb, idUser) {
+  try {
+    const uploadResult = await uploadVideoFile(video, isWeb);
+
+    // Cria o documento do usuário no banco de dados
+    await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.storiesCollectionId,
+      ID.unique(),
+      {
+        storyUrl: uploadResult.videoUrl,
+        userId: idUser,
+      }
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao publicar Story:", error.message);
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
   }
 }
 //FIM funcoes stories
