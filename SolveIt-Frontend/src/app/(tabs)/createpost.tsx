@@ -117,6 +117,16 @@ export default function CreatePost() {
       showAlert('Aviso', 'Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
+    const cleanedTitle = form.title
+    if (cleanedTitle.length < 15) {
+      showAlert('Aviso', 'Minimo de 15 caracteres para o titulo');
+      return false;
+    }
+    const cleanedDescription = form.description
+    if (cleanedDescription.length < 15) {
+      showAlert('Aviso', 'Minimo de 15 caracteres para a descricao');
+      return false;
+    }
 
     // Verifica se o zipCode não está vazio e tem 9 caracteres
     if (zipCode && zipCode.length !== 9) {

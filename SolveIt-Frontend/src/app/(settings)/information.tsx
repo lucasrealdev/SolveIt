@@ -7,6 +7,7 @@ import { useGlobalContext } from "@/context/GlobalProvider"; // Contexto global 
 import { updateUser } from "@/lib/appwriteConfig";
 import { useAlert } from "@/context/AlertContext";
 import ImageUploadUser from "@/components/media/ImageUploadUser";
+import Tooltip from "@/components/Tooltip"
 
 export default function Information() {
   const [loading, setLoading] = useState(false);
@@ -50,16 +51,30 @@ export default function Information() {
   // Função para atualizar os dados do usuário no contexto global
   const handleUpdateUser = async () => {
     try {
+      // Validacao para garantir que o nome de Usuario tem no minimo 6 caracteres
+      const cleanedUser = form.username;
+      if (cleanedUser.length < 6) {
+        showAlert("Aviso", "O nome de Usuario deve ter no minimo 6 caracteres.");
+        return; // Interrompe a execução
+      }
+      // Validacao para garantir que o numero de telefone tem no minimo 11 caracteres
       const cleanedNumber = form.numberPhone.replace(/[^\d]/g, ""); // Remove não numéricos
       if (cleanedNumber.length < 11) {
         showAlert("Aviso", "O número de telefone deve ter no mínimo 11 dígitos.");
         return; // Interrompe a execução
       }
+      // Validacao para garantir que o nome de Usuario não esta vazia
       if (!form.username.trim()) {
         showAlert("Aviso", "Por favor, preencha o nome de usuário.");
         return; // Interrompe a execução
       }
-
+      // Validacao para garantir que a biografia tem no minimo 20 caracteres
+      const cleanedBiography = form.biography;
+      if (cleanedBiography.length < 20) {
+        showAlert("Aviso", "A biografia precisa ter no mínimo 20 caracteres.")
+        return;
+      }
+      // Validacao para garantir que a biografia nao esta vazia
       if (!form.biography.trim()) {
         showAlert("Aviso", "Por favor, preencha a biografia.");
         return; // Interrompe a execução
@@ -128,7 +143,15 @@ export default function Information() {
               </Text>
             </View>
             <View className="flex-row gap-2 items-center">
-              <CustomIcons name="info" size={40} />
+              <Tooltip
+                title="Informações dos dados"
+                content="Ninguem pode visualizar os dados do seu perfil se não tiver uma assinatura premium"
+                iconSize={40}
+                iconColor="#1E40AF"
+                backgroundColor="#1E293B"
+                textColor="#F8FAFC"
+
+              />
               <TouchableOpacity
                 className="h-10 px-6 bg-accentStandardDark rounded-full flex-row items-center gap-2"
                 onPress={() => navigateTo("/premium")}
@@ -155,6 +178,7 @@ export default function Information() {
                 onChangeText={(text) => updateForm("username", text)}
                 focusColor="#475569"
                 blurColor="#CBD5E1"
+                minLength={6}
               />
             </View>
           </View>
@@ -173,6 +197,7 @@ export default function Information() {
                 onChangeText={(text) => updateForm("numberPhone", text)}
                 focusColor="#475569"
                 blurColor="#CBD5E1"
+                minLength={11}
               />
             </View>
           </View>
@@ -210,6 +235,7 @@ export default function Information() {
                 showCharCount
                 focusColor="#475569"
                 blurColor="#CBD5E1"
+                minLength={20}
               />
             </View>
           </View>
