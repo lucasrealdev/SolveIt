@@ -11,13 +11,12 @@ import {
 export default function DetetiveDeProblemasResultsScreen({
   problemsWithResponses,
   solutionsWithResponses,
-  totalRounds,
-  currentRound,
   onNextRound,
-  onRestart,
+  // onRestart,
 }) {
-  const [animatedValue] = useState(new Animated.Value(0));
   console.log(problemsWithResponses);
+  console.log(solutionsWithResponses);
+  const [animatedValue] = useState(new Animated.Value(0));
   // Função para calcular médias das notas
   const calculateAverage = (data, keys) => {
     // Extraindo as notas de cada item

@@ -83,6 +83,7 @@ const DetetiveDeProblemas = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [problemsWithResponsesFinal, setProblemsWithResponsesFinal] = useState([]);
+  const [solutionsWithResponsesFinal, setSolutionsWithResponsesFinal] = useState([]);
 
   const currentRound = quizData.rounds[currentRoundIndex];
   const { showAlert } = useAlert();
@@ -155,26 +156,61 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
     }
   };
 
-  const generateSolutionsResponse = async (input) => {
+  const generateSolutionsResponse = async (solution, problem) => {
     const response = await sendMessageToChatbot(`
-     A partir de agora, você irá receber uma descrição de uma imagem e um possível problema que o jogador pode ter encontrado no cenário dessa imagem. Sua tarefa é avaliar esse problema de forma objetiva e construtiva. Avalie a criatividade do problema identificado. Você deve analisar se o problema é inovador, interessante e se foge do óbvio. A criatividade deve ser avaliada em uma escala de 0 a 10. Avalie a coerência do problema com a descrição da imagem. O problema faz sentido com o que é descrito na imagem? Está bem fundamentado na descrição visual? A coerência também deve ser avaliada em uma escala de 0 a 10. Lembre se também que o usuário não deve dar uma solução e sim um problema então avalie sobre o problema.
-     Formato da resposta: Sua resposta deve estar no formato JSON para facilitar a extração dos dados. Use o seguinte modelo:
-     {
-       "NotaCriatividade": <0 a 10>,
-       "NotaCoerencia": <0 a 10>,
-       "ComentarioFinal": "<Comentário positivo e construtivo, ou explicação educada sobre possíveis erros no problema apresentado, pode usar emojis para uma linguagem mais interativa e seja objetivo>"
-     }
+      A partir de agora, você irá receber uma descrição de uma imagem, um possível problema que o jogador pode ter encontrado no cenário dessa imagem e uma solução sugerida. Sua tarefa é avaliar essa solução de forma objetiva e construtiva. Avalie a criatividade da solução proposta. A solução é inovadora, interessante e foge do óbvio? A criatividade deve ser avaliada em uma escala de 0 a 10 (não seja excessivamente criterioso). Avalie a coerência da solução com o problema e a descrição da imagem. A solução faz sentido com o que é descrito na imagem e com o problema identificado? A coerência também deve ser avaliada em uma escala de 0 a 10. Por fim, avalie a viabilidade da solução: ela é prática e pode ser implementada dentro do cenário descrito? A viabilidade deve ser avaliada de 0 a 10.
+    
+    Formato da resposta: Sua resposta deve estar no formato JSON para facilitar a extração dos dados. Use o seguinte modelo:
+    
+    {
+      "NotaCriatividade": <0 a 10>,
+      "NotaCoerencia": <0 a 10>,
+      "NotaViabilidade": <0 a 10>,
+      "ComentarioFinal": "<Comentário positivo e construtivo, ou explicação educada sobre possíveis erros na solução apresentada, pode usar emojis para uma linguagem mais interativa e seja objetivo>"
+    }
+    
+    Se a solução contiver textos obscenos ou inadequados, a IA deve responder no campo Comentário Final da seguinte forma: "Por favor, reformule sua solução para que ela seja mais respeitosa e adequada ao contexto do jogo. A solução precisa estar alinhada com o tema proposto." E dar 0 nas notas de Criatividade, Coerência e Viabilidade.
+    
+    Agora, você receberá a descrição de uma imagem, um problema e uma solução. Avalie com base nas orientações acima.
+    
+    Descrição da imagem: ${currentRound.description}
+    Problema: ${problem}
+    Solução: ${solution}
+    `);
 
-     Se o problema contiver textos obscenos ou inadequados, a IA deve responder no campo Comentário Final da seguinte forma: "Por favor, reformule seu problema para que ele seja mais respeitoso e adequado ao contexto do jogo. A solução precisa estar alinhada com o tema proposto." E dar 0 na nota de Criatividade e Coerência
-     Agora, você receberá a descrição de uma imagem e um possível problema. Avalie com base nas orientações acima.
-     Descricao da imagem: ${currentRound.description}
-     problema: ${input}
-   `);
+    // Remover caracteres de formatação extra (ex.: "json")
+    const cleanedResponse = response.replace(/```json|```/g, '').trim();
 
-    return "response"; // Retorna a resposta diretamente
+    try {
+      // Tenta fazer o parse do JSON
+      const jsonResponse = JSON.parse(cleanedResponse);
+
+      setSolutionsWithResponsesFinal((prevResponses) => [
+        ...prevResponses, // Mantém as respostas existentes
+        {
+          problema: problem,
+          Solucao: solution,
+          NotaCriatividade: jsonResponse.NotaCriatividade,
+          NotaCoerencia: jsonResponse.NotaCoerencia,
+          NotaViabilidade: jsonResponse.NotaViabilidade,
+          ComentarioFinal: jsonResponse.ComentarioFinal,
+        },
+      ]);
+
+      // Construção do objeto simplificado
+      return `
+Nota de Criatividade: ${jsonResponse.NotaCriatividade}
+Nota de Coerência: ${jsonResponse.NotaCoerencia}
+Nota de Viabilidade: ${jsonResponse.NotaViabilidade}
+Comentário Final: ${jsonResponse.ComentarioFinal}
+`;
+    } catch (error) {
+      console.error('Erro ao processar o JSON da resposta:', error);
+      throw new Error('A resposta não está no formato esperado.');
+    }
   };
 
-  const proceedToNextStage = () => {
+  const proceedToNextStage = async () => {
     setIsLoading(true);
     if (currentStage === 'problems') {
       const validProblems = problems.filter((p) => p.trim() !== '');
@@ -205,14 +241,35 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
       const validSolutions = solutions.filter((s) => s.trim() !== '');
       if (validSolutions.length === 0) {
         showAlert('Erro', 'Adicione pelo menos uma solução válida.');
+        setIsLoading(false);
         return;
       }
 
-      const solutionsWithGeneratedResponses = validSolutions.map((solution) => ({
-        solution,
-        fictitiousResponse: generateSolutionsResponse(solution),
-      }));
-      setSolutionsWithResponses(solutionsWithGeneratedResponses);
+      try {
+        const solutionsWithGeneratedResponses = await Promise.all(
+          validSolutions.map(async (solution, index) => {
+            const problem = problemsWithResponses[index]?.problem; // Vincula ao problema correspondente
+            const fictitiousResponse = await generateSolutionsResponse(solution, problem);
+
+            return {
+              problem,
+              solution,
+              fictitiousResponse,
+            };
+          })
+        );
+
+
+        setSolutionsWithResponses(solutionsWithGeneratedResponses);
+        // Após gerar todas as respostas, avança para os resultados
+        setCurrentStage('solutionAnswer');
+      } catch (error) {
+        showAlert('Erro', 'Falha ao gerar respostas para as soluções.');
+        console.error('Erro ao gerar soluções:', error);  // Log do erro
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (currentStage === 'solutionAnswer') {
       setCurrentStage('results');
       setIsLoading(false);
     }
@@ -242,14 +299,12 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
     return (
       <DetetiveDeProblemasResultsScreen
         problemsWithResponses={problemsWithResponsesFinal}
-        solutionsWithResponses={solutionsWithResponses}
-        totalRounds={quizData.rounds.length}
-        currentRound={currentRound}
+        solutionsWithResponses={solutionsWithResponsesFinal}
         onNextRound={() => navigateRound('next')}
-        onRestart={() => {
-          setCurrentRoundIndex(0);
-          resetGameState();
-        }}
+        // onRestart={() => {
+        //   setCurrentRoundIndex(0);
+        //   resetGameState();
+        // }}
       />
     );
   }
@@ -285,52 +340,69 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
             ))}
           </View>
         )}
-        <View className="bg-white p-4 rounded-lg mb-4">
-          <Text className="text-lg font-semibold mb-2">
-            {currentStage === 'problems'
-              ? currentRound.problemStage.instruction
-              : currentRound.solutionStage.instruction}
-          </Text>
-          {currentStage === 'problems' ? (
-            <DynamicInputList
-              inputs={problems}
-              type={currentStage}
-              addInput={(type) => {
-                addInput(type);
-              }}
-              updateInput={(type, index, text) => {
-                updateInput(type, index, text);
-                if (type === 'problems') {
-                  const filledProblems = problems.map((p, i) =>
-                    i === index ? text : p
-                  ).filter((p) => p.trim() !== '');
-                  setSolutions(filledProblems.map((_, i) => solutions[i] || ''));
-                }
-              }}
-              removeInput={(type, index) => {
-                removeInput(type, index);
-                if (type === 'problems') {
-                  const filledProblems = problems
-                    .filter((_, i) => i !== index)
-                    .filter((p) => p.trim() !== '');
-                  setSolutions(filledProblems.map((_, i) => solutions[i] || ''));
-                }
-              }}
-              maxInputs={3}
-            />
-          ) : (
-            solutions.map((input, index) => (
-              <View key={index} className="flex-row items-center mb-2">
-                <TextInput
-                  placeholder={`Solução ${index + 1}`}
-                  value={input}
-                  onChangeText={(text) => updateInput('solutions', index, text)}
-                  className="flex-1 border border-gray-300 p-2 rounded-lg mr-2"
-                />
+        {currentStage === 'solutionAnswer' && (
+          <View className="bg-gray-100 p-4 rounded-lg mb-4">
+            <Text className="text-lg font-bold mb-2">Soluções Propostas:</Text>
+            {solutionsWithResponses.map((item, index) => (
+              <View key={index} className="mb-1 p-3 bg-white rounded-lg shadow">
+                <Text className="font-semibold">Solução {index + 1}:</Text>
+                <Text>Problema: {item.problem}</Text>
+                <Text>Solução: {item.solution}</Text>
+                <Text className="text-gray-500 italic">
+                  {item.fictitiousResponse}
+                </Text>
               </View>
-            ))
-          )}
-        </View>
+            ))}
+          </View>
+        )}
+        {(currentStage === 'problems' || currentStage === 'solutions') && (
+          <View className="bg-white p-4 rounded-lg mb-4">
+            <Text className="text-lg font-semibold mb-2">
+              {currentStage === 'problems'
+                ? currentRound.problemStage.instruction
+                : currentRound.solutionStage.instruction}
+            </Text>
+            {currentStage === 'problems' ? (
+              <DynamicInputList
+                inputs={problems}
+                type={currentStage}
+                addInput={(type) => {
+                  addInput(type);
+                }}
+                updateInput={(type, index, text) => {
+                  updateInput(type, index, text);
+                  if (type === 'problems') {
+                    const filledProblems = problems
+                      .map((p, i) => (i === index ? text : p))
+                      .filter((p) => p.trim() !== '');
+                    setSolutions(filledProblems.map((_, i) => solutions[i] || ''));
+                  }
+                }}
+                removeInput={(type, index) => {
+                  removeInput(type, index);
+                  if (type === 'problems') {
+                    const filledProblems = problems
+                      .filter((_, i) => i !== index)
+                      .filter((p) => p.trim() !== '');
+                    setSolutions(filledProblems.map((_, i) => solutions[i] || ''));
+                  }
+                }}
+                maxInputs={3}
+              />
+            ) : (
+              solutions.map((input, index) => (
+                <View key={index} className="flex-row items-center mb-2">
+                  <TextInput
+                    placeholder={`Solução ${index + 1}`}
+                    value={input}
+                    onChangeText={(text) => updateInput('solutions', index, text)}
+                    className="flex-1 border border-gray-300 p-2 rounded-lg mr-2"
+                  />
+                </View>
+              ))
+            )}
+          </View>
+        )}
         <TouchableOpacity
           onPress={proceedToNextStage}
           className="bg-blue-600 p-3 rounded-lg items-center my-4"
