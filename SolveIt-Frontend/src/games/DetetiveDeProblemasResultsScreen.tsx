@@ -17,49 +17,84 @@ export default function DetetiveDeProblemasResultsScreen({
   onRestart,
 }) {
   const [animatedValue] = useState(new Animated.Value(0));
-  // Constantes reutilizáveis para sombras
-  const shadowStyle = {
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    elevation: 8,
+  console.log(problemsWithResponses);
+  // Função para calcular médias das notas
+  const calculateAverage = (data, keys) => {
+    // Extraindo as notas de cada item
+    const allResponses = data.flatMap((item) => {
+      // Verifica se 'responses' existe e é um array
+      if (!item.responses || !Array.isArray(item.responses)) {
+        return []; // Retorna um array vazio se 'responses' for indefinido ou não for um array
+      }
+
+      return item.responses.map((response) =>
+        keys.reduce((acc, key) => {
+          acc[key] = response[key] || 0;
+          return acc;
+        }, {})
+      );
+    });
+
+    // Calculando os totais
+    const totalScores = allResponses.reduce(
+      (acc, response) => {
+        keys.forEach((key) => {
+          acc[key] += response[key] || 0;
+        });
+        return acc;
+      },
+      { criatividade: 0, coerencia: 0, viabilidade: 0 }
+    );
+
+    // Calculando as médias
+    const count = allResponses.length || 1;
+    return {
+      criatividade: parseFloat((totalScores.criatividade / count).toFixed(1)),
+      coerencia: parseFloat((totalScores.coerencia / count).toFixed(1)),
+      viabilidade: keys.includes("viabilidade")
+        ? parseFloat((totalScores.viabilidade / count).toFixed(1))
+        : null,
+    };
   };
 
-  // Métricas de engajamento
-  const engagementMetrics = {
-    creativityScore: Math.floor(Math.random() * 100),
-    innovationLevel: ["Iniciante", "Intermediário", "Avançado", "Expert"][
-      Math.floor(Math.random() * 4)
-    ],
-    potentialImpact: ["Baixo", "Médio", "Alto", "Disruptivo"][
-      Math.floor(Math.random() * 4)
-    ],
-  };
+  // Calculando as médias
+  const problemsAverage = calculateAverage(problemsWithResponses || [], [
+    "criatividade",
+    "coerencia",
+  ]);
+  const solutionsAverage = calculateAverage(solutionsWithResponses || [], [
+    "criatividade",
+    "coerencia",
+    "viabilidade",
+  ]);
 
-  // Estatísticas do ranking
-  const leaderboardStats = [
-    { name: "João S.", score: 95, badge: "🏆" },
-    { name: "Maria P.", score: 88, badge: "🥈" },
-    { name: "Carlos R.", score: 82, badge: "🥉" },
-  ];
 
-  // Conquistas
+  // Determinando badges dinâmicos
   const badges = [
     {
       name: "Pensador Criativo",
       icon: "💡",
-      condition: engagementMetrics.creativityScore > 80,
+      condition: problemsAverage.criatividade > 7,
     },
-    { name: "Solucionador Rápido", icon: "⚡", condition: solutionsWithResponses.length <= 2 },
     {
-      name: "Estrategista",
-      icon: "🧠",
-      condition: engagementMetrics.innovationLevel === "Expert",
+      name: "Resolver Brilhante",
+      icon: "✨",
+      condition: solutionsAverage.criatividade > 8,
+    },
+    {
+      name: "Praticidade",
+      icon: "🔧",
+      condition: solutionsAverage.viabilidade > 7,
+    },
+    {
+      name: "Analista de Coerência",
+      icon: "🔍",
+      condition:
+        problemsAverage.coerencia > 6 && solutionsAverage.coerencia > 6,
     },
   ];
 
-  // Função para iniciar animação
+  // Iniciar animação
   const startAnimation = () => {
     Animated.spring(animatedValue, {
       toValue: 1,
@@ -78,19 +113,6 @@ export default function DetetiveDeProblemasResultsScreen({
     <View className="items-center">
       <Text className="text-3xl">{icon}</Text>
       <Text className="text-xs text-gray-600 mt-1">{name}</Text>
-    </View>
-  );
-
-  const LeaderboardItem = ({ stat, isFirst }) => (
-    <View
-      className={`flex-row justify-between items-center p-3 ${
-        isFirst ? "bg-yellow-100" : "bg-gray-50"
-      } rounded-lg mb-2`}
-    >
-      <Text className="text-lg">
-        {stat.badge} {stat.name}
-      </Text>
-      <Text className="text-lg font-bold">{stat.score}</Text>
     </View>
   );
 
@@ -119,32 +141,33 @@ export default function DetetiveDeProblemasResultsScreen({
         </Animated.View>
 
         {/* Seção de performance */}
-        <View className="bg-white rounded-2xl p-6 mb-6" style={shadowStyle}>
+        <View className="bg-white rounded-2xl p-6 mb-6 shadow">
           <Text className="text-2xl font-semibold text-center mb-4">
-            Sua Performance
+            Desempenho
           </Text>
-
-          <View className="flex-row flex-wrap justify-between mb-4">
+          <View className="flex-row justify-between">
             <View className="items-center">
-              <Text className="text-3xl font-bold text-blue-600">
-                {engagementMetrics.creativityScore}
+              <Text className="text-lg font-bold text-blue-600">
+                Criatividade: {problemsAverage.criatividade}
               </Text>
-              <Text className="text-gray-600">Criatividade</Text>
+              <Text className="text-lg font-bold text-green-600">
+                Coerência: {problemsAverage.coerencia}
+              </Text>
             </View>
             <View className="items-center">
-              <Text className="text-3xl font-bold text-green-600">
-                {engagementMetrics.innovationLevel}
+              <Text className="text-lg font-bold text-purple-600">
+                Criatividade: {solutionsAverage.criatividade}
               </Text>
-              <Text className="text-gray-600">Nível</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-3xl font-bold text-purple-600">
-                {engagementMetrics.potentialImpact}
+              <Text className="text-lg font-bold text-yellow-600">
+                Viabilidade: {solutionsAverage.viabilidade}
               </Text>
-              <Text className="text-gray-600">Impacto</Text>
+              <Text className="text-lg font-bold text-blue-600">
+                Coerência: {solutionsAverage.coerencia}
+              </Text>
             </View>
           </View>
 
+          {/* Badges */}
           <View className="flex-row justify-center space-x-3 mt-4">
             {badges
               .filter((badge) => badge.condition)
@@ -152,20 +175,6 @@ export default function DetetiveDeProblemasResultsScreen({
                 <Badge key={index} icon={badge.icon} name={badge.name} />
               ))}
           </View>
-        </View>
-
-        {/* Seção de ranking */}
-        <View className="bg-white rounded-2xl p-6" style={shadowStyle}>
-          <Text className="text-2xl font-semibold text-center mb-4">
-            Ranking
-          </Text>
-          {leaderboardStats.map((stat, index) => (
-            <LeaderboardItem
-              key={index}
-              stat={stat}
-              isFirst={index === 0}
-            />
-          ))}
         </View>
 
         {/* Botões de ação */}
