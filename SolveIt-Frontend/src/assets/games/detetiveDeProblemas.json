@@ -10,10 +10,10 @@
       "viableSolutions": 5,
       "poorSolutions": 2,
       "problemStage": {
-        "instruction": "Identifique possíveis problemas neste cenário (Pense como um empreendedor)"
+        "instruction": "Identifique problemas neste cenário de forma detalhada e com visão empreendedora."
       },
       "solutionStage": {
-        "instruction": "Proponha soluções para os problemas identificados (Pense como um empreendedor)"
+        "instruction": "Proponha soluções detalhadas para os problemas identificados, com visão empreendedora. Tenha em mente a época atual"
       }
     },
     {
@@ -28,10 +28,10 @@
       "viableSolutions": 5,
       "poorSolutions": 2,
       "problemStage": {
-        "instruction": "Identifique possíveis problemas neste cenário (Pense como um empreendedor)"
+        "instruction": "Identifique problemas neste cenário de forma detalhada e com visão empreendedora."
       },
       "solutionStage": {
-        "instruction": "Proponha soluções para os problemas identificados (Pense como um empreendedor)"
+        "instruction": "Proponha soluções detalhadas para os problemas identificados, com visão empreendedora. Tenha em mente a época atual"
       }
     }
   ]

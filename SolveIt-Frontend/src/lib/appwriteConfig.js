@@ -358,7 +358,6 @@ export async function getCityAndStateByZipCode(zipCode) {
 // Função para fazer upload de um arquivo
 export async function uploadFile(file, type, isWeb) {
   if (!file) return;
-  
   try {
     let uploadedFile;
 
@@ -392,11 +391,13 @@ export async function uploadFile(file, type, isWeb) {
 
 export async function uploadVideoFile(file, isWeb) {
   if (!file) return;
+
   try {
     let uploadedFile;
 
     // Para web
     if (isWeb) {
+      console.log(file);
       uploadedFile = await storage.createFile(
         appwriteConfig.storageId,
         ID.unique(),
