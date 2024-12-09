@@ -7,6 +7,7 @@ import { getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { usePathname, useRouter } from 'expo-router';
 import { Image as ExpoImage } from 'expo-image';
+import { useAlert } from '@/context/AlertContext';
 
 interface CommentProps {
     propCommentData: any; // Objeto do post
@@ -30,7 +31,7 @@ const Comment: React.FC<CommentProps> = ({
 
     const router = useRouter();
     const pathname = usePathname();
-
+    const { showAlert } = useAlert(); 
     const blurhash =
         '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
@@ -49,7 +50,10 @@ const Comment: React.FC<CommentProps> = ({
     };
 
     const handleLike = async () => {
-        if (!user) return; // Impede que o usuário curta o comentário se não estiver logado
+        if (!user) {
+            showAlert("Aviso", "Você precisa estar logado para curtir o comentario");
+            return;
+        }
         setLikeLoading(true); // Começa o carregamento do like
         try {
             const likedStatus = await toggleLikeComment(user?.$id, commentDataLocal?.$id);

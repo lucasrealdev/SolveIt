@@ -130,6 +130,7 @@ const Post: React.FC<PostProps> = ({
 
   const handleLikeToggle = async () => {
     if (!user?.$id) {
+      showAlert("Aviso","Você precisa estar logado para curtir");
       return;
     }
 
@@ -277,7 +278,12 @@ const Post: React.FC<PostProps> = ({
   );
 
   const handleCommentSubmit = async () => {
-    if (!commentContent.trim() || !user?.$id) {
+    if (!commentContent.trim()) {
+      showAlert("Aviso", "Não é possivel enviar um comentario vazio");
+      return;
+    }
+    if(!user?.$id){
+      showAlert("Aviso", "Você precisa estar logado para comentar");
       return;
     }
 
@@ -485,7 +491,11 @@ const Post: React.FC<PostProps> = ({
   );
 
   const handleToggleFavorite = async () => {
-    if (!user?.$id) return;  // Verifica se o usuário está autenticado
+    if (!user?.$id){
+      showAlert("Aviso", "Você precisa estar logado para favoritar");
+      return;
+    }
+
     if (loadingFavorite) return;  // Evita múltiplos cliques enquanto processa
 
     setLoadingFavorite(true);  // Inicia o carregamento do processo de favoritar
