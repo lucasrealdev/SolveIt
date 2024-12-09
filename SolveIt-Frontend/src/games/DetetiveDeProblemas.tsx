@@ -81,6 +81,7 @@ const DetetiveDeProblemas = () => {
   const [problemsWithResponses, setProblemsWithResponses] = useState([]);
   const [solutionsWithResponses, setSolutionsWithResponses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResult, setIsResult] = useState(false);
 
   const [problemsWithResponsesFinal, setProblemsWithResponsesFinal] = useState([]);
   const [solutionsWithResponsesFinal, setSolutionsWithResponsesFinal] = useState([]);
@@ -264,7 +265,7 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
         // Após gerar todas as respostas, avança para os resultados
         setCurrentStage('solutionAnswer');
       } catch (error) {
-        showAlert('Erro', 'Falha ao gerar respostas para as soluções.');
+        showAlert('Erro', 'Falha ao gerar respostas para as soluções. Clique em enviar novamente');
         console.error('Erro ao gerar soluções:', error);  // Log do erro
       } finally {
         setIsLoading(false);
@@ -293,6 +294,7 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
     setSolutions(['']);
     setProblemsWithResponses([]);
     setSolutionsWithResponses([]);
+    setIsResult(false);
   };
 
   if (currentStage === 'results') {
@@ -301,6 +303,7 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
         problemsWithResponses={problemsWithResponsesFinal}
         solutionsWithResponses={solutionsWithResponsesFinal}
         onNextRound={() => navigateRound('next')}
+        inspiration={currentRound.inspiration}
         // onRestart={() => {
         //   setCurrentRoundIndex(0);
         //   resetGameState();

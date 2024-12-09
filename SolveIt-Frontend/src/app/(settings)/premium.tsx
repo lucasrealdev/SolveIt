@@ -14,6 +14,10 @@ export default function PremiumScreen() {
   // Função para atualizar os dados do usuário no contexto global
   const handleUpdateUserAccountType = async () => {
     try {
+      if(user?.accountType === "Premium"){
+        showAlert("Parabéns!", "Você já é um usuário premium");
+        return;
+      }
       setLoading(true);
       const updatedUser = await updateUserAccountType(user.$id, "Premium");
 

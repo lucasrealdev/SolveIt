@@ -60,9 +60,9 @@ export default function Games() {
       {activeGame ? (
         // Mostrar somente o componente do jogo ativo
         <View className="flex-1">
-          <TouchableOpacity onPress={handleBackToMenu} className='absolute left-1 bottom-1 z-10 rounded-lg w-[70px] h-[30px] items-center justify-center' style={{ backgroundColor: 'rgba(1, 116, 178, 0.7)' }}
+          <TouchableOpacity onPress={handleBackToMenu} className='absolute left-1 bottom-1 z-10 rounded-lg w-[78px] h-[30px] items-center justify-center' style={{ backgroundColor: 'rgba(1, 116, 178, 0.7)' }}
           >
-            <Text className="text-white font-bold text-base">Menu</Text>
+            <Text className="text-white font-bold text-base">Retornar</Text>
           </TouchableOpacity>
           {activeGame === 'problemDetective' && <DetetiveDeProblemas />}
         </View>
