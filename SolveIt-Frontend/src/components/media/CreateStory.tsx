@@ -41,34 +41,33 @@ const CreateStory: React.FC = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         allowsEditing: true,
         quality: 1,
-        videoMaxDuration: 60
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const { uri, duration, width, height } = result.assets[0];
-      
+
         // Validar duração (máximo 60 segundos)
         if (duration > 60000) {
           showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
           return;
         }
-      
-        // Validar proporção 9:16 ou 4:3
+
+        // Validar proporção 9:16, 16:9 ou 4:3
         const aspectRatio = width / height;
-        const tolerancia = 0.1; // Tolerância de 10% para variações na proporção
-      
-        // Verificar se a proporção é 9:16 ou 4:3 com tolerância
+        const tolerancia = 0.2; // Tolerância de 20% para variações na proporção
+
+        // Verificar proporções válidas com tolerância
         const proporcao9_16Valida = Math.abs(aspectRatio - (9 / 16)) <= tolerancia;
-      
-        if (!proporcao9_16Valida) {
+        const proporcao16_9Valida = Math.abs(aspectRatio - (16 / 9)) <= tolerancia;
+
+        if (!proporcao9_16Valida && !proporcao16_9Valida) {
           showAlert('Erro', 'O vídeo deve estar na proporção 9:16.');
           return;
         }
-      
+
         setVideoUri(uri);
         setIsPreviewVisible(true);
       }
-      
     } catch (error) {
       console.error('Erro ao capturar vídeo:', error);
     }
@@ -80,33 +79,33 @@ const CreateStory: React.FC = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         allowsEditing: true,
         quality: 1,
-        videoMaxDuration: 60
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const { uri, duration, width, height } = result.assets[0];
-      
+
         // Validar duração (máximo 60 segundos)
         if (duration > 60000) {
           showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
           return;
         }
-      
-        // Validar proporção 9:16 ou 4:3
+
+        // Validar proporção 9:16 ou 16:9
         const aspectRatio = width / height;
-        const tolerancia = 0.1; // Tolerância de 10% para variações na proporção
-      
-        // Verificar se a proporção é 9:16 ou 4:3 com tolerância
+        const tolerancia = 0.2; // Tolerância de 20% para variações na proporção
+
+        // Verificar se a proporção é 9:16 ou 16:9 com tolerância
         const proporcao9_16Valida = Math.abs(aspectRatio - (9 / 16)) <= tolerancia;
-      
-        if (!proporcao9_16Valida) {
-          showAlert('Erro', 'O vídeo deve estar na proporção 9:16.');
+        const proporcao16_9Valida = Math.abs(aspectRatio - (16 / 9)) <= tolerancia;
+
+        if (!proporcao9_16Valida && !proporcao16_9Valida) {
+          showAlert('Erro', 'O vídeo deve estar na proporção 9:16 ou 16:9.');
           return;
         }
-      
+
         setVideoUri(uri);
         setIsPreviewVisible(true);
-      }      
+      }
     } catch (error) {
       console.error('Erro ao selecionar vídeo:', error);
     }
@@ -138,37 +137,37 @@ const CreateStory: React.FC = () => {
     if (file) {
       // Criar URL temporário
       const videoUri = URL.createObjectURL(file);
-    
+
       // Criar elemento de vídeo para validar
       const videoElement = document.createElement('video');
       videoElement.src = videoUri;
-    
-      videoElement.onloadedmetadata = async () => {    
+
+      videoElement.onloadedmetadata = async () => {
         // Validar duração
         if (videoElement.duration > 60) {
           showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
           return;
         }
-    
+
         // Validar proporção
         const width = videoElement.videoWidth;
         const height = videoElement.videoHeight;
         const aspectRatio = width / height;
-        const tolerancia = 0.1; // Tolerância de 10%
-    
+        const tolerancia = 0.2; // Tolerância de 10%
+
         // Verificar se a proporção é 9:16 ou 4:3 com tolerância
         const proporcao9_16Valida = Math.abs(aspectRatio - (9 / 16)) <= tolerancia;
-    
+
         if (!proporcao9_16Valida) {
           showAlert('Erro', 'O vídeo deve estar na proporção 9:16.');
           return;
         }
-    
+
         setVideoUri(videoUri);
         setIsPreviewVisible(true);
       };
-    }    
-  };  
+    }
+  };
 
   const processMobileVideo = async (uri: string) => {
     try {

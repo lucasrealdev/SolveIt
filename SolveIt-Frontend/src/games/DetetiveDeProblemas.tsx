@@ -214,9 +214,9 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
   const proceedToNextStage = async () => {
     setIsLoading(true);
     if (currentStage === 'problems') {
-      const validProblems = problems.filter((p) => p.trim() !== '');
+      const validProblems = problems.filter((p) => p.trim().length >= 10);
       if (validProblems.length === 0) {
-        showAlert('Erro', 'Adicione pelo menos um problema válido.');
+        showAlert('Erro', 'Adicione pelo menos uma solução, com no mínimo 10 caracteres.');
         setIsLoading(false);
         return;
       }
@@ -239,9 +239,9 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
       // Chame handleGenerateResponses em um momento apropriado (por exemplo, ao clicar em um botão ou ao montar o componente)
       handleGenerateResponses();
     } else if (currentStage === 'solutions') {
-      const validSolutions = solutions.filter((s) => s.trim() !== '');
+      const validSolutions = solutions.filter((s) => s.trim().length >= 10);
       if (validSolutions.length === 0) {
-        showAlert('Erro', 'Adicione pelo menos uma solução válida.');
+        showAlert('Erro', 'Adicione pelo menos uma solução, com no mínimo 10 caracteres.');
         setIsLoading(false);
         return;
       }
@@ -304,10 +304,6 @@ Comentário Final: ${jsonResponse.ComentarioFinal}
         solutionsWithResponses={solutionsWithResponsesFinal}
         onNextRound={() => navigateRound('next')}
         inspiration={currentRound.inspiration}
-        // onRestart={() => {
-        //   setCurrentRoundIndex(0);
-        //   resetGameState();
-        // }}
       />
     );
   }

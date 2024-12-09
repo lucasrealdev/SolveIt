@@ -355,7 +355,7 @@ export default function DetetiveDeProblemasResultsScreen({
         </View>
 
         {/* Botões de ação */}
-        <View className="flex-row justify-between mt-6">
+        <View className="flex-row justify-between mt-6 mb-8">
           <TouchableOpacity
             className="bg-blue-600 p-4 rounded-lg flex-1 mr-3 items-center"
             onPress={onNextRound}

@@ -8,7 +8,7 @@ const TabsLayout = () => {
   const pathname = usePathname();
 
   // Verifique se a URL atual contém "postdetails", caso contrário, redirecione
-  if (!loading && !isLogged && !pathname.includes('postdetails') && !pathname.includes('help')) {
+  if (!loading && !isLogged && !pathname.includes('postdetails') && !pathname.includes('help') && !pathname.includes('games')) {
     return <Redirect href="/signin" />;
   }
 
