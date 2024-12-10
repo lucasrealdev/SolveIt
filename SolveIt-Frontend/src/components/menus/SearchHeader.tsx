@@ -36,8 +36,8 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
             if (Array.isArray(results) && results.length > 0) {
                 setSearchResults(results); // Atualiza o estado no componente pai
             } else {
-                // Se a lista estiver vazia, mostra o alerta
                 showAlert('Nenhum resultado', 'Não foram encontrados posts com essa pesquisa.');
+                setSearchResults(results);
             }
         } catch (error) {
             console.error("Erro ao buscar posts:", error);
