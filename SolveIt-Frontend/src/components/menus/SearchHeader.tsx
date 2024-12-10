@@ -58,7 +58,7 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
 
     return (
         <View className={`bg-white w-full flex px-3 py-[21px] border-b border-borderStandardLight gap-2 ${isMobile}`}>
-            <View aria-label="containerInput" className="border border-borderStandardLight rounded-full flex flex-row gap-3 px-3 h-11 items-center flex-1">
+            <View aria-label="containerInput" className="border border-borderStandardLight rounded-full flex flex-row gap-3 px-3 py-[8px] items-center flex-1">
                 <TextInput
                     placeholder="Pesquise problemas"
                     value={search}
