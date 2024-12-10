@@ -210,7 +210,7 @@ const CreateStory: React.FC = () => {
         showAlert('Erro', error.message);
         setVideoUri(null);
         setIsPreviewVisible(false);
-        showAlert('Erro', 'Erro ao postar story!');
+        showAlert('Erro', 'Erro ao postar story! alguns videos não são suportados.');
       } finally {
         setLoading(false);
       }
