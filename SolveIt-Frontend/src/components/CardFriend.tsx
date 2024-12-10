@@ -11,11 +11,11 @@ import ButtonScale from './ButtonScale';
 import { Image as ExpoImage } from 'expo-image';
 interface CardFriendProps {
   propFriend: any;
-  propIsFollowing: boolean;
+  propIsFollowing?: boolean;
   label?: string;
 }
 
-const CardFriend: React.FC<CardFriendProps> = ({ propFriend, propIsFollowing, label }) => {
+const CardFriend: React.FC<CardFriendProps> = ({ propFriend, propIsFollowing = false, label }) => {
   const { user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(propIsFollowing);

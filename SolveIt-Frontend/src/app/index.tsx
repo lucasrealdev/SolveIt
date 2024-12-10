@@ -7,6 +7,7 @@ import { fetchEntirePosts, fetchEntiresQuiz } from "@/lib/appwriteConfig";
 import Quiz from "@/components/Quiz";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import BarStory from "@/components/menus/BarStory";
+import CardFriend from "@/components/CardFriend";
 
 export default function Index() {
   const [quizes, setQuizes] = useState([]);
@@ -23,6 +24,8 @@ export default function Index() {
   const POSTS_PER_PAGE = 5;
 
   const { user, isLogged, loading } = useGlobalContext();
+
+  const [searchResults, setSearchResults] = useState([]);
 
   // Função otimizada para buscar posts iniciais
   const fetchInitialPosts = useCallback(async () => {
@@ -120,6 +123,27 @@ export default function Index() {
     ));
   }, [loadingPost, posts]);
 
+  const renderSearchResults = useMemo(() => {
+    return searchResults.length > 0 ? (
+      searchResults.map((post) => (
+        <Post
+          key={post.$id}
+          propCommentCount={post.commentCount}
+          propComments={post.comments}
+          propFavoriteCount={post.favoriteCount}
+          propLikeCount={post.likeCount}
+          propPost={post}  // Passa o post inteiro aqui
+          propShareCount={post.shareCount}
+          propIsFavorited={post.isFavorited}
+          propLiked={post.liked}
+          typePost="normal"
+        />
+      ))
+    ) : (
+      <Text className="text-center text-textStandardLight mt-4">Nenhum resultado encontrado</Text>
+    );
+  }, [searchResults]);
+
   return (
     <View className="flex-1 flex-row">
       <ScrollView
@@ -133,16 +157,22 @@ export default function Index() {
             onRefresh={handleRefresh}
           />
         }>
-        <SearchHeader />
+        <SearchHeader setSearchResults={setSearchResults} />
         <View className="m-2 mb-4 flex items-center">
           <View className="max-w-[700px] gap-4 w-full">
-            <BarStory key={refreshKey}/>
-            {quizes.map((quiz) => (
-              <Quiz key={quiz.$id} quiz={quiz} />
-            ))}
-            {renderPosts}
+            {searchResults.length === 0 && (
+              <>
+                <BarStory />
+                {quizes.map((quiz) => (
+                  <Quiz key={quiz.$id} quiz={quiz} />
+                ))}
+              </>
+            )}
+
+            {searchResults.length > 0 ? renderSearchResults : renderPosts}
             {renderFooter()}
           </View>
+
         </View>
       </ScrollView>
       <MenuRight />

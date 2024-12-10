@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import ButtonScale from './ButtonScale';
 import CustomIcons from '@/assets/icons/CustomIcons';
 import images from '@/constants/images';
-import { getLikeCountComment, toggleLikeComment, userLikedComment } from '@/lib/appwriteConfig';
+import { getLikeCountComment, toggleLikeComment } from '@/lib/appwriteConfig';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { usePathname, useRouter } from 'expo-router';
 import { Image as ExpoImage } from 'expo-image';

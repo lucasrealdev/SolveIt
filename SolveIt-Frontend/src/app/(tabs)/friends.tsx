@@ -237,7 +237,6 @@ export default function Friends() {
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-backgroundStandardDark">
-      <SearchHeader />
       <View className="flex-1 bg-backgroundStandardDark items-center">
         <View className="max-w-[1000px] w-full bg-backgroundStandardDark px-[10px] py-6 gap-7">
           <View className="gap-3" aria-label="ContainerPerfil">

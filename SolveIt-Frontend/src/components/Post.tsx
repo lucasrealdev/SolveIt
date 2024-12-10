@@ -12,6 +12,8 @@ import { useGlobalContext } from '@/context/GlobalProvider';
 import * as Clipboard from 'expo-clipboard';
 import { useAlert } from '@/context/AlertContext';
 import Comment from './Comment';
+import Feather from 'react-native-vector-icons/Feather';
+
 interface PostProps {
   propPost: any; // Objeto do post
   propLikeCount: number; // Número inicial de likes
@@ -130,7 +132,7 @@ const Post: React.FC<PostProps> = ({
 
   const handleLikeToggle = async () => {
     if (!user?.$id) {
-      showAlert("Aviso","Você precisa estar logado para curtir");
+      showAlert("Aviso", "Você precisa estar logado para curtir");
       return;
     }
 
@@ -282,7 +284,7 @@ const Post: React.FC<PostProps> = ({
       showAlert("Aviso", "Não é possivel enviar um comentario vazio");
       return;
     }
-    if(!user?.$id){
+    if (!user?.$id) {
       showAlert("Aviso", "Você precisa estar logado para comentar");
       return;
     }
@@ -491,7 +493,7 @@ const Post: React.FC<PostProps> = ({
   );
 
   const handleToggleFavorite = async () => {
-    if (!user?.$id){
+    if (!user?.$id) {
       showAlert("Aviso", "Você precisa estar logado para favoritar");
       return;
     }
@@ -549,6 +551,30 @@ const Post: React.FC<PostProps> = ({
       10000
     );
   }
+
+  const timeAgo = (date) => {
+    const now = new Date();
+    const createdAt = new Date(date);
+
+    if (isNaN(createdAt.getTime())) {
+      console.error('Data de criação inválida:', date);
+      return;
+    }
+
+    const diffInSeconds = Math.floor((now.getTime() - createdAt.getTime()) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInYears = Math.floor(diffInMonths / 12);
+
+    if (diffInYears > 0) return `há ${diffInYears} ano${diffInYears > 1 ? 's' : ''}`;
+    if (diffInMonths > 0) return `há ${diffInMonths} mês${diffInMonths > 1 ? 'es' : ''}`;
+    if (diffInDays > 0) return `há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
+    if (diffInHours > 0) return `há ${diffInHours}h`;
+    if (diffInMinutes > 0) return `há ${diffInMinutes}m`;
+    return `há menos de 1 minuto`;
+  };
 
   if (postDeleted) return null;
 
@@ -662,6 +688,14 @@ const Post: React.FC<PostProps> = ({
                       </View>
                       <Text className="text-textStandardDark text-base">
                         {renderLocation()}
+                      </Text>
+                    </View>
+                    <View className="flex-row gap-1 items-center">
+                      <View className="min-w-6 pl-[2px]">
+                        <Feather name="calendar" color="#94A3B8" size={20} />
+                      </View>
+                      <Text className="text-textStandardDark text-base">
+                        Data do post: {timeAgo(postLocal.$createdAt)}
                       </Text>
                     </View>
                   </View>

@@ -766,22 +766,70 @@ export const fetchFavoritesPosts = async (page = 1, limit = 10, user = null) => 
 };
 
 // Função para pesquisar postagens por uma string de consulta
-export async function searchPosts(query, limit = 10) {
+async function enrichPost(post, user = null) {
   try {
-    // Limita o número de resultados retornados para melhorar a performance
+    const [likes, comments, favorites, userLikedState, userFavoritedState] = await Promise.all([
+      getLikeCount(post.$id), // Total de likes
+      getCommentsForPost(post.$id, 1, 10), // Comentários da página 1 (exemplo)
+      getFavoriteCount(post.$id), // Total de favoritos
+      user ? userLikedPost(post.$id, user.$id) : false, // Verificar se o usuário curtiu
+      user ? userFavoritedPost(post.$id, user.$id) : false, // Verificar se o usuário favoritou
+    ]);
+ 
+    const enrichedComments = await Promise.all(comments.documents.map(async (comment) => {
+      const likeCount = await getLikeCountComment(comment.$id).catch(() => 0);
+      const isLiked = user?.$id
+        ? await userLikedComment(user.$id, comment.$id).catch(() => false)
+        : false;
+ 
+      return {
+        ...comment,
+        likeCount,
+        isLiked,
+      };
+    }));
+ 
+    return {
+      ...post,
+      liked: userLikedState,
+      likeCount: likes,
+      commentCount: comments.total || 0,
+      comments: enrichedComments,
+      isFavorited: userFavoritedState,
+      favoriteCount: favorites,
+      shareCount: parseInt(post.shares || "0", 10),
+    };
+  } catch (error) {
+    console.error(`Erro ao enriquecer o post com ID ${post.$id}:`, error.message);
+    throw error;
+  }
+}
+ 
+// Atualizar a função searchPosts para incluir as informações enriquecidas
+export async function searchResult(query, limit = 10, user = null) {
+  try {
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,
       [
-        Query.search("title", query),
-        Query.limit(limit) // Limita o número de posts retornados
+        Query.or([
+          Query.search("title", query),
+          Query.search("description", query),
+          Query.search("tags", query)
+        ]),
+        Query.limit(limit),
       ]
     );
-
-    return posts.documents; // Retorna os documentos encontrados
+ 
+    // Enriquecer cada post individualmente
+    const enrichedPosts = await Promise.all(
+      posts.documents.map(post => enrichPost(post, user))
+    );
+ 
+    return enrichedPosts; // Retorna os posts enriquecidos
   } catch (error) {
     console.error("Erro ao pesquisar postagens:", error.message);
-    throw { message: `Erro ao pesquisar postagens: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao pesquisar postagens: ${error.message}`, code: error.code || 500 };
   }
 }
 
