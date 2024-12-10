@@ -7,6 +7,7 @@ import { searchResult } from "@/lib/appwriteConfig";
 import HoverColorComponent from "../HoverColorComponent";
 import colors from "@/constants/colors";
 import { useAlert } from "@/context/AlertContext";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 // Tipando as props para passar o `setPosts` do componente principal
 interface SearchHeaderProps {
@@ -20,8 +21,9 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
     const isMobile = width <= 520 ? "flex-col" : "flex-row";
 
     const [search, setSearch] = useState(""); // Adicionado o estado para o campo de pesquisa
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { showAlert } = useAlert();
+    const { user, loading } = useGlobalContext();
 
     // Função para navegar entre telas
     const navigateTo = (route) => {
@@ -29,7 +31,7 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
     };
 
     const handleSearch = async () => {
-        setLoading(true); // Exibe o indicador de carregamento
+        setIsLoading(true); // Exibe o indicador de carregamento
         try {
             const results = await searchResult(search); // Busca os posts com base no texto digitado
             // Verifica se results é um array antes de atualizar o estado
@@ -42,10 +44,20 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
         } catch (error) {
             console.error("Erro ao buscar posts:", error);
         } finally {
-            setLoading(false); // Oculta o indicador de carregamento
+            setIsLoading(false); // Oculta o indicador de carregamento
         }
         if (pathname !== '/') {
             navigateTo("/");
+        }
+    };
+
+    const handleFilters = async () => {
+        try {
+            if(!loading && user?.accountType != "Premium"){
+                showAlert("Aviso", "Você deve ser usuario premium para acessar essa funcionalidade");
+            }
+        } catch (error) {
+            console.error("Erro ao buscar posts:", error);
         }
     };
 
@@ -72,7 +84,7 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
                     className="flex flex-1 outline-none text-base text-textStandardDark font-medium"
                 />
                 <View className="gap-2 flex-row">
-                    {loading ? (
+                    {isLoading ? (
                         <View className="flex justify-center items-center">
                             <ActivityIndicator size="small" color={colors.textStandardDark.standard} />
                         </View>
@@ -82,7 +94,7 @@ export default function SearchHeader({ setSearchResults }: SearchHeaderProps) {
                         </HoverColorComponent>
                     )}
 
-                    <HoverColorComponent colorHover={colors.textSecondary.hover} colorPressIn={colors.textSecondary.pressIn}>
+                    <HoverColorComponent colorHover={colors.textSecondary.hover} colorPressIn={colors.textSecondary.pressIn} onPress={handleFilters}>
                         <CustomIcons name="filtro" size={20} color={colors.textSecondary.standard} />
                     </HoverColorComponent>
                 </View>

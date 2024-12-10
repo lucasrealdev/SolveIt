@@ -7,7 +7,6 @@ import { fetchEntirePosts, fetchEntiresQuiz } from "@/lib/appwriteConfig";
 import Quiz from "@/components/Quiz";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import BarStory from "@/components/menus/BarStory";
-import CardFriend from "@/components/CardFriend";
 
 export default function Index() {
   const [quizes, setQuizes] = useState([]);
@@ -162,7 +161,7 @@ export default function Index() {
           <View className="max-w-[700px] gap-4 w-full">
             {searchResults.length === 0 && (
               <>
-                <BarStory />
+                <BarStory key={refreshKey}/>
                 {quizes.map((quiz) => (
                   <Quiz key={quiz.$id} quiz={quiz} />
                 ))}
