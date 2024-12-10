@@ -246,7 +246,10 @@ const BarStory: React.FC = () => {
                 cachePolicy="memory-disk"
               />
             </LinearGradient>
-            <Text className="text-textStandardDark font-semibold text-center">
+            <Text className="text-textStandardDark font-semibold text-center"
+            numberOfLines={1}
+            ellipsizeMode="clip"
+            style={{ maxWidth: 105 }}>
               {item.user.username}
             </Text>
           </ButtonScale>

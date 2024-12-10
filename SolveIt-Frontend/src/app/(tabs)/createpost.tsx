@@ -229,7 +229,6 @@ export default function CreatePost() {
             <TextInputMask
               title="Tags (Opcional)"
               placeholder="Ex: #Educação, #Saúde"
-              multiline
               maxLength={200}
               inputFilter={/[^a-zA-ZÀ-ÿ0-9\s#]/g}
               inputMode="text"
