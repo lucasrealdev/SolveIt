@@ -92,24 +92,10 @@ export async function continueWithGoogle(email, password, username, avatar) {
       const user = await signIn(email, password);
       return { status: "logged_in", user };
     } else {
-      // Sanitizar a URL do avatar (remover parâmetros adicionais)
-      const sanitizedAvatarUrl = avatar.replace(/=s\d+-c$/, "");
-
-      // Fazer o download da imagem do avatar para criar um arquivo Blob
-      const response = await fetch(sanitizedAvatarUrl);
-      if (!response.ok) {
-        throw new Error("Falha ao baixar a imagem do avatar.");
-      }
-      const blob = await response.blob();
-
-      // Criar um arquivo do Blob para enviar usando uploadFile
-      const file = new File([blob], `${email}-avatar.jpg`, { type: blob.type });
-
-      // Fazer o upload do avatar ao Appwrite usando uploadFile
-      const uploadedAvatarUrl = await uploadFile(file, "image", true);
+      const avatarUrl = avatars.getInitials(username);
 
       // Criar um novo usuário com o avatar enviado
-      const newUser = await createUser(email, password, username, uploadedAvatarUrl);
+      const newUser = await createUser(email, password, username, avatarUrl);
 
       return { status: "created_and_logged_in", newUser };
     }
