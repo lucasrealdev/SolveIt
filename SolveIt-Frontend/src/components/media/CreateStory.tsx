@@ -46,9 +46,8 @@ const CreateStory: React.FC = () => {
       if (!result.canceled && result.assets && result.assets[0]) {
         const { uri, duration, width, height } = result.assets[0];
 
-        // Validar duração (máximo 60 segundos)
-        if (duration > 180000) {
-          showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
+        if (duration > 200000) {
+          showAlert('Erro', 'O vídeo deve ter no máximo 3 minuto.');
           return;
         }
 
@@ -85,8 +84,8 @@ const CreateStory: React.FC = () => {
         const { uri, duration, width, height } = result.assets[0];
 
         // Validar duração (máximo 60 segundos)
-        if (duration > 180000) {
-          showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
+        if (duration > 200000) {
+          showAlert('Erro', 'O vídeo deve ter no máximo 3 minuto.');
           return;
         }
 
@@ -144,8 +143,8 @@ const CreateStory: React.FC = () => {
 
       videoElement.onloadedmetadata = async () => {
         // Validar duração
-        if (videoElement.duration > 180) {
-          showAlert('Erro', 'O vídeo deve ter no máximo 1 minuto.');
+        if (videoElement.duration > 200) {
+          showAlert('Erro', 'O vídeo deve ter no máximo 3 minuto.');
           return;
         }
 

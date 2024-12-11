@@ -9,10 +9,10 @@ import { ptBR } from 'date-fns/locale';
 
 interface QuizProps {
     quiz: any; // Objeto do post
-  }
+}
 
 const Quiz: React.FC<QuizProps> = ({
-  quiz,
+    quiz,
 }) => {
     const [isLoadingVote, setIsLoadingVote] = useState(false);
 
@@ -25,13 +25,13 @@ const Quiz: React.FC<QuizProps> = ({
     const handleVote = async (optionIndex) => {
         try {
             setIsLoadingVote(true);
-    
+
             // Se o usuário não votou, adicione 1 à opção escolhida e incremente o total de votos
             if (!userVotedLocal) {
                 const updatedVotesCount = { ...votesCountLocal };
                 updatedVotesCount[optionIndex] = (updatedVotesCount[optionIndex] || 0) + 1;
                 setVotesCountLocal(updatedVotesCount);
-                
+
                 const newTotalVotes = totalVotesLocal + 1;
                 setTotalVotesLocal(newTotalVotes);
             } else {
@@ -41,22 +41,22 @@ const Quiz: React.FC<QuizProps> = ({
                 updatedVotesCount[optionIndex] = (updatedVotesCount[optionIndex] || 0) + 1;
                 setVotesCountLocal(updatedVotesCount);
             }
-    
+
             // Atualiza a opção selecionada
             setSelectedOptionLocal(optionIndex);
-    
+
             // Marca o usuário como tendo votado
             setUserVotedLocal(true);
-    
+
             // Chama o backend para registrar o voto
             await updateVote(quiz?.$id, user?.$id, optionIndex);
-    
+
         } catch (error) {
             console.error("Erro ao registrar o voto:", error.message);
         } finally {
             setIsLoadingVote(false);
         }
-    };    
+    };
 
     if (!isLogged) {
         return null;
@@ -94,13 +94,18 @@ const Quiz: React.FC<QuizProps> = ({
                             return (
                                 <Pressable
                                     key={index}
-                                    className={`flex-row items-center py-3 px-4 rounded-lg justify-between ${isSelected ? 'bg-[#E0E7FF]' : 'bg-[#F1F5F9]'} ${isSelected ? 'border-[#C7D2FE]' : ''}`}
+                                    className={`flex-row items-center py-3 px-4 w-full rounded-lg justify-between ${isSelected ? 'bg-[#E0E7FF]' : 'bg-[#F1F5F9]'} ${isSelected ? 'border-[#C7D2FE]' : ''}`}
                                     onPress={() => handleVote(index)}
                                     disabled={isLoadingVote}
                                 >
-                                    <View className='flex-row items-center w-fit'>
+                                    <View className='flex-row items-center flex-1 mr-2'>
                                         <Text className='font-bold text-textStandardDark mr-2'>{percentage.toFixed(0)}%</Text>
-                                        <Text className="text-base mr-2">{option.text}</Text>
+                                        <Text
+                                            className="text-base flex-1 flex-wrap"
+                                            numberOfLines={10}
+                                        >
+                                            {option.text}
+                                        </Text>
                                         {isSelected && <CustomIcons name="correct" size={20} color="#01B198" />}
                                     </View>
                                     <Text className="text-base font-bold text-textSecondary">{votesForOption}</Text>
