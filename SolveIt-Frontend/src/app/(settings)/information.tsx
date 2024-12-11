@@ -59,7 +59,7 @@ export default function Information() {
       }
       // Validacao para garantir que o numero de telefone tem no minimo 11 caracteres
       const cleanedNumber = form.numberPhone.replace(/[^\d]/g, ""); // Remove não numéricos
-      if (cleanedNumber.length < 11) {
+      if (cleanedNumber.length > 0 && cleanedNumber.length < 11) {
         showAlert("Aviso", "O número de telefone deve ter no mínimo 11 dígitos.");
         return; // Interrompe a execução
       }
