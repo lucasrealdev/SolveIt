@@ -1536,7 +1536,7 @@ export async function fetchEntiresQuiz(user = null) {
   try {
     const quizzes = await databases.listDocuments(
       appwriteConfig.databaseId,
-      appwriteConfig.quizzesCollectionId,
+      appwriteConfig.quizCollectionId,
       [Query.orderDesc('$createdAt')] // Ordena pela data de criação, caso necessário
     );
 
@@ -1571,9 +1571,9 @@ export async function fetchEntiresQuiz(user = null) {
 
     return enrichedQuizzes;
   } catch (error) {
-    console.error("Erro ao buscar quizzes:", error.message);
+    console.error("Erro ao buscar quiz:", error.message);
     throw {
-      message: `Erro ao buscar quizzes: ${error.message}`,
+      message: `Erro ao buscar quiz: ${error.message}`,
       code: error.code || 500,
     };
   }
