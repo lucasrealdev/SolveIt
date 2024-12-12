@@ -34,6 +34,14 @@ export default function Information() {
     banner: "",
   });
 
+  const [previousForm, setPreviousForm] = useState({
+    username: "",
+    numberPhone: "",
+    biography: "",
+    profile: "",
+    banner: "",
+  });
+
   // Carregar dados do usuário
   useEffect(() => {
     if (user) {
@@ -45,8 +53,21 @@ export default function Information() {
         "profile": user.avatar || "",
         "banner": user.banner || "",
       }));
+
+      setPreviousForm((prev) => ({
+        ...prev,
+        "username": user.username || "",
+        "numberPhone": user.numberPhone?.replace(/^\+55\s*/, "") || "", // Remove o +55 do início
+        "biography": user.biography || "",
+        "profile": user.avatar || "",
+        "banner": user.banner || "",
+      }));
     }
   }, [user]);
+
+  const hasFormChanged = () => {
+    return Object.keys(form).some((key) => form[key] !== previousForm[key]);
+  };
 
   // Função para atualizar os dados do usuário no contexto global
   const handleUpdateUser = async () => {
@@ -95,28 +116,25 @@ export default function Information() {
       };
 
       const isWeb = Platform.OS === "web";
-      const updatedUser = await updateUser(user.$id, updatedForm, isWeb, user.bannerId, user.avatarId);
+      if (hasFormChanged()) {
+        const updatedUser = await updateUser(user.$id, updatedForm, isWeb, user.bannerId, user.avatarId);
 
-      setForm((prev) => ({
-        ...prev,
-        username: updatedUser.username || "",
-        numberPhone: updatedUser.numberPhone || "",
-        biography: updatedUser.biography || "",
-        profile: updatedUser.avatar || "valorpadrao",
-        banner: updatedUser.banner || "valorpadrao",
-      }));
+        setForm(updatedForm); // Atualiza o form com os novos dados
+        setPreviousForm(updatedForm); // Atualiza o previousForm com os novos dados
 
-      setUser(updatedUser);
+        setUser(updatedUser);
 
-      showAlert("Sucesso", "Dados atualizados com sucesso!");
-      navigateTo("personalprofile");
+        showAlert("Sucesso", "Dados atualizados com sucesso!");
+        navigateTo("personalprofile");
+      } else {
+        showAlert("Aviso", "Nenhuma mudança detectada.");
+      }
     } catch (error) {
       console.error(error.message);
     } finally {
       setLoading(false);
     }
   };
-
 
   const updateForm = (field, value) => {
     // Verifica se o campo é válido, e se o valor não é null ou undefined
