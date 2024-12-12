@@ -1,9 +1,13 @@
 {
   "expo": {
-    "scheme": "SolveIt",
+    "scheme": "solveit",
     "userInterfaceStyle": "automatic",
     "orientation": "portrait",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "cover",
@@ -43,15 +47,15 @@
         "NSPhotoLibraryAddUsageDescription": "O aplicativo requer permissão para salvar imagens na galeria."
       }
     },
-    "name": "SolveIt",
-    "slug": "SolveIt",
+    "name": "solveit",
+    "slug": "solveit",
     "icon": "./src/assets/adaptive-icon.png",
     "extra": {
       "router": {
         "origin": "https://n"
       },
       "eas": {
-        "projectId": "86b5d3f9-d1e3-46d3-8220-12f69c611566"
+        "projectId": "ffaa4a3a-3d5d-4060-8637-46c260569aae"
       }
     }
   }
