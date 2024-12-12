@@ -84,15 +84,20 @@ export default function MenuRight() {
     pathname !== route ? router.push(route) : router.replace(route);
   };
 
-  const renderUserCardsSuggested = () =>
-    suggestedFriends.map((friend, index) => (
-      <CardAmigo
-        key={`${friend.$id}-${index}`}
-        propFriend={friend}
-        propIsFollowing={false}
-        label="menu"
-      />
-    ));
+  const renderUserCardsSuggested = () => {
+    if (suggestedFriends && suggestedFriends.length > 0) {
+      return suggestedFriends.map((friend, index) => (
+        <CardAmigo
+          key={`${friend.$id}-${index}`}
+          propFriend={friend}
+          propIsFollowing={false}
+          label="menu"
+        />
+      ));
+    } else {
+      return <Text>Não há recomendações</Text>;
+    }
+  };  
 
   const renderEventCard = (event) => {
     return (
