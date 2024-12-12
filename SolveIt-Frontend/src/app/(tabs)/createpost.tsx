@@ -161,6 +161,7 @@ export default function CreatePost() {
         showAlert("Sucesso!", "Sua publicação foi criada com sucesso!");
         navigateTo("/");
       } catch (error) {
+        console.error(error);
         showAlert("Erro!", "Erro ao fazer publicação, tente novamente!");
       }
       finally {

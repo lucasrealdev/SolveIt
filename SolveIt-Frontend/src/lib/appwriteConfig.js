@@ -434,8 +434,13 @@ export async function getFilePreview(fileId, type) {
 // Função para criar uma nova postagem
 export async function createPost(form, isWeb) {
   try {
-    const { url, id } = await uploadFile(form.thumbnail, "image", isWeb);
-    let thumbnailUrl = url;
+    let thumbnailUrl = null;
+    let idThumbnail = null;
+    if(form.thumbnail){
+      const { url, id } = await uploadFile(form.thumbnail, "image", isWeb);
+      thumbnailUrl = url;
+      idThumbnail = id;
+    }
 
     const newPost = await databases.createDocument(
       appwriteConfig.databaseId,
@@ -450,7 +455,7 @@ export async function createPost(form, isWeb) {
         category: form.category,
         urgencyProblem: form.urgencyProblem,
         thumbnail: thumbnailUrl,
-        idThumbnail: id,
+        idThumbnail: idThumbnail,
         thumbnailRatio: form.thumbnailRatio,
         creator: form.userId,
         shares: "0", // Valor padrão
@@ -478,7 +483,6 @@ export const fetchEntirePosts = async (page = 1, limit = 10, user = null) => {
         Query.offset(offset),         // Define o deslocamento para paginação
       ]
     );
-
     // Enriquecer os posts com dados adicionais
     const enrichedPosts = await Promise.all(
       posts.documents.map(async (post) => {
@@ -816,8 +820,12 @@ export const incrementShares = async (postId) => {
   }
 };
 
-export async function deletePostById(postId) {
+export async function deletePostById(postId, idThumbnail) {
   try {
+    if(idThumbnail){
+      await storage.deleteFile(appwriteConfig.storageId, idThumbnail);
+    }
+
     await databases.deleteDocument(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,

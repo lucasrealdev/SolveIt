@@ -530,7 +530,7 @@ const Post: React.FC<PostProps> = ({
   const deletePost = async () => {
     try {
       setLoadingDelete(true);
-      const response = await deletePostById(postLocal?.$id);
+      await deletePostById(postLocal?.$id, postLocal?.idThumbnail);
       showAlert("Sucesso", "O post foi deletado com sucesso.");
       setPostDeleted(true);
     } catch (error) {
