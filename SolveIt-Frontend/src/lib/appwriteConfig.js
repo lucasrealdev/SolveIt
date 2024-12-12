@@ -49,7 +49,7 @@ export async function createUser(email, password, username) {
 
     // Criação da conta
     const newAccount = await account.create(ID.unique(), email, password, username);
-    if (!newAccount) return new Error("Falha ao criar a conta.");
+    if (!newAccount) throw new Error("Falha ao criar a conta.");
 
     // Se o avatar for fornecido, use-o, caso contrário, use o avatar gerado com as iniciais
     const avatarUrl = avatars.getInitials(username);
@@ -73,7 +73,7 @@ export async function createUser(email, password, username) {
     return newUser;
   } catch (error) {
     console.error("Erro ao criar usuário:", error.message);
-    return { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
   }
 }
 
@@ -99,10 +99,10 @@ export async function continueWithGoogle(email, password, username, avatar) {
   } catch (error) {
     // Se o erro for relacionado a e-mail já cadastrado, trata esse caso
     if (error.message.includes('Falha ao autenticar o usuário')) {
-      return { message: "Já existe uma conta associada a este e-mail. Tente fazer login com a senha.", code: 409 };
+      throw { message: "Já existe uma conta associada a este e-mail. Tente fazer login com a senha.", code: 409 };
     }
 
-    return { message: error.message, code: error.code || 500 };
+    throw { message: error.message, code: error.code || 500 };
   }
 }
 
@@ -138,7 +138,7 @@ export async function updateUser(userId, form, isWeb, bannerId, avatarId) {
 
     return updatedUser;
   } catch (error) {
-    return { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
   }
 }
 
@@ -156,7 +156,7 @@ export async function updateUserAccountType(userId, accountType) {
 
     return updatedUser;
   } catch (error) {
-    return { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
   }
 }
 
@@ -171,7 +171,7 @@ export async function getUserProfile(accountId) {
 
     // Verifica se o usuário foi encontrado
     if (!user.documents?.length) {
-      return new Error('Usuário não encontrado');
+      throw new Error('Usuário não encontrado');
     }
 
     const userDoc = user.documents[0];
@@ -187,7 +187,7 @@ export async function getUserProfile(accountId) {
       banner: userDoc.banner,
     };
   } catch (error) {
-    return { message: error.message || "Erro desconhecido", code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: error.message || "Erro desconhecido", code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -199,7 +199,7 @@ export async function signIn(email, password) {
     const user = await getCurrentUser();
     return user;
   } catch (error) {
-    return { message: "Falha ao autenticar o usuário.", code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: "Falha ao autenticar o usuário.", code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -228,7 +228,7 @@ export async function toggleUserOnlineStatus() {
     const currentUser = await getCurrentUser();
 
     if (!currentUser) {
-      return new Error("Usuário não encontrado ou não autenticado.");
+      throw new Error("Usuário não encontrado ou não autenticado.");
     }
 
     const updatedStatus = !currentUser.isOnline;  // Alterna o status
@@ -241,23 +241,17 @@ export async function toggleUserOnlineStatus() {
 
     return updatedStatus;
   } catch (error) {
-    return { message: `Erro ao alternar isOnline: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao alternar isOnline: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
 // Função para fazer logout do usuário
 export async function signOut() {
   try {
-    const session = await account.getSession("current");
-
-    if (!session) {
-      return { message: "Nenhuma sessão ativa.", code: 404 };  // Retorna mensagem e código 404 se não houver sessão
-    }
-
     const deletedSession = await account.deleteSession("current");
-    return deletedSession;  // Retorna a sessão deletada em caso de sucesso
+    return deletedSession;
   } catch (error) {
-    return { message: "Erro ao fazer logout.", code: error.code || 500 };  // Retorna a mensagem e código do erro sem interromper o fluxo
+    return { message: "Erro ao fazer logout.", code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM FUNCOES USUARIO
@@ -265,14 +259,14 @@ export async function signOut() {
 export async function getCityAndStateByZipCode(zipCode) {
   try {
     if (!zipCode) {
-      return new Error("CEP não encontrado no post");
+      throw new Error("CEP não encontrado no post");
     }
 
     // Fazendo a requisição para a API ViaCEP
     const response = await axios.get(`https://viacep.com.br/ws/${zipCode}/json/`);
 
     if (response.data.erro) {
-      return new Error("CEP não encontrado");
+      throw new Error("CEP não encontrado");
     }
 
     const { localidade: city, uf: state } = response.data;
@@ -322,7 +316,7 @@ export async function uploadFile(file, type, isWeb, storageId = null) {
     const fileUrl = await getFilePreview(uploadedFile.$id, type);
     return { url: fileUrl, id: uploadedFile.$id };
   } catch (error) {
-    return { message: `Falha ao enviar o arquivo. Tente novamente. ${error.message}`, code: error.code || 500 };
+    throw { message: `Falha ao enviar o arquivo. Tente novamente. ${error.message}`, code: error.code || 500 };
   }
 }
 
@@ -367,7 +361,7 @@ export async function uploadVideoFile(file, isWeb) {
       videoUrl: fileUrl
     };
   } catch (error) {
-    return {
+    throw {
       message: `Falha ao enviar o vídeo. Tente novamente. ${error.message}`,
       code: error.code || 500
     };
@@ -389,14 +383,14 @@ export async function getFilePreview(fileId, type) {
         100     // Qualidade da imagem
       );
     } else {
-      return new Error("Invalid file type");
+      throw new Error("Invalid file type");
     }
 
-    if (!fileUrl) return Error;
+    if (!fileUrl) throw Error;
 
     return fileUrl;
   } catch (error) {
-    return { message: `Erro ao pegar link da imagem: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao pegar link da imagem: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //Fim funcoes storage
@@ -436,7 +430,7 @@ export async function createPost(form, isWeb) {
 
     return newPost;
   } catch (error) {
-    return { message: `Erro ao criar Post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao criar Post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -498,7 +492,7 @@ export const fetchEntirePosts = async (page = 1, limit = 10, user = null) => {
 
     return enrichedPosts;
   } catch (error) {
-    return { message: `Erro ao buscar o EntirePosts: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar o EntirePosts: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -549,7 +543,7 @@ export const fetchPostById = async (postId, user = null) => {
     };
 
   } catch (error) {
-    return { message: `Erro ao buscar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -617,14 +611,14 @@ export async function fetchPostsUser(userId, page = 1, limit = 10, user = null) 
     };
 
   } catch (error) {
-    return { message: `Erro ao buscar posts de usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar posts de usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
 export const fetchFavoritesPosts = async (page = 1, limit = 10, user = null) => {
   try {
     if (!user) {
-      return new Error("Usuário não autenticado.");
+      throw new Error("Usuário não autenticado.");
     }
 
     const offset = (page - 1) * limit;
@@ -696,7 +690,7 @@ export const fetchFavoritesPosts = async (page = 1, limit = 10, user = null) => 
 
     return enrichedPosts;
   } catch (error) {
-    return { message: `Erro ao buscar os posts favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar os posts favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -735,7 +729,7 @@ async function enrichPost(post, user = null) {
       shareCount: parseInt(post.shares || "0", 10),
     };
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
@@ -762,7 +756,7 @@ export async function searchResult(query, limit = 10, user = null) {
 
     return enrichedPosts; // Retorna os posts enriquecidos
   } catch (error) {
-    return { message: `Erro ao pesquisar postagens: ${error.message}`, code: error.code || 500 };
+    throw { message: `Erro ao pesquisar postagens: ${error.message}`, code: error.code || 500 };
   }
 }
 
@@ -789,7 +783,7 @@ export const incrementShares = async (postId) => {
 
     return true; // Indica que a operação foi bem-sucedida
   } catch (error) {
-    return { message: `Erro ao incrementar compartilhamentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao incrementar compartilhamentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -807,7 +801,7 @@ export async function deletePostById(postId, idThumbnail) {
 
     return { success: true, message: "Post deletado com sucesso!" };
   } catch (error) {
-    return { message: `Erro ao apagar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao apagar o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -827,7 +821,7 @@ export async function followUser(followerId, followingId) {
     );
     return followDocument;
   } catch (error) {
-    return { message: `Erro ao seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -852,14 +846,14 @@ export async function unfollowUser(followerId, followingId) {
       );
     }
   } catch (error) {
-    return { message: `Erro ao deixar de seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao deixar de seguir usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
 export async function getFollowers(userId, page = 1, limit = 10) {
   try {
     if (!userId) {
-      return new Error("ID do usuário é obrigatório");
+      throw new Error("ID do usuário é obrigatório");
     }
 
     const offset = (page - 1) * limit; // Cálculo para o deslocamento (pular itens anteriores)
@@ -914,7 +908,7 @@ export async function getFollowers(userId, page = 1, limit = 10) {
       pages: Math.ceil(followersResponse.total / limit),
     };
   } catch (error) {
-    return { message: `Erro ao obter seguidores: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao obter seguidores: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -972,7 +966,7 @@ export async function getFollowing(userId, page = 1, limit = 10) {
       pages: Math.ceil(followingResponse.total / limit),
     };
   } catch (error) {
-    return { message: `Erro ao obter seguindo: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao obter seguindo: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1027,7 +1021,7 @@ export async function getSuggestedFriends(userId, page = 1, limit = 10) {
   try {
     // Validar se o ID do usuário é fornecido
     if (!userId) {
-      return new Error("ID do usuário é obrigatório");
+      throw new Error("ID do usuário é obrigatório");
     }
 
     // Calcular o deslocamento para a paginação
@@ -1071,7 +1065,7 @@ export async function getSuggestedFriends(userId, page = 1, limit = 10) {
       currentPage: page // Página atual
     };
   } catch (error) {
-    return { message: `Erro ao buscar usuários não seguidos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar usuários não seguidos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1100,7 +1094,7 @@ export async function getCommentsForPost(postId, page = 1, limit = 2) {
       pages: Math.ceil(comments.total / limit),  // Calcula o número total de páginas
     };
   } catch (error) {
-    return { message: `Erro ao obter comentários do post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao obter comentários do post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1108,7 +1102,7 @@ export async function getCommentsForPost(postId, page = 1, limit = 2) {
 export async function addComment(postId, userId, content) {
   try {
     if (!content.trim()) {
-      return new Error("O comentário não pode estar vazio.");
+      throw new Error("O comentário não pode estar vazio.");
     }
 
     // Cria o documento de comentário
@@ -1124,7 +1118,7 @@ export async function addComment(postId, userId, content) {
     );
     return newComment;
   } catch (error) {
-    return { message: `Erro ao adicionar comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao adicionar comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1138,7 +1132,7 @@ export async function deleteCommentById(commentId) {
       commentId  // ID do comentário a ser deletado
     );
   } catch (error) {
-    return { message: `Erro ao excluir comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao excluir comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM funcoes comentario
@@ -1158,7 +1152,7 @@ export async function userLikedPost(postId, userId) {
 
     return likes.total > 0; // Retorna true se o usuário curtiu o post
   } catch (error) {
-    return { message: `Erro ao verificar se o usuário curtiu o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao verificar se o usuário curtiu o post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1209,7 +1203,7 @@ export async function toggleLike(postId, userId) {
       return true; // Retorna que agora curtiu
     }
   } catch (error) {
-    return { message: `Erro ao alternar like no post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao alternar like no post: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM funcoes like post
@@ -1244,7 +1238,7 @@ export async function toggleFavorite(postId, userId) {
       return true; // Agora é favorito
     }
   } catch (error) {
-    return { message: `Erro ao alternar favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao alternar favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1260,7 +1254,7 @@ export async function getFavoriteCount(postId) {
     // Retorna o número de documentos encontrados (quantidade de favoritos)
     return favorites.total;
   } catch (error) {
-    return { message: `Erro ao obter contagem de favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao obter contagem de favoritos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1277,7 +1271,7 @@ export async function userFavoritedPost(postId, userId) {
 
     return favorites.total > 0; // Retorna true se há favoritos
   } catch (error) {
-    return { message: `Erro ao verificar se o post é favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao verificar se o post é favorito: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM funcoes favoritos 
@@ -1295,7 +1289,7 @@ export async function userLikedComment(userId, commentId) {
 
     return likes.total > 0; // Retorna true se o usuário curtiu o comentário
   } catch (error) {
-    return { message: `Erro ao verificar se o usuário curtiu o comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao verificar se o usuário curtiu o comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1346,7 +1340,7 @@ export async function toggleLikeComment(userId, commentId) {
       return true; // Retorna que o comentário foi curtido
     }
   } catch (error) {
-    return { message: `Erro ao alternar like no comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao alternar like no comentário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 //FIM curtidas comentario
@@ -1361,7 +1355,7 @@ export async function getAllEvents() {
 
     return response.documents; // Retorna todos os documentos da coleção
   } catch (error) {
-    return { message: `Erro ao buscar os documentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao buscar os documentos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 //FIM funcoes eventos
@@ -1411,7 +1405,7 @@ export async function updateVote(quizId, userId, optionIndex) {
     return { success: true, message: "Voto registrado com sucesso!" };
 
   } catch (error) {
-    return { message: `Erro ao atualizar o voto: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao atualizar o voto: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 }
 
@@ -1429,7 +1423,7 @@ export const checkUserVote = async (quizId, userId) => {
 
     return existingVote.documents.length > 0 ? existingVote.documents[0] : null;
   } catch (error) {
-    return { message: `Erro ao verificar voto do usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao verificar voto do usuário: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -1458,7 +1452,7 @@ export const getVotesCount = async (quizId) => {
     // Retorna a contagem de votos por índice de opção
     return votesCount;
   } catch (error) {
-    return { message: `Erro ao obter a contagem de votos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao obter a contagem de votos: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
   }
 };
 
@@ -1501,7 +1495,7 @@ export async function fetchEntiresQuiz(user = null) {
 
     return enrichedQuizzes;
   } catch (error) {
-    return {
+    throw {
       message: `Erro ao buscar quiz: ${error.message}`,
       code: error.code || 500,
     };
@@ -1572,7 +1566,7 @@ export async function getStories(limit = 1, offset = 0) {
       hasMore: offset + limit < Object.keys(storiesByUser).length, // Indicador de mais páginas
     };
   } catch (error) {
-    return { message: error.message || "Unknown error", code: error.code || 500 };
+    throw { message: error.message || "Unknown error", code: error.code || 500 };
   }
 }
 
@@ -1594,7 +1588,7 @@ export async function createStory(video, isWeb, idUser) {
 
     return true;
   } catch (error) {
-    return { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
+    throw { message: error.message, code: error.code || 500 };  // Melhorar o código de erro
   }
 }
 //FIM funcoes stories
