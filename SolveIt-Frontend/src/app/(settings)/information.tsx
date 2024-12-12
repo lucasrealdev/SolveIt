@@ -68,10 +68,10 @@ export default function Information() {
         showAlert("Aviso", "Por favor, preencha o nome de usuário.");
         return; // Interrompe a execução
       }
-      // Validacao para garantir que a biografia tem no minimo 20 caracteres
+      // Validacao para garantir que a biografia tem no minimo 10 caracteres
       const cleanedBiography = form.biography;
-      if (cleanedBiography.length < 20) {
-        showAlert("Aviso", "A biografia precisa ter no mínimo 20 caracteres.")
+      if (cleanedBiography.length < 10) {
+        showAlert("Aviso", "A biografia precisa ter no mínimo 10 caracteres.")
         return;
       }
       // Validacao para garantir que a biografia nao esta vazia
@@ -81,9 +81,11 @@ export default function Information() {
       }
 
       // Adiciona o prefixo +55 ao numberPhone, se necessário
-      const numberPhoneWithPrefix = form.numberPhone.startsWith("+55")
-        ? form.numberPhone
-        : `+55 ${form.numberPhone.trim()}`;
+      const numberPhoneWithPrefix = form.numberPhone && form.numberPhone.trim() !== ""
+        ? form.numberPhone.startsWith("+55")
+          ? form.numberPhone
+          : `+55 ${form.numberPhone.trim()}`
+        : null; // Retorna null caso numberPhone esteja vazio
 
       setLoading(true);
 
@@ -93,7 +95,7 @@ export default function Information() {
       };
 
       const isWeb = Platform.OS === "web";
-      const updatedUser = await updateUser(user.$id, updatedForm, isWeb);
+      const updatedUser = await updateUser(user.$id, updatedForm, isWeb, user.bannerId, user.avatarId);
 
       setForm((prev) => ({
         ...prev,
@@ -107,8 +109,9 @@ export default function Information() {
       setUser(updatedUser);
 
       showAlert("Sucesso", "Dados atualizados com sucesso!");
+      navigateTo("personalprofile");
     } catch (error) {
-      console.error("Erro ao atualizar usuário:", error.message);
+      console.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -150,7 +153,6 @@ export default function Information() {
                 iconColor="#1E40AF"
                 backgroundColor="#1E293B"
                 textColor="#F8FAFC"
-
               />
               <TouchableOpacity
                 className="h-10 px-6 bg-accentStandardDark rounded-full flex-row items-center gap-2"
@@ -235,7 +237,7 @@ export default function Information() {
                 showCharCount
                 focusColor="#475569"
                 blurColor="#CBD5E1"
-                minLength={20}
+                minLength={10}
               />
             </View>
           </View>
