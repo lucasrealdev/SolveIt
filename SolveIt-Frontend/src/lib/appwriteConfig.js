@@ -434,7 +434,7 @@ export async function getFilePreview(fileId, type) {
 // Função para criar uma nova postagem
 export async function createPost(form, isWeb) {
   try {
-    const { url } = await uploadFile(form.thumbnail, "image", isWeb);
+    const { url, id } = await uploadFile(form.thumbnail, "image", isWeb);
     let thumbnailUrl = url;
 
     const newPost = await databases.createDocument(
@@ -450,6 +450,7 @@ export async function createPost(form, isWeb) {
         category: form.category,
         urgencyProblem: form.urgencyProblem,
         thumbnail: thumbnailUrl,
+        idThumbnail: id,
         thumbnailRatio: form.thumbnailRatio,
         creator: form.userId,
         shares: "0", // Valor padrão
