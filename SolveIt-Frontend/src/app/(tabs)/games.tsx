@@ -78,7 +78,7 @@ export default function Games() {
               <GameCard
                 title="Detetive dos Problemas"
                 description="O Detetive de Problemas é um minigame projetado para estimular a criatividade e o pensamento crítico dos jogadores ao identificar problemas e soluções inovadoras. A ideia do jogo é ajudar os usuários a aprenderem a reconhecer questões que podem ser transformadas em oportunidades de negócios ou invenções, ao mesmo tempo que promovem um ambiente colaborativo e de reflexão."
-                imageUrl="https://cloud.appwrite.io/v1/storage/buckets/671d9fc20001e9236357/files/674cf148002473651202/view?project=671d0f4d00153dc7c867&project=671d0f4d00153dc7c867&mode=admin"
+                imageUrl="https://cloud.appwrite.io/v1/storage/buckets/675a57cb00233e1f16ab/files/675b29d4000bf11f02a1/view?project=675a4ecc0026b13eed36"
                 onStart={() => handleStartGame('problemDetective')}
               />
               <View className="items-center mt-4 w-full">
