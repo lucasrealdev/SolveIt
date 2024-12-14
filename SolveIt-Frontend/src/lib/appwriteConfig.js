@@ -7,6 +7,7 @@ import {
   Query,
   Storage,
 } from "react-native-appwrite";
+import axios from "axios";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -26,8 +27,6 @@ export const appwriteConfig = {
   quizVotesCollectionId: "675a58e80025ce26c609",
   storiesCollectionId: "675a594d0024c6b991e1",
 };
-
-import axios from "axios";
 
 // Criação de uma instância do cliente Appwrite
 const client = new Client();
@@ -210,6 +209,7 @@ export async function getCurrentUser() {
 
     if (!currentAccount) return null;
 
+    console.log(currentAccount);
     const currentUser = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
