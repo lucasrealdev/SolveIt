@@ -289,13 +289,13 @@ export default function DetetiveDeProblemasResultsScreen({
                 Notas Medias Problemas:
               </Text>
               <Text className="text-lg font-bold text-blue-600">
-                Criatividade: {problemsAverage.criatividade}
+                Criatividade: {problemsAverage.criatividade.toFixed(2)}
               </Text>
               <Text className="text-lg font-bold text-green-600">
-                Coerência: {problemsAverage.coerencia}
+                Coerência: {problemsAverage.coerencia.toFixed(2)}
               </Text>
               <Text className="text-lg font-bold text-yellow-600">
-                Score: {score}
+                Score: {score.toFixed(2)}
               </Text>
             </View>
             <View className="items-center">
@@ -303,13 +303,13 @@ export default function DetetiveDeProblemasResultsScreen({
                 Notas Medias Soluções:
               </Text>
               <Text className="text-lg font-bold text-purple-600">
-                Criatividade: {solutionsAverage.criatividade}
+                Criatividade: {solutionsAverage.criatividade.toFixed(2)}
               </Text>
               <Text className="text-lg font-bold text-yellow-600">
-                Viabilidade: {solutionsAverage.viabilidade}
+                Viabilidade: {solutionsAverage.viabilidade.toFixed(2)}
               </Text>
               <Text className="text-lg font-bold text-blue-600">
-                Coerência: {solutionsAverage.coerencia}
+                Coerência: {solutionsAverage.coerencia.toFixed(2)}
               </Text>
             </View>
           </View>

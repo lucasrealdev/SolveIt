@@ -328,7 +328,7 @@ const PersonalProfile = () => {
           </View>
           <View className="flex flex-row justify-between items-end px-[5px] mt-[-75px]">
             {renderProfileIcon()}
-            <HoverColorComponent colorHover={colors.primaryStandardDark.hover} colorPressIn={colors.primaryStandardDark.pressIn}>
+            <HoverColorComponent colorHover={colors.primaryStandardDark.hover} colorPressIn={colors.primaryStandardDark.pressIn} onPress={() => navigateTo("/information")}>
               <Text className="underline font-bold" style={{ color: colors.primaryStandardDark.standard }}>Editar Perfil</Text>
             </HoverColorComponent>
           </View>

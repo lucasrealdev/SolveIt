@@ -115,16 +115,11 @@ export async function updateUser(userId, form, isWeb) {
     let profileUrl = form.profile;
     let bannerUrl = form.banner;
 
-    console.log("Valores iniciais:", form);
-    console.log(typeof form.profile, typeof form.banner)
-
     if (typeof form.profile !== "string") {
-      console.log("Fazendo upload do profile");
       [profileUrl] = await Promise.all([uploadFile(form.profile, "image", isWeb)]);
     }
 
     if (typeof form.banner !== "string") {
-      console.log("Fazendo upload do banner");
       [bannerUrl] = await Promise.all([uploadFile(form.banner, "image", isWeb)]);
     }
 
@@ -144,8 +139,6 @@ export async function updateUser(userId, form, isWeb) {
     if (typeof form.banner !== "string") {
       updateData.banner = bannerUrl;
     }
-
-    console.log("Dados a serem atualizados:", updateData);
 
     // Atualiza os dados do usuário no banco de dados
     const updatedUser = await databases.updateDocument(
@@ -383,7 +376,6 @@ export async function uploadVideoFile(file, isWeb) {
 
     // Para web
     if (isWeb) {
-      console.log(file);
       uploadedFile = await storage.createFile(
         appwriteConfig.storageId,
         ID.unique(),
@@ -430,13 +422,10 @@ export async function getFilePreview(fileId, type) {
 
   try {
     if (type === "image") {
-      fileUrl = storage.getFilePreview(
+      // Troca para getFileView, sem transformação
+      fileUrl = storage.getFileView(
         appwriteConfig.storageId,
-        fileId, // ID do arquivo
-        2000,   // Largura máxima da imagem
-        0,   // Altura máxima da imagem
-        "center",  // Posição do corte
-        100     // Qualidade da imagem
+        fileId
       );
     } else {
       throw new Error("Invalid file type");
@@ -447,7 +436,7 @@ export async function getFilePreview(fileId, type) {
     return fileUrl;
   } catch (error) {
     console.error("Erro ao pegar link da imagem:", error.message);
-    throw { message: `Erro ao pegar link da imagem: ${error.message}`, code: error.code || 500 }; // Melhorar o código de erro
+    throw { message: `Erro ao pegar link da imagem: ${error.message}`, code: error.code || 500 };
   }
 }
 //Fim funcoes storage

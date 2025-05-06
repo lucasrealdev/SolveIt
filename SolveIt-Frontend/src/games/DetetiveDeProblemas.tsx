@@ -151,7 +151,7 @@ Nota de Criatividade: ${jsonResponse.NotaCriatividade}
 Nota de Coerência: ${jsonResponse.NotaCoerencia}
 Comentário Final: ${jsonResponse.ComentarioFinal}
       `;
-    } catch (error) {
+    } catch (error) {~
       console.error('Erro ao processar o JSON da resposta:', error);
       throw new Error('A resposta não está no formato esperado.');
     }

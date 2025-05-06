@@ -1,22 +1,38 @@
-const API_URL = 'https://api.x.ai/v1/chat/completions'; // Substitua pela URL correta da API
+// ChatbotService.js
+// Serviço de integração com a Gemini API
 
 const ChatbotService = () => {
+  // Sua chave da API do Gemini (deve ser obtida no Google AI Studio)
+  // https://ai.google.dev/
+  const API_KEY = 'AIzaSyAxcmA6eS39NlNpt5gP86L5e_6UEfz3AWM';
+  
+  const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  
   const sendMessageToChatbot = async (userMessage) => {
     try {
-      const res = await fetch(API_URL, {
+      // Construindo a URL completa com a chave da API
+      const urlWithKey = `${API_URL}?key=${API_KEY}`;
+      
+      const res = await fetch(urlWithKey, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer xai-TBMmIfhJqifwqdePcpsmoF1UWEfq5KoX8fCoFbMUtCXfHsSicR7ctHmQOS75xVspR3NKXGBrpp9uqFSP',
+          'Content-Type': 'application/json'
+          // Não é necessário cabeçalho Authorization com a Gemini API
+          // A autenticação é feita via parâmetro de query 'key'
         },
         body: JSON.stringify({
-          messages: [
-            { role: "system", content: "Como você pode me ajudar?" },
-            { role: "user", content: userMessage },
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: userMessage }]
+            }
           ],
-          model: "grok-beta",
-          stream: false,
-          temperature: 0,
+          generationConfig: {
+            temperature: 0.2,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
         }),
       });
   
@@ -29,13 +45,22 @@ const ChatbotService = () => {
       }
   
       const data = await res.json();
-      return data.choices[0].message.content; // Retorna a resposta diretamente
+      
+      // Extraindo a resposta do formato da Gemini API
+      if (data.candidates && data.candidates.length > 0 && 
+          data.candidates[0].content && 
+          data.candidates[0].content.parts && 
+          data.candidates[0].content.parts.length > 0) {
+        return data.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error('Formato de resposta inesperado');
+      }
     } catch (error) {
       console.error('Erro:', error);
       return 'Houve um problema ao se comunicar com o chatbot.';
     }
-  };  
-
+  };
+  
   return { sendMessageToChatbot };
 };
 
