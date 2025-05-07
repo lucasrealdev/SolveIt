@@ -68,10 +68,10 @@ export default function Information() {
         showAlert("Aviso", "Por favor, preencha o nome de usuário.");
         return; // Interrompe a execução
       }
-      // Validacao para garantir que a biografia tem no minimo 20 caracteres
+      // Validacao para garantir que a biografia tem no minimo 10 caracteres
       const cleanedBiography = form.biography;
-      if (cleanedBiography.length < 20) {
-        showAlert("Aviso", "A biografia precisa ter no mínimo 20 caracteres.")
+      if (cleanedBiography.length < 10) {
+        showAlert("Aviso", "A biografia precisa ter no mínimo 10 caracteres.")
         return;
       }
       // Validacao para garantir que a biografia nao esta vazia
@@ -235,7 +235,7 @@ export default function Information() {
                 showCharCount
                 focusColor="#475569"
                 blurColor="#CBD5E1"
-                minLength={20}
+                minLength={10}
               />
             </View>
           </View>

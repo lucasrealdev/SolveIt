@@ -20,8 +20,9 @@ export default function SignIn() {
   const router = useRouter();
   const { showAlert } = useAlert();
 
-  const { setUser, setIsLogged, user } = useGlobalContext();
+  const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -83,6 +84,25 @@ export default function SignIn() {
       [field]: value, // Atualiza o valor do campo correspondente
     }));
   };
+
+  const handleAnonymousLogin = () => {
+    setFormData({
+      email: 'anonimo@gmail.com',
+      password: 'Anonimo#123',
+    });
+    setIsAnonymous(true);
+  };
+
+  useEffect(() => {
+    if (
+      isAnonymous &&
+      formData.email === 'anonimo@gmail.com' &&
+      formData.password === 'Anonimo#123'
+    ) {
+      submit();
+      setIsAnonymous(false); // evita loop
+    }
+  }, [formData, isAnonymous]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
@@ -151,8 +171,8 @@ export default function SignIn() {
                     <Text className="font-bold" style={{ color: "#01b297" }}>Cadastre-se</Text>
                   </HoverColorComponent>
                 </View>
-                <HoverColorComponent onPress={() => router.push('/forgotPassword')} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
-                  <Text className="font-bold" style={{ color: "#01b297" }}>Esqueci a Senha</Text>
+                <HoverColorComponent onPress={handleAnonymousLogin} colorHover={colors.accentStandardDark.hover} colorPressIn={colors.accentStandardDark.pressIn}>
+                  <Text className="font-bold" style={{ color: "#01b297" }}>Entrar Anônimamente</Text>
                 </HoverColorComponent>
               </View>
 
@@ -164,7 +184,7 @@ export default function SignIn() {
               <View className="h-[1px] flex-1 bg-borderStandard"></View>
             </View>
 
-            <GoogleAuth/>
+            <GoogleAuth />
           </View>
         </View>
 
