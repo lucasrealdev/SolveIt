@@ -110,7 +110,7 @@ export default function CreatePost() {
   ];
 
   const validateForm = () => {
-    const { title, description, peopleAffects, category, urgencyProblem, zipCode, tags } = form;
+    const { title, description, peopleAffects, category, urgencyProblem, zipCode } = form;
 
     // Verifica se os campos obrigatórios estão preenchidos
     if (!title || !description || !peopleAffects || !category || !urgencyProblem) {
@@ -134,14 +134,39 @@ export default function CreatePost() {
       return false;
     }
 
-    // Verifica se as tags estão no formato correto
-    const tagPattern = /^#\w+(\s#\w+)*$/; // Cada tag deve começar com '#' e ser seguida por uma palavra
-    if (tags && !tagPattern.test(tags)) {
-      showAlert('Aviso', 'As tags devem seguir o formato #palavra #palavra...');
-      return false;
-    }
-
     return true;
+  };
+
+  // Função para processar as tags no padrão correto
+  const formatTags = (tagsRaw) => {
+    if (!tagsRaw) return '';
+    return tagsRaw
+      .split(/\s+/) // separa por espaço
+      .map(word => {
+        // Remove todos os # do início da palavra
+        const clean = word.replace(/^#+/, '');
+        // Ignora palavras vazias
+        if (!clean) return null;
+        return `#${clean}`;
+      })
+      .filter(Boolean)
+      .join(' ');
+  };
+
+  // Função para formatar tags em tempo real ao digitar
+  const handleTagsInput = (text) => {
+    // Se o texto termina com espaço, processa as palavras
+    if (text.endsWith(' ')) {
+      const words = text.trim().split(/\s+/);
+      const formatted = words.map(w => {
+        const clean = w.replace(/^#+/, '');
+        return clean ? `#${clean}` : '';
+      }).filter(Boolean).join(' ');
+      // Adiciona espaço ao final para continuar digitando
+      updateForm('tags', formatted + ' ');
+    } else {
+      updateForm('tags', text);
+    }
   };
 
   const handleSubmit = async () => {
@@ -151,8 +176,12 @@ export default function CreatePost() {
 
         const isWeb = Platform.OS === 'web';
 
+        // Processa as tags para o padrão correto
+        const formattedTags = formatTags(form.tags);
+
         const formWithUserId = {
           ...form,
+          tags: formattedTags,
           userId: user.$id,  // Adiciona o userId no form
         };
 
@@ -230,10 +259,9 @@ export default function CreatePost() {
               title="Tags (Opcional)"
               placeholder="Ex: #Educação, #Saúde"
               maxLength={200}
-              inputFilter={/[^a-zA-ZÀ-ÿ0-9\s#]/g}
               inputMode="text"
               value={form.tags}
-              onChangeText={(text) => updateForm("tags", text)}
+              onChangeText={handleTagsInput}
               showCharCount
             />
 

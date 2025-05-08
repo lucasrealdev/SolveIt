@@ -9,7 +9,7 @@ interface TextInputMaskProps {
   maxLength: number;
   minLength?: number; // Prop para o número mínimo de caracteres
   inputMode: "text" | "numeric" | "tel" | "email" | "url";
-  inputFilter: RegExp;
+  inputFilter?: RegExp;
   value: string;
   onChangeText: (text: string) => void;
   maskType?: "number" | "cep" | "phone" | "cpf" | "cnpj";
@@ -52,7 +52,7 @@ const TextInputMask = ({
 
   // Lidar com mudanças no texto
   const handleTextChange = (text: string) => {
-    const filteredText = text.replace(inputFilter, "");
+    const filteredText = inputFilter ? text.replace(inputFilter, "") : text;
     onChangeText(applyMask(filteredText));
   };
 
